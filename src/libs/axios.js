@@ -44,7 +44,9 @@ class HttpRequest {
     instance.interceptors.request.use(
       config => {
         // 如果响应含有token -> 让每个请求携带token，将token放入请求头的Authorization
-        getToken() && (config.headers.Authorization = "Bearer " + getToken());
+        // getToken() && (config.headers.Authorization = "Bearer " + getToken());
+        // 自定义headers
+        getToken() && (config.headers.token = getToken());
         // 添加全局的loading...
         if (!Object.keys(this.queue).length) {
           // Spin.show() // 不建议开启，因为界面不友好
