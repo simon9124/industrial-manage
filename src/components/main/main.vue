@@ -15,14 +15,14 @@
                  @on-select="turnToPage"
                  :menu-list="menuList">
         <!-- 需要放在菜单上面的内容，如Logo，写在side-menu标签内部，如下 -->
-        <div class="logo-con">
+        <!-- <div class="logo-con">
           <img v-show="!collapsed"
                :src="maxLogo"
                key="max-logo" />
           <img v-show="collapsed"
                :src="minLogo"
                key="min-logo" />
-        </div>
+        </div> -->
       </side-menu>
     </Sider>
     <Layout>
@@ -43,12 +43,12 @@
       </Header>
       <Content class="main-content-con">
         <Layout class="main-layout-con">
-          <div class="tag-nav-wrapper">
+          <!-- <div class="tag-nav-wrapper">
             <tags-nav :value="$route"
                       @input="handleClick"
                       :list="tagNavList"
                       @on-close="handleCloseTag" />
-          </div>
+          </div> -->
           <Content class="content-wrapper">
             <keep-alive :include="cacheList">
               <router-view />
@@ -183,7 +183,7 @@ export default {
      * @description 初始化设置面包屑导航和标签导航
      */
     this.setTagNavList();
-    this.setHomeRoute(routers); // 根据routers设置首页
+    // this.setHomeRoute(routers); // 根据routers设置首页
     this.addTag({
       route: this.$store.state.app.homeRoute
     });
@@ -191,11 +191,11 @@ export default {
     // 设置初始语言
     this.setLocal(this.$i18n.locale);
     // 如果当前打开页面不在标签栏中，跳到homeName页
-    if (!this.tagNavList.find(item => item.name === this.$route.name)) {
-      this.$router.push({
-        name: this.$config.homeName
-      });
-    }
+    // if (!this.tagNavList.find(item => item.name === this.$route.name)) {
+    //   this.$router.push({
+    //     name: this.$config.homeName
+    //   });
+    // }
   }
 };
 </script>
