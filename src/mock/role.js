@@ -12,24 +12,7 @@ const userList = [
     token: "JHNGAY1ALF4CYV881IR0I4X4Z5WF0YW4WAAH",
     createTime: "2020-11-30T06:17:53.106+00:00",
     updateTime: "2020-11-30T06:17:53.106+00:00",
-    permissionsList: [
-      100,
-      110,
-      111,
-      112,
-      113,
-      114,
-      115,
-      120,
-      121,
-      122,
-      123,
-      124,
-      125,
-      130,
-      300,
-      400
-    ]
+    roleId: 0
   }
 ];
 
@@ -102,19 +85,6 @@ const menuLevel = [
 // 路由列表
 const allMenuList = [
   {
-    id: "doc",
-    name: "doc",
-    title: "文档",
-    url: "https://simon9124.github.io/iview-dynamicRouter-doc/",
-    path: "outSidePath",
-    sort: 28,
-    parentId: "root",
-    ico: "ios-book",
-    isOutSide: true,
-    showLevel: "1",
-    description: "在线文档"
-  },
-  {
     id: "control",
     name: "control",
     title: "驾驶舱",
@@ -128,173 +98,18 @@ const allMenuList = [
     description: "一级大屏"
   },
   {
-    id: "multilevel",
-    name: "multilevel",
-    title: "多级菜单",
-    url: "multilevel",
-    path: "Main",
-    sort: 24,
-    parentId: "root",
-    ico: "md-menu",
-    isOutSide: false,
-    showLevel: "2",
-    description: ""
-  },
-  {
-    id: "level_2_1",
-    name: "level_2_1",
-    title: "二级-1",
-    url: "level_2_1",
-    path: "template",
-    sort: 10,
-    parentId: "multilevel",
-    ico: "md-funnel",
-    isOutSide: false,
-    showLevel: "2",
-    description: ""
-  },
-  {
-    id: "level_2_2",
-    name: "level_2_2",
-    title: "二级-2",
-    url: "level_2_2",
-    path: "parentView",
-    sort: 8,
-    parentId: "multilevel",
-    ico: "md-funnel",
-    isOutSide: false,
-    showLevel: "2",
-    description: "内层模块"
-  },
-  {
-    id: "level_2_2_1",
-    name: "level_2_2_1",
-    title: "三级-1",
-    url: "level_2_2_1",
-    path: "template",
-    sort: 10,
-    parentId: "level_2_2",
-    ico: "md-funnel",
-    isOutSide: false,
-    showLevel: "2",
-    description: ""
-  },
-  {
-    id: "screen2",
-    name: "screen2",
-    title: "三级大屏",
-    url: "screen2",
-    path: "screen",
-    sort: 8,
-    parentId: "level_2_2",
-    ico: "md-laptop",
-    isOutSide: false,
-    showLevel: "1",
-    description: ""
-  },
-  {
-    id: "level_2_2_2",
-    name: "level_2_2_2",
-    title: "三级-2",
-    url: "level_2_2_2",
-    path: "template",
-    sort: 6,
-    parentId: "level_2_2",
-    ico: "md-funnel",
-    isOutSide: false,
-    showLevel: "2",
-    description: ""
-  },
-  {
-    id: "level_2_3",
-    name: "level_2_3",
-    title: "二级-3",
-    url: "level_2_3",
-    path: "template",
-    sort: 6,
-    parentId: "multilevel",
-    ico: "md-funnel",
-    isOutSide: false,
-    showLevel: "2",
-    description: ""
-  },
-  {
-    id: "screen",
-    name: "screen",
-    title: "二级大屏",
-    url: "screen",
-    path: "screen",
-    sort: 4,
-    parentId: "multilevel",
-    ico: "md-laptop",
-    isOutSide: false,
-    showLevel: "1",
-    description: ""
-  },
-  {
-    id: "github",
-    name: "github",
-    title: "github",
-    url: "https://github.com/simon9124/iview-dynamicRouter",
-    path: "outSidePath",
-    sort: 2,
-    parentId: "multilevel",
-    ico: "md-log-in",
-    isOutSide: true,
-    showLevel: "1",
-    description: "项目地址"
-  },
-  {
-    id: "singleMenu",
-    name: "single/menu",
-    title: "单极菜单",
-    url: "single/menu",
-    path: "template",
+    id: "userManage",
+    name: "user/manage",
+    title: "用户管理",
+    url: "user/manage",
+    path: "user",
     sort: 22,
     parentId: "root",
-    ico: "md-document",
-    isOutSide: false,
-    showLevel: "2",
-    description: "单极父子结构"
-  },
-  {
-    id: "authority",
-    name: "authority",
-    title: "权限管理",
-    url: "authority",
-    path: "Main",
-    sort: 20,
-    parentId: "root",
-    ico: "md-settings",
-    isOutSide: false,
-    showLevel: "2",
-    description: "管理员专属"
-  },
-  {
-    id: "userManage",
-    name: "userManage",
-    title: "用户管理",
-    url: "userManage",
-    path: "authority/user",
-    sort: 10,
-    parentId: "authority",
     ico: "ios-navigate",
     isOutSide: false,
     showLevel: "2",
-    description: ""
-  },
-  {
-    id: "roleManage",
-    name: "roleManage",
-    title: "角色管理",
-    url: "roleManage",
-    path: "authority/role",
-    sort: 8,
-    parentId: "authority",
-    ico: "ios-navigate",
-    isOutSide: false,
-    showLevel: "2",
-    description: ""
+    description: "用户管理",
+    access: ["0"]
   }
 ];
 
