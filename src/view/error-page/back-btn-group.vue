@@ -1,8 +1,8 @@
 <template>
   <div>
-    <Button size="large"
+    <!-- <Button size="large"
             type="text"
-            @click="backHome">返回首页</Button>
+            @click="backHome">返回首页</Button> -->
     <Button size="large"
             type="text">返回上一页({{ second }}s)</Button>
   </div>

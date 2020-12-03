@@ -35,6 +35,7 @@ export default {
   },
   created () {
     localStorage.setItem("dynamicRouter-gateway", []);
+    localStorage.setItem("redirectRouter-gateway", []);
     refreshRoute();
   },
   methods: {
@@ -43,9 +44,14 @@ export default {
       this.handleLogin({ userName, password }).then(res => {
         res.data.success === "200" &&
           this.getRouters().then(resRoutes => {
-            this.$router.push({
-              name: this.$config.homeName
-            });
+            switch (res.data.data.roleId) {
+              case 0:
+                this.$router.push({
+                  path: "/user/manage",
+                  name: "manage"
+                });
+                break;
+            }
           });
       });
     }
