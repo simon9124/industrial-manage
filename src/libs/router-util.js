@@ -13,6 +13,14 @@ export const dynamicRouterAdd = from => {
   return dynamicRouter;
 };
 
+// 加载重定向路由，从localStorage拿到路由，在创建路由时使用
+export const redirectRouterAdd = from => {
+  let data = localRead("redirectRouter-gateway");
+  let dynamicRouter = data !== "" ? filterAsyncRouter(JSON.parse(data)) : [];
+  // console.log(`重定向路由数据：${from}`, redirectRouter);
+  return dynamicRouter;
+};
+
 // @函数：遍历后台传来的路由数据，转为路由基础数据
 export const routerDataHanding = apiRouterData => {
   const asyncRouterMap = [];

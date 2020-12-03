@@ -56,24 +56,15 @@ export const getMenuByRouter = (list, access) => {
 };
 
 /**
- * @param {Array} list 通过路由列表得到菜单列表 - 本项目使用
- * @returns {Array}
- */
-export const filterMenuByPermission = (list, permissions) => {
-  console.log(list);
-  console.log(permissions);
-};
-
-/**
  * @param {Array} routeMetched 当前路由metched
  * @returns {Array}
  */
 export const getBreadCrumbList = (route, homeRoute) => {
-  let homeItem = { ...homeRoute, icon: homeRoute.meta.icon };
+  // let homeItem = { ...homeRoute, icon: homeRoute.meta.icon };
   let routeMetched = route.matched;
-  if (routeMetched.some(item => item.name === homeRoute.name)) {
-    return [homeItem];
-  }
+  // if (routeMetched.some(item => item.name === homeRoute.name)) {
+  //   return [homeItem];
+  // }
   let res = routeMetched
     .filter(item => {
       return item.meta === undefined || !item.meta.hideInBread;
@@ -93,7 +84,8 @@ export const getBreadCrumbList = (route, homeRoute) => {
   res = res.filter(item => {
     return !item.meta.hideInMenu;
   });
-  return [{ ...homeItem, to: homeRoute.path }, ...res];
+  // return [{ ...homeItem, to: homeRoute.path }, ...res];
+  return [...res];
 };
 
 export const getRouteTitleHandled = route => {

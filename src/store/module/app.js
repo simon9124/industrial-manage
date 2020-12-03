@@ -1,8 +1,7 @@
 import {
   getBreadCrumbList,
   setTagNavListInLocalstorage,
-  // getMenuByRouter,
-  filterMenuByPermission,
+  getMenuByRouter,
   getTagNavListFromLocalstorage,
   getHomeRoute,
   getNextRoute,
@@ -45,7 +44,8 @@ export default {
     local: localRead("local"),
     errorList: [],
     hasReadErrorPage: false,
-    menuList: [] // 菜单数据
+    menuList: [], // 菜单数据
+    redirectRouter: [] //  动态重定向路由 - 动态首页时使用
   },
   getters: {
     menuList: (state, getters, rootState) => state.menuList, // 改造：动态菜单渲染
@@ -53,7 +53,8 @@ export default {
   },
   mutations: {
     setBreadCrumb(state, route) {
-      state.breadCrumbList = getBreadCrumbList(route, state.homeRoute);
+      // state.breadCrumbList = getBreadCrumbList(route, state.homeRoute);
+      state.breadCrumbList = getBreadCrumbList(route);
     },
     // 配置主页route
     setHomeRoute(state, routes) {
@@ -114,8 +115,11 @@ export default {
     },
     // 修改state.menuList，生成左侧菜单
     setMenuList(state, data) {
-      // state.menuList = getMenuByRouter(data.menuList, data.access);
-      state.menuList = filterMenuByPermission(data.menuList, data.permissions);
+      state.menuList = getMenuByRouter(data.menuList, data.access);
+    },
+    // 动态重定向路由， 动态首页时使用
+    setRedirectRouter(state, data) {
+      state.redirectRouter = data;
     }
   },
   actions: {
@@ -140,17 +144,17 @@ export default {
     // 动态添加路由数据 -> 首次登录挂载路由
     addRouterData({ commit, rootState }, routes) {
       /* 1.动态添加路由（不会立刻刷新，需要手动往router.options.routes里添加数据） */
-      router.addRoutes(routes); // 动态添加路由
+      router.addRoutes(routes.concat(rootState.app.redirectRouter)); // 动态添加路由
       routerUpdateHandle(routes, router); // 手动添加路由数据
       console.log("动态添加路由：", routes);
-      /* 2.处理菜单数据 */
+      /* 3.处理菜单数据 */
       var menuList = JSON.parse(JSON.stringify(routes));
       menuList = menuListHanding(menuList); // 将"原本不应挂载在根菜单"的数据，重新挂载到相应位置
       console.log("左侧动态菜单：", menuList);
-      /* 3.提交到 setMenuList，修改state.menuList */
+      /* 4.提交到 setMenuList，修改state.menuList */
       commit("setMenuList", {
         menuList: menuList,
-        permissions: rootState.user.permissions
+        access: rootState.user.access
       });
     },
     // 获取动态路由数据
@@ -162,24 +166,25 @@ export default {
           console.log("获取路由：从api");
           /* 1.拿到路由接口数据 */
           var routerData = allMenuList;
-          /* 2.根据用户角色，处理该角色的路由数据（后端生成数据时忽略此步骤） */
-          // var menus = [];
-          // rootState.user.access.forEach(_access => {
-          //   // 把该用户所有的角色对应的菜单都加进来
-          //   menus = menus.concat(
-          //     getValueByKey(roleList, "name", _access, "menus")
-          //   );
-          // });
-          // menus = [...new Set(menus)]; // 然后去重
-          // console.log(menus); // 获取该用户所有角色的所有菜单
-          /* 3.将路由动态数据与该角色拥有的菜单做比对筛选（后端生成数据时忽略此步骤） */
-          // routerData = routerData.filter(menu => {
-          //   return menus.some(_menu => _menu === menu.id); // 根据id全等筛选数据
-          // });
-          // console.log(routerData); // 筛选出该角色拥有的路由数据
+          /* 2.根据用户角色，处理该角色的路由数据 */
           routerData = routerDataHanding(
             JSON.parse(JSON.stringify(routerData))
           ); // 过滤路由，转为路由基础数据
+          /* 3.处理路由重定向 - 不同角色用户的动态首页 */
+          const redirectRouter = [
+            {
+              path: "/",
+              redirect:
+                localRead("gateway-access") === "0" ? "/user/manage" : "",
+              meta: {
+                id: Math.random()
+                  .toString(36)
+                  .substr(-10)
+              }
+            }
+          ];
+          localSave("redirectRouter-gateway", JSON.stringify(redirectRouter)); // 存储到localStorage
+          commit("setRedirectRouter", redirectRouter); // 提交到 setRedirectRouter，修改state.redirectRouter
           /* 4.处理后路由数据生成路由和菜单等 */
           localSave("dynamicRouter-gateway", JSON.stringify(routerData)); // 存储到localStorage
           gotRouter = filterAsyncRouter(routerData); // 过滤路由，路由组件转换
@@ -201,11 +206,13 @@ export default {
           /* 3.提交到 setMenuList，修改state.menuList */
           commit("setMenuList", {
             menuList: menuList,
-            permissions: rootState.user.permissions
+            access: [localRead("gateway-access").toString()]
           });
           resolve();
         }
       });
-    }
+    },
+    // 动态重定向路由 - 动态首页时使用
+    getRedirectRouter() {}
   }
 };

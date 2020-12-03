@@ -6,7 +6,7 @@ import {
 } from "./routers";
 import store from "@/store";
 import iView from "iview";
-import { setToken, getToken, canTurnTo } from "@/libs/util";
+import { setToken, getToken, canTurnTo, localRead } from "@/libs/util";
 import config from "@/config";
 const { homeName } = config;
 
@@ -20,9 +20,23 @@ const LOGIN_PAGE_NAME = "login"; // 登录页
 const whiteList = []; // 白名单
 
 const turnTo = (to, access, next) => {
-  if (canTurnTo(to.name, access, routes)) next();
-  // 有权限，可访问
-  else next({ replace: true, name: "error_401" }); // 无权限，重定向到401页面
+  console.log(to);
+  // if (to.path === "/") {
+  //   console.log("3");
+  //   // 已经登录的用户新打开 "/"" -> 跳回该用户登录后的首页
+  //   if (access[0] === "0") {
+  //     // 系统管理员 -> 直接进入用户管理
+  //     next({ name: "manage" });
+  //   }
+  // } else {
+  if (canTurnTo(to.name, access, routes)) {
+    // 有权限，可访问
+    next();
+  } else {
+    // 无权限，重定向到401页面
+    next({ replace: true, name: "error_401" });
+  }
+  // }
 };
 
 // 方法：初始化路由表刷新
@@ -48,17 +62,12 @@ router.beforeEach((to, from, next) => {
     if (store.state.user.hasGetInfo) {
       turnTo(to, store.state.user.access, next);
     } else {
-      // store
-      // .dispatch("handleLogin")
-      // .then(user => {
       store
         .dispatch("getRouters")
         .then(res => {
           // 拉取用户信息，通过用户权限和跳转的页面的name来判断是否有权限访问;access必须是一个数组，如：['super_admin'] ['super_admin', 'admin']
-          // turnTo(to, user.access, next);
-          turnTo(to, ["super_admin"], next);
+          turnTo(to, [localRead("gateway-access").toString()], next);
         })
-        // })
         .catch(() => {
           setToken("");
           next({ name: "login" });

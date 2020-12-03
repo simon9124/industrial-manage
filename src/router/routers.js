@@ -1,5 +1,6 @@
-import Main from "@/components/main";
+// import Main from "@/components/main";
 import { dynamicRouterAdd } from "@/libs/router-util"; // 引入动态路由
+import { redirectRouterAdd } from "@/libs/router-util"; // 引入重定向路由
 
 /**
  * iview-admin中meta除了原生参数外可配置的参数:
@@ -24,26 +25,26 @@ export const constantRouter = [
     meta: { title: "Login - 登录", hideInMenu: true },
     component: () => import("@/view/login/login.vue")
   },
-  {
-    path: "/",
-    name: "_home",
-    redirect: "/home",
-    component: Main,
-    meta: { hideInMenu: true, notCache: true },
-    children: [
-      {
-        path: "/home",
-        name: "home",
-        meta: {
-          hideInMenu: true,
-          title: "首页",
-          notCache: true,
-          icon: "md-home"
-        },
-        component: () => import("@/view/single-page/home")
-      }
-    ]
-  },
+  // {
+  //   path: "/",
+  //   name: "_home",
+  //   redirect: "/home",
+  //   component: Main,
+  //   meta: { hideInMenu: true, notCache: true },
+  //   children: [
+  //     {
+  //       path: "/home",
+  //       name: "home",
+  //       meta: {
+  //         hideInMenu: true,
+  //         title: "首页",
+  //         notCache: true,
+  //         icon: "md-home"
+  //       },
+  //       component: () => import("@/view/single-page/home")
+  //     }
+  //   ]
+  // },
   {
     path: "/401",
     name: "error_401",
@@ -67,7 +68,10 @@ export const constantRouter = [
 // 动态路由
 export const appRouter = [...dynamicRouterAdd("router.js")];
 
-export const routes = [...constantRouter, ...appRouter];
+// 重定向路由
+export const redirectRouter = [...redirectRouterAdd("router.js")];
+
+export const routes = [...constantRouter, ...appRouter, ...redirectRouter];
 
 // 所有上面定义的路由都要写在下面输出
 export default routes;

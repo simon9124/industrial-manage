@@ -34,10 +34,6 @@ export default {
     },
     setHasGetInfo(state, status) {
       state.hasGetInfo = status;
-    },
-    setPermissions(state, permissions) {
-      // 追加：用户接口权限
-      state.permissions = permissions;
     }
   },
   getters: {
@@ -58,12 +54,8 @@ export default {
             const data = res.data.data;
             commit("setToken", data.token);
             commit("setHasGetInfo", true); // 追加：用户已登录
-            /* 追加：用户接口权限 */
-            // const permissions = [];
-            // data.permissionsList.forEach(permission => {
-            //   permissions.push(permission.id);
-            // });
-            commit("setPermissions", data.permissions);
+            commit("setAccess", [data.roleId.toString()]); // 追加：用户角色
+            localSave("gateway-access", data.roleId); // 追加：存储用户角色
             resolve(res);
           })
           .catch(err => {
@@ -87,7 +79,9 @@ export default {
         commit("setToken", "");
         commit("setAccess", []);
         localSave("dynamicRouter-gateway", []); // 清空本地存储localStorage中的dynamicRouter
+        localSave("redirectRouter-gateway", []); // 清空本地存储localStorage中的redirectRouter
         localSave("tagNaveList-template", []); // 清空localStorage中的tagNaveList记录
+        localSave("gateway-access", []); // 清空localStorage中的用户角色
         resolve();
       });
     },
