@@ -28,3 +28,14 @@ export const logout = token => {
     method: "post"
   });
 };
+
+export const queryUserList = () => {
+  const data = {
+    page: 1
+  };
+  return axios.request({
+    url: "/network/user/queryUserList",
+    data,
+    method: "post"
+  });
+};
