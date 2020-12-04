@@ -1,6 +1,35 @@
 <template>
   <div class="dooya-container">
-    user
+    <Card>
+      <!-- 操作 -->
+      <div style="margin: 10px 0">
+        <Button type="success"
+                icon="md-add">新增用户</Button>
+        <!-- @click="insert" -->
+      </div>
+
+      <!-- 表格 -->
+      <Table :data="tableData"
+             :loading="tableLoading"
+             :columns="tableColumns"
+             stripe>
+      </Table>
+
+      <!-- 分页 -->
+      <div style="margin: 10px;overflow: hidden">
+        <div style="float: right;">
+          <Page show-sizer
+                transfer
+                placement="top"
+                :total="tableDataOrg.length"
+                :current.sync="pageNum"
+                :page-size-opts="[10, 50, 100, 200]"
+                :page-size="pageSize"
+                @on-change="changePage"
+                @on-page-size-change="changePageSize"></Page>
+        </div>
+      </div>
+    </Card>
   </div>
 </template>
 
@@ -196,18 +225,18 @@ export default {
     };
   },
   async created () {
-    // this.getData();
+    this.getData();
     // this.roleList = (await getRoleList()).data.data || []; // 角色列表下拉select框
   },
   methods: {
     // 获取首页数据
-    // async getData () {
-    //   this.tableLoading = true;
-    //   this.tableDataOrg = (await getUserList()).data.data || [];
-    //   this.refreshData();
-    //   this.buttonLoading = false;
-    //   this.tableLoading = false;
-    // },
+    async getData () {
+      //   this.tableLoading = true;
+      //   this.tableDataOrg = (await getUserList()).data.data || [];
+      //   this.refreshData();
+      //   this.buttonLoading = false;
+      //   this.tableLoading = false;
+    },
     // // 根据条件刷新数据
     // refreshData () {
     //   // 分页 & 每页条数
@@ -221,17 +250,17 @@ export default {
     //     this.getData();
     //   }
     // },
-    // // 分页
-    // changePage (pageNum) {
-    //   this.pageNum = pageNum;
-    //   this.getData();
-    // },
-    // // 每页条数变化
-    // changePageSize (pageSize) {
-    //   this.pageSize = pageSize;
-    //   this.pageNum = 1;
-    //   this.getData();
-    // },
+    // 分页
+    changePage (pageNum) {
+      this.pageNum = pageNum;
+      this.getData();
+    },
+    // 每页条数变化
+    changePageSize (pageSize) {
+      this.pageSize = pageSize;
+      this.pageNum = 1;
+      this.getData();
+    }
     // // 点击按钮 - 新增
     // insert () {
     //   this.modalDataType = "insert";
