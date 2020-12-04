@@ -33,6 +33,23 @@ const userList = [
     permissionsList: null,
     permissions: null,
     roleId: 2
+  },
+  {
+    id: 1334788962899722240,
+    userName: "log",
+    password: "e10adc3949ba59abbe56e057f20f883e",
+    nickName: "log",
+    realName: "factor",
+    mobile: "13801380000",
+    email: "a.com",
+    status: 1,
+    token: null,
+    createTime: 1607073462592,
+    updateTime: 1607073462592,
+    idStr: "1334788962899722240",
+    permissionsList: null,
+    permissions: null,
+    roleId: 1
   }
 ];
 
@@ -120,17 +137,31 @@ const allMenuList = [
   },
   {
     id: "userManage",
-    name: "user/manage",
+    name: "user/userManage",
     title: "用户管理",
     url: "user/manage",
     path: "user",
-    sort: 22,
+    sort: 24,
     parentId: "root",
     ico: "ios-navigate",
     isOutSide: false,
     showLevel: "2",
     description: "用户管理",
     access: ["0"]
+  },
+  {
+    id: "logManage",
+    name: "log/logManage",
+    title: "日志管理",
+    url: "log/manage",
+    path: "log",
+    sort: 22,
+    parentId: "root",
+    ico: "ios-navigate",
+    isOutSide: false,
+    showLevel: "2",
+    description: "用户管理",
+    access: ["1"]
   }
 ];
 
