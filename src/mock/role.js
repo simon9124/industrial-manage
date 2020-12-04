@@ -1,18 +1,38 @@
 // 用户列表
 const userList = [
   {
-    id: 1333294157053034496,
+    id: 1334085279996182528,
     userName: "admin",
     password: "e10adc3949ba59abbe56e057f20f883e",
     nickName: "超级管理员",
     realName: null,
     mobile: null,
     email: null,
-    status: 0,
-    token: "JHNGAY1ALF4CYV881IR0I4X4Z5WF0YW4WAAH",
-    createTime: "2020-11-30T06:17:53.106+00:00",
-    updateTime: "2020-11-30T06:17:53.106+00:00",
+    status: 1,
+    token: null,
+    createTime: null,
+    updateTime: null,
+    idStr: "1334085279996182528",
+    permissionsList: null,
+    permissions: null,
     roleId: 0
+  },
+  {
+    id: 1334701110568419328,
+    userName: "factor",
+    password: "e10adc3949ba59abbe56e057f20f883e",
+    nickName: "factor",
+    realName: "factor",
+    mobile: "13801380000",
+    email: "a.com",
+    status: 1,
+    token: null,
+    createTime: 1607052516964,
+    updateTime: 1607052516964,
+    idStr: "1334701110568419328",
+    permissionsList: null,
+    permissions: null,
+    roleId: 2
   }
 ];
 
@@ -94,8 +114,9 @@ const allMenuList = [
     parentId: "root",
     ico: "md-laptop",
     isOutSide: false,
-    showLevel: "1",
-    description: "一级大屏"
+    showLevel: "3",
+    description: "一级大屏",
+    access: ["2"]
   },
   {
     id: "userManage",
