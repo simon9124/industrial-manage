@@ -7,8 +7,8 @@ import {
 import store from "@/store";
 import iView from "iview";
 import { setToken, getToken, canTurnTo, localRead } from "@/libs/util";
-import config from "@/config";
-const { homeName } = config;
+// import config from "@/config";
+// const { homeName } = config;
 
 Vue.use(Router);
 const router = new Router({
@@ -20,15 +20,6 @@ const LOGIN_PAGE_NAME = "login"; // 登录页
 const whiteList = []; // 白名单
 
 const turnTo = (to, access, next) => {
-  console.log(to);
-  // if (to.path === "/") {
-  //   console.log("3");
-  //   // 已经登录的用户新打开 "/"" -> 跳回该用户登录后的首页
-  //   if (access[0] === "0") {
-  //     // 系统管理员 -> 直接进入用户管理
-  //     next({ name: "manage" });
-  //   }
-  // } else {
   if (canTurnTo(to.name, access, routes)) {
     // 有权限，可访问
     next();
@@ -36,7 +27,6 @@ const turnTo = (to, access, next) => {
     // 无权限，重定向到401页面
     next({ replace: true, name: "error_401" });
   }
-  // }
 };
 
 // 方法：初始化路由表刷新
@@ -56,7 +46,9 @@ router.beforeEach((to, from, next) => {
   } else if (!token && to.name === LOGIN_PAGE_NAME) {
     next(); // 未登陆且要跳转的页面是登录页 -> 可跳转
   } else if (token && to.name === LOGIN_PAGE_NAME) {
-    next({ name: homeName }); // 已登录且要跳转的页面是登录页 -> 跳转到homeName页
+    // next({ name: homeName }); // 已登录且要跳转的页面是登录页 -> 跳转到homeName页
+    next({ name: "home" }); // 已登录且要跳转的页面是登录页 -> 跳转到该角色的首页
+    iView.LoadingBar.finish(); // 追加：已登录后点击浏览器返回按钮，滚动条结束
   } else {
     // 剩余情况：已登录且要跳转的页面不是登录页
     if (store.state.user.hasGetInfo) {

@@ -22,10 +22,7 @@ import {
   routerUpdateHandle // 遍历routes路由数据，1.手动往router.options.routes里添加数据；2.如routes里的name有变化，手动修改router.options.routes的name
 } from "@/libs/router-util";
 // import { getValueByKey } from "@/libs/dataHanding"; // 根据对象数组某个key的value，查询另一个key的value
-import {
-  // roleList, // mockData - 角色列表
-  allMenuList // mockData - 菜单列表
-} from "@/mock/role";
+import { allMenuList } from "@/mock/role"; // mockData - 菜单列表
 
 const { homeName } = config;
 const closePage = (state, route) => {
@@ -175,12 +172,17 @@ export default {
             {
               path: "/",
               redirect:
-                localRead("gateway-access") === "0" ? "/user/manage" : "",
+                localRead("gateway-access") === "0"
+                  ? "/user/manage"
+                  : localRead("gateway-access") === "2"
+                    ? "/control"
+                    : "",
               meta: {
                 id: Math.random()
                   .toString(36)
                   .substr(-10)
-              }
+              },
+              name: "home"
             }
           ];
           localSave("redirectRouter-gateway", JSON.stringify(redirectRouter)); // 存储到localStorage
@@ -211,8 +213,6 @@ export default {
           resolve();
         }
       });
-    },
-    // 动态重定向路由 - 动态首页时使用
-    getRedirectRouter() {}
+    }
   }
 };

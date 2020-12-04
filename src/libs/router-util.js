@@ -39,7 +39,8 @@ export const routerDataHanding = apiRouterData => {
             icon: route.ico,
             title: route.title,
             href: route.url,
-            id: route.id // 根据id确定子组件
+            id: route.id, // 根据id确定子组件
+            access: route.access || []
           },
           sort: route.sort, // 排序用
           children: []
@@ -54,7 +55,8 @@ export const routerDataHanding = apiRouterData => {
             icon: route.ico,
             title: route.title,
             hideInBread: true,
-            id: route.id // 根据id确定子组件
+            id: route.id, // 根据id确定子组件
+            access: route.access || []
           },
           sort: route.sort, // 排序用
           children: []
@@ -69,7 +71,8 @@ export const routerDataHanding = apiRouterData => {
             icon: route.ico,
             title: route.title,
             hideInBread: true,
-            id: route.id
+            id: route.id,
+            access: route.access || []
           },
           sort: route.sort, // 排序用
           children: [
@@ -89,7 +92,8 @@ export const routerDataHanding = apiRouterData => {
               meta: {
                 icon: route.ico,
                 title: route.title,
-                id: `_${route.id}`
+                id: `_${route.id}`,
+                access: route.access || []
               },
               component: route.path,
               children: []
@@ -107,7 +111,8 @@ export const routerDataHanding = apiRouterData => {
             title: route.title,
             hideInBread: true,
             hideInMenu: parseInt(route.showLevel) !== 1, // true or false 菜单是否隐藏该页面选项,
-            id: route.id // 根据id确定子组件
+            id: route.id, // 根据id确定子组件
+            access: route.access || []
           },
           sort: route.sort, // 排序用
           children: []
@@ -130,7 +135,8 @@ export const routerDataHanding = apiRouterData => {
                 icon: route.ico,
                 title: route.title,
                 href: route.url,
-                id: route.id // 根据id确定子组件
+                id: route.id, // 根据id确定子组件
+                access: route.access || []
               },
               sort: route.sort, // 排序用
               children: []
@@ -145,7 +151,8 @@ export const routerDataHanding = apiRouterData => {
                 icon: route.ico,
                 title: route.title,
                 hideInBread: true,
-                id: route.id // 根据id确定子组件
+                id: route.id, // 根据id确定子组件
+                access: route.access || []
               },
               sort: route.sort, // 排序用
               children: []
@@ -159,7 +166,8 @@ export const routerDataHanding = apiRouterData => {
               meta: {
                 icon: route.ico,
                 title: route.title,
-                id: route.id // 根据id确定子组件
+                id: route.id, // 根据id确定子组件
+                access: route.access || []
               },
               sort: route.sort, // 排序用
               children: []
@@ -178,7 +186,8 @@ export const routerDataHanding = apiRouterData => {
                 hideInMenu: parseInt(route.showLevel) !== 1, // true or false 菜单是否隐藏该页面选项
                 parentId: route.parentId,
                 notInMenu: true, // 追加notInMenu字段，将原本不是根菜单的数据重新挂载到相应位置
-                id: route.id
+                id: route.id,
+                access: route.access || []
               },
               sort: route.sort, // 排序用
               children: []
