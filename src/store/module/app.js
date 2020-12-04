@@ -174,9 +174,9 @@ export default {
               redirect:
                 localRead("gateway-access") === "0"
                   ? "/user/manage"
-                  : localRead("gateway-access") === "2"
-                    ? "/control"
-                    : "",
+                  : localRead("gateway-access") === "1"
+                    ? "/log/manage"
+                    : "/control",
               meta: {
                 id: Math.random()
                   .toString(36)
