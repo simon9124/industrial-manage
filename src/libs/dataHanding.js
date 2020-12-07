@@ -146,7 +146,8 @@ export function arraySort(key, sort) {
 export function getValueByKey(array, queryKey, queryValue, getKey) {
   var getValue = "";
   array.forEach(item => {
-    item[queryKey].toString() === queryValue && (getValue = item[getKey]);
+    item[queryKey].toString() === queryValue.toString() &&
+      (getValue = item[getKey]);
   });
   return getValue;
 }
@@ -238,7 +239,7 @@ export const addValueByKey = (array, key, condition = true) => {
  * @param {Function} error 请求失败时的回调函数
  */
 export const resultCallback = (resultStatus, message, success, error) => {
-  if (resultStatus === 200) {
+  if (resultStatus.toString() === "200") {
     Message.success({ content: message });
     return success.call();
   } else {

@@ -369,3 +369,25 @@ export const localSave = (key, value) => {
 export const localRead = key => {
   return localStorage.getItem(key) || "";
 };
+
+/* Merges two  objects,
+     giving the last one precedence */
+export function objectMerge(target, source) {
+  if (typeof target !== "object") {
+    target = {};
+  }
+  if (Array.isArray(source)) {
+    return source.slice();
+  }
+  for (const property in source) {
+    if (source.hasOwnProperty(property)) {
+      const sourceProperty = source[property];
+      if (typeof sourceProperty === "object") {
+        target[property] = objectMerge(target[property], sourceProperty);
+        continue;
+      }
+      target[property] = sourceProperty;
+    }
+  }
+  return target;
+}
