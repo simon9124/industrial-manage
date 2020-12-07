@@ -12,6 +12,7 @@ import installPlugin from "@/plugin";
 import "iview/dist/styles/iview.css";
 import "./index.less";
 import "@/assets/icons/iconfont.css";
+import md5 from "js-md5"; // MD5加密
 
 // isMock时，引入一些mockjs接口
 if (config.isMock) require("@/mock");
@@ -32,6 +33,7 @@ Vue.config.productionTip = false;
  */
 Vue.prototype.$config = config;
 Vue.prototype.isMock = config.isMock;
+Vue.prototype.$md5 = md5;
 /**
  * @description 全局事件总线注册
  */
