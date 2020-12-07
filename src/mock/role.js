@@ -4,7 +4,7 @@ const userList = [
     id: 1334085279996182528,
     userName: "admin",
     password: "e10adc3949ba59abbe56e057f20f883e",
-    nickName: "超级管理员",
+    nickName: "系统管理员",
     realName: null,
     mobile: null,
     email: null,
@@ -21,7 +21,7 @@ const userList = [
     id: 1334701110568419328,
     userName: "factor",
     password: "e10adc3949ba59abbe56e057f20f883e",
-    nickName: "factor",
+    nickName: "平台管理员",
     realName: "factor",
     mobile: "13801380000",
     email: "a.com",
@@ -38,7 +38,7 @@ const userList = [
     id: 1334788962899722240,
     userName: "log",
     password: "e10adc3949ba59abbe56e057f20f883e",
-    nickName: "log",
+    nickName: "日志管理员",
     realName: "factor",
     mobile: "13801380000",
     email: "a.com",
@@ -56,45 +56,22 @@ const userList = [
 // 角色列表
 const roleList = [
   {
-    name: "super_admin",
-    title: "超级管理员",
-    menus: [
-      "doc",
-      "control",
-      "multilevel",
-      "level_2_1",
-      "level_2_2",
-      "level_2_2_1",
-      "screen2",
-      "level_2_2_2",
-      "level_2_3",
-      "screen",
-      "github",
-      "singleMenu",
-      "authority",
-      "userManage",
-      "roleManage",
-      "menuManage"
-    ],
-    id: "1",
-    description: "超级管理员，默认拥有全部功能，不可删除"
+    id: 0,
+    roleName: "系统管理员",
+    remark: null,
+    idStr: "0"
   },
   {
-    name: "visitor",
-    title: "访客",
-    menus: [
-      "control",
-      "multilevel",
-      "level_2_1",
-      "level_2_2",
-      "level_2_2_1",
-      "level_2_2_2",
-      "level_2_3",
-      "screen",
-      "singleMenu"
-    ],
-    id: "2",
-    description: "访客，拥有部分功能，可删除"
+    id: 1,
+    roleName: "日志管理员",
+    remark: null,
+    idStr: "1"
+  },
+  {
+    id: 2,
+    roleName: "平台管理员",
+    remark: null,
+    idStr: "2"
   }
 ];
 
