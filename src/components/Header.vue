@@ -28,6 +28,9 @@
                  type="success"
                  :disabled="level===1"
                  @click="itemSubmit">保存</el-button>
+      <Button style="float:right"
+              icon="ios-log-out"
+              @click="logOut">退出登录</Button>
       <!-- <el-button size="small"
                  icon="el-icon-refresh"
                  type="warning">更新</el-button> -->
@@ -409,6 +412,7 @@
 </template>
 
 <script>
+import { mapActions } from "vuex";
 import PluginSelect from "@/components/dialog/pluginSelect"; // 组件：选择插件
 import PassParams from "@/components/dialog/passParams"; // 组件：其他参数 - 通道
 import EquipmentParams from "@/components/dialog/equipmentParams"; // 组件：其他参数 - 通道
@@ -526,6 +530,7 @@ export default {
     }
   },
   methods: {
+    ...mapActions(["handleLogOut"]),
     // 新建 通道/设备
     newBuild (level) {
       this.dialogDisposeVisible = true;
@@ -720,6 +725,14 @@ export default {
     // 回调 - 保存
     itemSubmit () {
       this.$emit("item-submit", this.level);
+    },
+    // 退出登录
+    logOut () {
+      this.handleLogOut().then(() => {
+        this.$router.push({
+          name: "login"
+        });
+      });
     }
   }
 };
