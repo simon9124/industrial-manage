@@ -176,7 +176,7 @@ export default {
                   ? "/user/manage"
                   : localRead("gateway-access") === "1"
                     ? "/log/manage"
-                    : "/control",
+                    : "/gateway",
               meta: {
                 id: Math.random()
                   .toString(36)
