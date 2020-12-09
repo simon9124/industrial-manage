@@ -4,22 +4,26 @@ import Vue from "vue";
 import App from "./App";
 import router from "./router";
 import store from "./store";
-import iView from "iview";
 import i18n from "@/locale";
 import config from "@/config";
 import importDirective from "@/directive";
 import installPlugin from "@/plugin";
-import "iview/dist/styles/iview.css";
 import "./index.less";
 import "@/assets/icons/iconfont.css";
 import md5 from "js-md5"; // MD5加密
 
-// isMock时，引入一些mockjs接口
-if (config.isMock) require("@/mock");
+import iView from "iview";
+import "iview/dist/styles/iview.css";
+import ElementUI from "element-ui";
+import "element-ui/lib/theme-chalk/index.css";
 
 Vue.use(iView, {
   i18n: (key, value) => i18n.t(key, value)
 });
+Vue.use(ElementUI);
+
+// isMock时，引入一些mockjs接口
+if (config.isMock) require("@/mock");
 /**
  * @description 注册admin内置插件
  */

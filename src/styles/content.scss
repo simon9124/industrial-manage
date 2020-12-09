@@ -1,0 +1,156 @@
+.content /deep/ {
+  padding: 20px;
+
+  .el-form {
+    .el-col:not(:first-child) {
+      margin-left: 20px;
+    }
+
+    &-item {
+      .is-disabled {
+        input {
+          color: #606266;
+        }
+      }
+    }
+
+    .el-row:last-child {
+      .el-form-item {
+        margin-bottom: 0;
+      }
+    }
+
+    &+.el-table {
+      margin-top: 20px;
+    }
+
+    &+.el-collapse {
+      margin-top: 20px;
+    }
+  }
+
+  .el-table {
+    &__expand-icon {
+      display: none !important;
+    }
+
+    &__placeholder {
+      width: 10px;
+    }
+  }
+
+  .el-collapse {
+    &-item__header {
+      font-weight: bold;
+      // height: 36px;
+      // line-height: 36px;
+    }
+
+    &-item__content {
+      padding-bottom: 10px;
+    }
+
+    .collapse-content {
+      margin-bottom: 10px;
+    }
+  }
+
+  .el-dialog {
+    &__body {
+      padding: 10px 20px;
+    }
+  }
+
+  // 其他参数 - all
+  .params-dialog-row {
+    &:not(:last-child) {
+      margin-bottom: 10px;
+    }
+
+    &-div {
+      margin-left: 24px;
+    }
+
+    &-select {
+      margin-bottom: 10px;
+    }
+
+    .el-checkbox {
+      margin-bottom: 10px;
+    }
+  }
+
+  // dialog - 参数
+  .params-dialog {
+    .el-dialog {
+      min-width: 1000px;
+    }
+  }
+
+  // dialog - 插件
+  .plugin-dialog {
+    .el-dialog {
+      min-width: 1000px;
+
+      .el-form {
+        margin: 10px 20px;
+
+        &-item {
+          margin-bottom: 10px;
+        }
+      }
+    }
+  }
+
+  // dialog - 标签字典
+  .tag-select-dialog {
+    .el-dialog {
+      // width: 800px;
+
+      .el-form {
+        margin: 10px 20px;
+
+        &-item {
+          margin-bottom: 10px;
+        }
+      }
+    }
+  }
+
+  // dialog - 绑定本地ip
+  .bind-dialog {
+    .el-dialog {
+      width: 450px;
+    }
+  }
+
+  // table - 数据标签
+  .table-component {
+    .excel-upload-input {
+      display: none;
+      z-index: -9999;
+    }
+
+    .el-table {
+      .cell {
+        padding: 0 5px;
+
+        .el-button--mini {
+          padding: 7px 9px;
+        }
+      }
+
+      tr {
+        cursor: pointer;
+      }
+
+      &__body tr.current-row>td {
+        background-color: #e1e1e1;
+      }
+    }
+
+    .el-dialog {
+      width: 800px;
+    }
+  }
+}
