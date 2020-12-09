@@ -50,7 +50,7 @@ export default {
     return {
       form: {
         userName: "admin",
-        password: "e10adc3949ba59abbe56e057f20f883e"
+        password: "123456"
       }
     };
   },
@@ -68,7 +68,7 @@ export default {
         if (valid) {
           this.$emit("on-success-valid", {
             userName: this.form.userName,
-            password: this.form.password
+            password: this.$md5(this.form.password)
           });
         }
       });

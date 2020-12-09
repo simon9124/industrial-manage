@@ -12,11 +12,8 @@
           <login-form @on-success-valid="handleSubmit"></login-form>
           <!-- <p class="login-tip">输入任意用户名和密码即可</p> -->
           <p class="tips">
-            <span>账号 : admin</span><span>密码 : e10adc3949ba59abbe56e057f20f883e</span>
+            <span>账号 : admin</span><span>密码 : 123456</span>
           </p>
-          <!-- <p class="tips">
-            <span>账号 : trunks</span><span>密码 : 任意</span>
-          </p> -->
         </div>
       </Card>
     </div>
