@@ -99,17 +99,17 @@ const menuLevel = [
 // 路由列表
 const allMenuList = [
   {
-    id: "control",
-    name: "control",
-    title: "驾驶舱",
-    url: "control",
-    path: "screen",
+    id: "gateway",
+    name: "gateway",
+    title: "网闸",
+    url: "gateway",
+    path: "gateway",
     sort: 26,
     parentId: "root",
     ico: "md-laptop",
     isOutSide: false,
     showLevel: "3",
-    description: "一级大屏",
+    description: "网闸",
     access: ["2"]
   },
   {
