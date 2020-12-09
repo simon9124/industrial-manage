@@ -16,11 +16,14 @@ import iView from "iview";
 import "iview/dist/styles/iview.css";
 import ElementUI from "element-ui";
 import "element-ui/lib/theme-chalk/index.css";
+import "./styles/fontawesome/css/font-awesome.min.css"; // fontawesome
 
 Vue.use(iView, {
   i18n: (key, value) => i18n.t(key, value)
 });
-Vue.use(ElementUI);
+Vue.use(ElementUI, {
+  i18n: (key, value) => i18n.t(key, value)
+});
 
 // isMock时，引入一些mockjs接口
 if (config.isMock) require("@/mock");
