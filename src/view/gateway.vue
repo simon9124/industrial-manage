@@ -23,7 +23,8 @@
                 @items-copy="itemsCopy"
                 @item-delete="itemHandle('del')"
                 @item-submit="itemSubmit"
-                @factory-select="factorySelect"></Header>
+                @factory-select="factorySelect"
+                @factory-handle="factoryHandle"></Header>
       </el-header>
 
       <!-- 中 · 内容 -->
@@ -86,11 +87,14 @@
 </template>
 
 <script>
+/* components */
 import Header from "@/components/Header"; // 组件：头部
 import LeftTree from "@/components/Tree"; // 组件：左侧树
 import Group from "@/components/content/Group"; // 组件：右侧内容 - 组
 import Pass from "@/components/content/Pass"; // 组件：右侧内容 - 通道
 import Equipment from "@/components/content/Equipment"; // 组件：右侧内容 - 通道
+/* function */
+import { parseTime } from "@/libs/util"; // function - 格式化时间
 /* mockData */
 import { factoryData } from "@/mock/tree.js"; // mockData - 工程总数居
 import { pluginList } from "@/mock/plugin.js"; // mockData - 插件列表
@@ -98,6 +102,8 @@ import {
   passList, // mockData - 通道列表
   equipmentList // mockData - 设备列表
 } from "@/mock/content.js";
+/* api */
+import { queryProjectTeamList } from "@/api/projectTeam.js";
 
 export default {
   components: { Header, LeftTree, Group, Pass, Equipment },
@@ -134,22 +140,45 @@ export default {
   },
   methods: {
     // 获取数据
-    getTreeData () {
-      this.factoryData = factoryData;
-      this.factoryData[0].children.forEach(group => {
-        group.children.forEach(factory => {
-          if (factory.selected) {
-            this.serviceData = factory;
-            this.serviceId = this.serviceData.id;
-            this.treeData = factory.treeData;
-            this.id = this.treeData[0].id;
-          }
+    async getTreeData () {
+      if (this.isMock) { // mock数据
+        this.factoryData = factoryData;
+        this.factoryData.length !== 0 && this.factoryData[0].children.forEach(group => {
+          group.children.forEach(factory => {
+            if (factory.selected) {
+              this.serviceData = factory;
+              this.serviceId = this.serviceData.id;
+              this.treeData = factory.treeData;
+              this.id = this.treeData[0].id;
+            }
+          });
         });
-      });
-      this.pluginList = pluginList;
-      this.passListAll = passList;
-      this.equipmentListAll = equipmentList;
-      this.refreshData();
+        this.pluginList = pluginList;
+        this.passListAll = passList;
+        this.equipmentListAll = equipmentList;
+        this.refreshData();
+      } else { // 接口数据
+        this.factoryData = [
+          {
+            text: "工程组列表",
+            icon: "fa fa-folder",
+            id: "root",
+            level: 1,
+            opened: true,
+            selected: false,
+            children: (await queryProjectTeamList()).data.data.map(projectTeam => {
+              this.$set(projectTeam, "text", projectTeam.teamName);
+              this.$set(projectTeam, "describe", projectTeam.description);
+              this.$set(projectTeam, "creatTime", parseTime(projectTeam.createTime));
+              this.$set(projectTeam, "icon", "fa fa-laptop");
+              this.$set(projectTeam, "id", projectTeam.idStr);
+              this.$set(projectTeam, "level", 2);
+              this.$set(projectTeam, "children", []);
+              return projectTeam;
+            })
+          }
+        ];
+      }
     },
     // 筛选数据
     refreshData () {
@@ -402,8 +431,33 @@ export default {
           });
           this.refreshSelect(); // 重设树，选中顶部 "采集服务"
         }
-        this.refreshData();
+        this.isMock && this.refreshData();
       }
+    },
+    // 工程发生改变（增删改）
+    async factoryHandle () {
+      this.factoryData = [
+        {
+          text: "工程组列表",
+          icon: "fa fa-folder",
+          id: "root",
+          level: 1,
+          opened: true,
+          selected: false,
+          children: (await queryProjectTeamList()).data.data.map(projectTeam => {
+            this.$set(projectTeam, "text", projectTeam.teamName);
+            this.$set(projectTeam, "describe", projectTeam.description);
+            this.$set(projectTeam, "creatTime", parseTime(projectTeam.createTime));
+            this.$set(projectTeam, "icon", "fa fa-laptop");
+            this.$set(projectTeam, "id", projectTeam.idStr);
+            this.$set(projectTeam, "level", 2);
+            this.$set(projectTeam, "children", []);
+            this.$set(projectTeam, "selected", false);
+            this.$set(projectTeam, "opened", false);
+            return projectTeam;
+          })
+        }
+      ];
     },
     // 保存
     itemSubmit (level) {
