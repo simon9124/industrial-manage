@@ -199,7 +199,7 @@ export default {
   methods: {
     // 获取服务数据
     getServiceData () {
-      this.factoryData[0].children.forEach(group => {
+      this.factoryData.length !== 0 && this.factoryData[0].children.forEach(group => {
         if (group.id === this.serviceData.parentId) {
           this.formGroup.groupName = group.text; // 所在组
           group.children.forEach(factory => {

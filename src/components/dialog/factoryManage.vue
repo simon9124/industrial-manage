@@ -85,9 +85,19 @@
 </template>
 
 <script>
+/* functon */
 import { parseTime } from "@/libs/util"; // function - 格式化时间
+import {
+  // arraySort, // 对象数组根据key排序
+  // getValueByKey, // 根据对象数组某个key的value，查询另一个key的value
+  resultCallback // 根据请求的status执行回调函数
+} from "@/libs/dataHanding";
+/* mockData */
 import { treeTempleteData } from "@/mock/tree";
+/* components */
 import LeftTree from "@/components/Tree"; // 组件：左侧树
+/* api */
+import { addProjectTeam, updateProjectTeam, deleteProjectTeam } from "@/api/projectTeam.js";
 
 export default {
   components: { LeftTree },
@@ -98,9 +108,9 @@ export default {
       default: () => []
     },
     // 被选择的id - 工程
-    idFactory: {
-      type: String
-    },
+    // idFactory: {
+    //   type: String
+    // },
     // 通道列表
     passList: {
       type: Array
@@ -120,6 +130,7 @@ export default {
       id: null, // 被选择的树的id
       dialogType: "", // dialog的种类 group/factory
       handleType: "", // dialog的提交方式 insert/edit
+      idFactory: "factory-1", // 被选择内容的id
       /* 工程组 */
       formGroup: {
         text: "",
@@ -142,16 +153,17 @@ export default {
     // 工程管理
     factoryManage () {
       this.dialogVisible = true;
+      this.idFactory = localStorage.getItem("project-id"); // 被选择内容的id - 工程管理
       this.getSelectedFactory(this.idFactory);
     },
     // 获取被选择的工程
     getSelectedFactory (idOperate) {
       // console.log(idOperate);
       this.factoryData[0].selected = false; // 取消顶部选择
-      idOperate === null && this.refreshSelect(); // 无工程时选中顶部“工程组列表”
+      idOperate === "root" && this.refreshSelect(); // 无工程时选中顶部“工程组列表”
       this.factoryData[0].children.forEach(group => {
         group.selected = false; // 取消选中全部工程组
-        group.children.forEach(factory => {
+        group.children.length !== 0 && group.children.forEach(factory => { // 有工程时，选中当前工程
           factory.selected = false; // 取消选中全部工程
           factory.id === idOperate && (factory.selected = true); // 选中当前工程
           this.level = 3;
@@ -163,11 +175,14 @@ export default {
     // 点击树节点
     itemClick (param) {
       // console.log(param);
-      const { id, level } = param;
-      this.id = id;
+      const { id, idStr, level } = param;
+      this.id = this.isMock ? id : idStr;
       this.level = level;
       this.level === 2 && (this.formGroupOrg = param);
-      this.level === 3 && (this.formFactoryOrg = param);
+      if (this.level === 3) {
+        this.formFactoryOrg = param;
+        localStorage.setItem("project-id", this.id);
+      }
       this.$emit("factory-select", param);
     },
     // 新建
@@ -193,46 +208,92 @@ export default {
       });
     },
     // 表单提交：增/改
-    submit () {
+    async submit () {
       const formData = this.dialogType === "group"
         ? JSON.parse(JSON.stringify(this.formGroup)) : JSON.parse(JSON.stringify(this.formFactory));
       this.submitLoading = true;
       // console.log(formData);
       switch (this.handleType) {
         case "insert":
-          /* 1.完善数据 */
-          formData.id = Math.random().toString(36).substr(-10);// 随机生成id
-          formData.icon = this.dialogType === "group" ? "fa fa-laptop" : "fa fa-edit";
-          formData.level = this.dialogType === "group" ? 2 : 3;
-          formData.selected = false; // 未被选中的父节点需设置selected为false，否则该节点切换时会有bug
-          formData.opened = true; // 父节点须设置opened为true，否则子节点首次新增时打不开
+          /* 1.数据处理 - mock */
+          if (this.isMock) {
+            formData.id = Math.random().toString(36).substr(-10);// 随机生成id
+            formData.icon = this.dialogType === "group" ? "fa fa-laptop" : "fa fa-edit";
+            formData.level = this.dialogType === "group" ? 2 : 3;
+            formData.selected = false; // 未被选中的父节点需设置selected为false，否则该节点切换时会有bug
+            formData.opened = true; // 父节点须设置opened为true，否则子节点首次新增时打不开
+          }
           /* 2.塞入数据 */
           if (this.dialogType === "group") { // 新增工程组
-            formData.children = [];
-            this.factoryData[0].children.push(formData);
+            if (this.isMock) { // mock数据
+              formData.children = [];
+              this.factoryData[0].children.push(formData);
+              this.submitLoading = false;
+              this.dialogManageVisible = false;
+            } else { // 接口数据
+              const result = (await addProjectTeam({
+                description: formData.describe,
+                teamName: formData.text
+              })).data.success;
+              resultCallback(
+                result,
+                "添加成功！",
+                () => {
+                  this.$emit("factory-handle", {});
+                  this.submitLoading = false;
+                  this.dialogManageVisible = false;
+                },
+                () => {
+                  this.submitLoading = false;
+                }
+              );
+            }
           } else { // 新增工程
             formData.treeData = JSON.parse(JSON.stringify(treeTempleteData));
             formData.parentId = this.id;
             this.factoryData[0].children.forEach((group, i) => {
               this.id === group.id && group.children.push(formData);
             });
+            this.submitLoading = false;
+            this.dialogManageVisible = false;
           }
-          this.submitLoading = false;
-          this.dialogManageVisible = false;
           break;
         case "edit":
-          this.factoryData[0].children.forEach((group, i) => {
-            // 工程组修改
-            this.dialogType === "group" && formData.id === group.id &&
-              this.$set(this.factoryData[0].children, i, JSON.parse(JSON.stringify(formData)));
-            // 工程修改
-            this.dialogType === "factory" && group.children.forEach((factory, _i) => {
-              formData.id === factory.id &&
-                this.$set(group.children, _i, JSON.parse(JSON.stringify(formData)));
-            });
+          this.factoryData[0].children.forEach(async (group, i) => {
+            if (this.dialogType === "group") { // 修改工程组
+              if (this.isMock) { // mock数据
+                formData.id === group.id &&
+                  this.$set(this.factoryData[0].children, i, JSON.parse(JSON.stringify(formData)));
+                this.submitLoading = false;
+                this.dialogManageVisible = false;
+              } else { // 接口数据
+                const result = (await updateProjectTeam({
+                  description: formData.describe,
+                  teamName: formData.text,
+                  id: formData.idStr
+                })).data.success;
+                resultCallback(
+                  result,
+                  "修改成功！",
+                  () => {
+                    this.$emit("factory-handle", {});
+                    this.submitLoading = false;
+                    this.dialogManageVisible = false;
+                  },
+                  () => {
+                    this.submitLoading = false;
+                  }
+                );
+              }
+            } else { // 修改工程
+              this.dialogType === "factory" && group.children.forEach((factory, _i) => {
+                formData.id === factory.id &&
+                  this.$set(group.children, _i, JSON.parse(JSON.stringify(formData)));
+              });
+              this.submitLoading = false;
+              this.dialogManageVisible = false;
+            }
           });
-          this.submitLoading = false;
-          this.dialogManageVisible = false;
           break;
       }
       this.getSelectedFactory("root"); // 实际取消所有选中
@@ -251,13 +312,21 @@ export default {
       this.$confirm(`将删除该${this.level === 2 ? "工程组" : "工程"}, 是否继续?`, "提示", {
         type: "warning"
       }).then(() => {
-        this.factoryData[0].children.forEach((group, i) => {
-          /* 删除工程组 */
-          this.level === 2 && this.id === group.id && this.factoryData[0].children.splice(i, 1);
-          /* 删除工程 */
-          this.level === 3 && group.children.forEach((factory, _i) => {
-            this.id === factory.id && group.children.splice(_i, 1);
-          });
+        this.factoryData[0].children.forEach(async (group, i) => {
+          if (this.level === 2) { // 删除工程组
+            if (this.isMock) { // mock数据
+              this.id === group.id && this.factoryData[0].children.splice(i, 1);
+            } else { // 接口数据
+              const result = await deleteProjectTeam({ ids: [this.id] });
+              resultCallback(result.data.success, "删除成功！", () => {
+                this.$emit("factory-handle", {});
+              });
+            }
+          } else if (this.level === 3) { // 删除工程
+            this.level === 3 && group.children.forEach((factory, _i) => {
+              this.id === factory.id && group.children.splice(_i, 1);
+            });
+          }
           /* 删除(工程组下的)工程对应的通道和设备 */
         });
         // console.log(this.factoryData);

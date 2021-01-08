@@ -378,7 +378,8 @@
                     :factory-data="factoryData"
                     :pass-list="passList"
                     :equipment-list="equipmentList"
-                    @factory-select="factorySelect"></factory-manage>
+                    @factory-select="factorySelect"
+                    @factory-handle="factoryHandle"></factory-manage>
 
     <!-- dialog - 远程监视 -->
     <remote-monitor ref="remoteMonitor"
@@ -444,7 +445,7 @@ export default {
     id: {
       type: String
     },
-    // 被选择的id - 工程
+    // // 被选择的id - 工程
     idFactory: {
       type: String
     },
@@ -712,6 +713,10 @@ export default {
     // 回调：工程管理选择工程
     factorySelect (param) {
       this.$emit("factory-select", param);
+    },
+    // 回调：工程管理 - 工程发生改变（增删改）
+    factoryHandle () {
+      this.$emit("factory-handle", "");
     },
     // 点击按钮 - 远程监视 - 调用子组件事件
     remoteMonitor () {
