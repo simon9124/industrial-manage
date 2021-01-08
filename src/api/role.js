@@ -4,7 +4,7 @@ import axios from "@/libs/api.request";
 export const queryRoleList = object => {
   const data = { page: 1 };
   return axios.request({
-    url: "/network/role//queryRoleList",
+    url: "/network/role/queryRoleList",
     data,
     method: "post"
   });
