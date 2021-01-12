@@ -18,7 +18,7 @@ export default {
   },
   mockUrl:
     "https://www.easy-mock.com/mock/5add9213ce4d0e69998a6f51/iview-admin/", // mock数据的url
-  isMock: true, // 是否使用mock数据或接口（前后端联调时设置为false）
+  isMock: false, // 是否使用mock数据或接口（前后端联调时设置为false）
   /**
    * @description 默认打开的首页的路由name值，默认为home
    */
