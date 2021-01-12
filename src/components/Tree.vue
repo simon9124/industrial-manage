@@ -38,8 +38,8 @@
     <v-jstree v-else
               :data="data"
               :collapse="collapse"
-              @item-click="itemClick"></v-jstree>
-    <!-- @item-toggle="itemClick" -->
+              @item-click="itemClick"
+              @item-toggle="itemToggle"></v-jstree>
 
     <!--右键菜单-->
     <context-menu id="ctx"
@@ -103,11 +103,7 @@ export default {
   },
   data () {
     return {
-      level: 1, // 被选中节点的层级
-      /* dialog */
-      dialogVisible: false, // 是否可见
-      dialogTitle: "", // 标题
-      isAdd: true // 是否为新增 true of false
+      level: 1 // 被选中节点的层级
     };
   },
   methods: {
@@ -116,6 +112,10 @@ export default {
       // console.log(node.model);
       this.level = node.model.level;
       this.$emit("item-click", node.model);
+    },
+    // 点击树节点 - 展开 or 关闭
+    itemToggle (node, item, e) {
+      this.$emit("item-toggle", node.model);
     },
     // 树节点操作 - 增删改查
     itemHandle (type) {

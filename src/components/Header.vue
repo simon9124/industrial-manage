@@ -376,6 +376,7 @@
     <factory-manage ref="factoryManage"
                     :id-factory="idFactory"
                     :factory-data="factoryData"
+                    :lazy-tree-data="lazyTreeData"
                     :pass-list="passList"
                     :equipment-list="equipmentList"
                     @factory-select="factorySelect"
@@ -445,9 +446,13 @@ export default {
     id: {
       type: String
     },
-    // // 被选择的id - 工程
+    // 被选择的id - 工程
     idFactory: {
       type: String
+    },
+    // 工程懒加载数据
+    lazyTreeData: {
+      type: Array
     },
     // 通道列表
     passList: {
@@ -715,7 +720,7 @@ export default {
       this.$emit("factory-select", param);
     },
     // 回调：工程管理 - 工程发生改变（增删改）
-    factoryHandle () {
+    factoryHandle (type) {
       this.$emit("factory-handle", "");
     },
     // 点击按钮 - 远程监视 - 调用子组件事件
