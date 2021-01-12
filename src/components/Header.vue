@@ -715,6 +715,10 @@ export default {
     factoryManage () {
       this.$refs.factoryManage.factoryManage();
     },
+    // 获取点击的工程数据 - 调用子组件事件
+    getSelectedFactory (projectId) {
+      this.$refs.factoryManage.getSelectedFactory(projectId);
+    },
     // 回调：工程管理选择工程
     factorySelect (param) {
       this.$emit("factory-select", param);

@@ -223,6 +223,10 @@ export default {
           children: groupData
         }
       ];
+      /* 4.调用子组件事件 */
+      this.$nextTick(() => {
+        this.$refs.header.getSelectedFactory(projectId);
+      });
     },
     // 点击树节点
     itemClick (param) {
