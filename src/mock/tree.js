@@ -95,46 +95,46 @@ const factoryData = [
     id: "root",
     level: 1,
     children: [
-      // {
-      //   text: "工程组1",
-      //   describe: "第一工程组",
-      //   creatTime: "2020-06-20 18:25:20",
-      //   icon: "fa fa-laptop",
-      //   id: "group-1",
-      //   level: 2,
-      //   children: [
-      //     {
-      //       text: "采集器工程1",
-      //       describe: "第一工程",
-      //       creatTime: "2020-06-20 18:25:20",
-      //       icon: "fa fa-edit",
-      //       id: "factory-1",
-      //       selected: true,
-      //       level: 3,
-      //       treeData: treeData,
-      //       parentId: "group-1"
-      //     },
-      //     {
-      //       text: "采集器工程2",
-      //       describe: "第二工程",
-      //       creatTime: "2020-06-20 18:25:20",
-      //       icon: "fa fa-edit",
-      //       id: "factory-2",
-      //       level: 3,
-      //       treeData: treeTempleteData,
-      //       parentId: "group-1"
-      //     }
-      //   ]
-      // },
-      // {
-      //   text: "工程组2",
-      //   describe: "第二工程组",
-      //   creatTime: "2020-08-25 18:25:20",
-      //   icon: "fa fa-laptop",
-      //   id: "group-2",
-      //   level: 2,
-      //   children: []
-      // }
+      {
+        text: "工程组1",
+        describe: "第一工程组",
+        creatTime: "2020-06-20 18:25:20",
+        icon: "fa fa-laptop",
+        id: "group-1",
+        level: 2,
+        children: [
+          {
+            text: "采集器工程1",
+            describe: "第一工程",
+            creatTime: "2020-06-20 18:25:20",
+            icon: "fa fa-edit",
+            id: "factory-1",
+            selected: true,
+            level: 3,
+            treeData: treeData,
+            parentId: "group-1"
+          },
+          {
+            text: "采集器工程2",
+            describe: "第二工程",
+            creatTime: "2020-06-20 18:25:20",
+            icon: "fa fa-edit",
+            id: "factory-2",
+            level: 3,
+            treeData: treeTempleteData,
+            parentId: "group-1"
+          }
+        ]
+      },
+      {
+        text: "工程组2",
+        describe: "第二工程组",
+        creatTime: "2020-08-25 18:25:20",
+        icon: "fa fa-laptop",
+        id: "group-2",
+        level: 2,
+        children: []
+      }
     ]
   }
 ];
