@@ -2,7 +2,7 @@ import axios from "@/libs/api.request";
 
 // 获取工程组列表
 export const queryProjectTeamList = object => {
-  const data = { page: 1, size: 20, sort: "id" };
+  const data = { page: 1, size: 1000, sort: "id" };
   return axios.request({
     url: "/network/projectTeam/queryList",
     data,
