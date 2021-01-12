@@ -19,6 +19,7 @@
                 :data-list="dataList"
                 :check-list="checkList"
                 :equipment-list="equipmentList"
+                :lazy-tree-data="lazyTreeData"
                 @item-add="itemAdd"
                 @items-copy="itemsCopy"
                 @item-delete="itemHandle('del')"
@@ -103,7 +104,8 @@ import {
   equipmentList // mockData - 设备列表
 } from "@/mock/content.js";
 /* api */
-import { queryProjectTeamList } from "@/api/projectTeam.js";
+import { queryProjectTeamList } from "@/api/projectTeam.js"; // 获取工程组列表
+import { queryProjectList } from "@/api/project.js"; // 获取工程列表
 
 export default {
   components: { Header, LeftTree, Group, Pass, Equipment },
@@ -128,6 +130,16 @@ export default {
       id: null, // 被选择内容的id - 服务导航
       handleType: "", // 树节点的操作方式
       idFactory: "factory-1", // 被选择内容的id - 工程管理
+      lazyTreeData: [{
+        id: "xxx",
+        text: "Loading...",
+        value: "Loading...",
+        icon: "",
+        open: false,
+        loading: true,
+        selected: true,
+        children: []
+      }], // 懒加载过渡数据
       /* 动态高度 */
       contentHeight: "0px" // 中部内容
     };
@@ -136,11 +148,11 @@ export default {
     const screenHeight = document.documentElement.clientHeight;
     // console.log(screenHeight);
     this.contentHeight = (screenHeight - 8 * 2 - 74) + "px";
-    this.getTreeData();
+    this.getAllData();
   },
   methods: {
     // 获取数据
-    async getTreeData () {
+    async getAllData () {
       if (this.isMock) { // mock数据
         this.factoryData = factoryData;
         this.factoryData.length !== 0 && this.factoryData[0].children.forEach(group => {
@@ -158,26 +170,7 @@ export default {
         this.equipmentListAll = equipmentList;
         this.refreshData();
       } else { // 接口数据
-        this.factoryData = [
-          {
-            text: "工程组列表",
-            icon: "fa fa-folder",
-            id: "root",
-            level: 1,
-            opened: true,
-            selected: false,
-            children: (await queryProjectTeamList()).data.data.map(projectTeam => {
-              this.$set(projectTeam, "text", projectTeam.teamName);
-              this.$set(projectTeam, "describe", projectTeam.description);
-              this.$set(projectTeam, "creatTime", parseTime(projectTeam.createTime));
-              this.$set(projectTeam, "icon", "fa fa-laptop");
-              this.$set(projectTeam, "id", projectTeam.idStr);
-              this.$set(projectTeam, "level", 2);
-              this.$set(projectTeam, "children", []);
-              return projectTeam;
-            })
-          }
-        ];
+        this.getFactoryData();
       }
     },
     // 筛选数据
@@ -186,6 +179,50 @@ export default {
       this.equipmentList = this.equipmentListAll.filter(equipment => equipment.idFactory === this.idFactory);
       // console.log(this.passList);
       // console.log(this.equipmentList);
+    },
+    // 获取工程组和要展开的工程数据
+    async getFactoryData () {
+      /* 1.工程数据 */
+      const projectId = localStorage.getItem("project-id");
+      const teamId = localStorage.getItem("team-id");
+      const projectList = (await queryProjectList(teamId)).data.data.map(project => {
+        this.$set(project, "text", project.projectName);
+        this.$set(project, "describe", project.remark);
+        this.$set(project, "creatTime", parseTime(project.createTime));
+        this.$set(project, "icon", "fa fa-edit");
+        this.$set(project, "id", project.idStr);
+        this.$set(project, "level", 3);
+        this.$set(project, "selected", projectId === project.idStr);
+        this.$set(project, "teamId", teamId);
+        return project;
+      });
+      // console.log(projectList);
+      /* 2.工程组数据 */
+      this.factoryData = this.lazyTreeData; // 懒加载数据
+      const groupData = (await queryProjectTeamList()).data.data.map(projectTeam => { // 工程组数据
+        this.$set(projectTeam, "text", projectTeam.teamName);
+        this.$set(projectTeam, "describe", projectTeam.description);
+        this.$set(projectTeam, "creatTime", parseTime(projectTeam.createTime));
+        this.$set(projectTeam, "icon", "fa fa-laptop");
+        this.$set(projectTeam, "id", projectTeam.idStr);
+        this.$set(projectTeam, "level", 2);
+        this.$set(projectTeam, "children", projectTeam.id === teamId ? projectList : this.lazyTreeData);
+        this.$set(projectTeam, "selected", false);
+        this.$set(projectTeam, "opened", projectTeam.id === teamId);
+        return projectTeam;
+      });
+      /* 3.工程组列表 */
+      this.factoryData = [
+        {
+          text: "工程组列表",
+          icon: "fa fa-folder",
+          id: "root",
+          level: 1,
+          opened: true,
+          selected: localStorage.getItem("project-id") === "root",
+          children: groupData
+        }
+      ];
     },
     // 点击树节点
     itemClick (param) {
@@ -416,48 +453,27 @@ export default {
       const { level, id } = param;
       if (level === 3) {
         this.serviceData = param;
-        this.serviceId = this.serviceData.id;
+        // this.serviceId = this.serviceData.id;
         this.idFactory = id;
-        this.treeData = param.treeData;
-        if (this.treeData.length !== 0) { // 若树数据不为空
-          this.treeData.forEach(group => { // 取消所有选中
-            group.selected = false;
-            group.children.forEach(pass => {
-              pass.selected = false;
-              pass.children.forEach(equipment => {
-                equipment.selected = false;
-              });
-            });
-          });
-          this.refreshSelect(); // 重设树，选中顶部 "采集服务"
-        }
+        // this.treeData = param.treeData;
+        // if (this.treeData.length !== 0) { // 若树数据不为空
+        //   this.treeData.forEach(group => { // 取消所有选中
+        //     group.selected = false;
+        //     group.children.forEach(pass => {
+        //       pass.selected = false;
+        //       pass.children.forEach(equipment => {
+        //         equipment.selected = false;
+        //       });
+        //     });
+        //   });
+        //   this.refreshSelect(); // 重设树，选中顶部 "采集服务"
+        // }
         this.isMock && this.refreshData();
       }
     },
-    // 工程发生改变（增删改）
-    async factoryHandle () {
-      this.factoryData = [
-        {
-          text: "工程组列表",
-          icon: "fa fa-folder",
-          id: "root",
-          level: 1,
-          opened: true,
-          selected: false,
-          children: (await queryProjectTeamList()).data.data.map(projectTeam => {
-            this.$set(projectTeam, "text", projectTeam.teamName);
-            this.$set(projectTeam, "describe", projectTeam.description);
-            this.$set(projectTeam, "creatTime", parseTime(projectTeam.createTime));
-            this.$set(projectTeam, "icon", "fa fa-laptop");
-            this.$set(projectTeam, "id", projectTeam.idStr);
-            this.$set(projectTeam, "level", 2);
-            this.$set(projectTeam, "children", []);
-            this.$set(projectTeam, "selected", false);
-            this.$set(projectTeam, "opened", false);
-            return projectTeam;
-          })
-        }
-      ];
+    // 工程组发生改变（增删改）
+    factoryHandle () {
+      this.getFactoryData();
     },
     // 保存
     itemSubmit (level) {
