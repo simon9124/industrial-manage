@@ -239,3 +239,27 @@ export const objEqual = (obj1, obj2) => {
 //  @函数: 引入组件
 export const lazyLoadingCop = file =>
   require("@/view/" + file + ".vue").default;
+
+/**
+ * @time {Number} 防抖时间
+ * @fnName {Function} 防抖事件
+ * @description 防抖
+ */
+export const debounce = (fn, t) => {
+  let delay = t || 1000;
+  let timer;
+  return function() {
+    let args = arguments;
+    if (timer) {
+      clearTimeout(timer);
+    }
+
+    let callNow = !timer;
+
+    timer = setTimeout(() => {
+      timer = null;
+    }, delay);
+
+    if (callNow) fn.apply(this, args);
+  };
+};
