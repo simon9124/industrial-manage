@@ -12,8 +12,8 @@
         <el-col style="width:420px">
           <el-form-item label-width="105px"
                         label="名称(英文)："
-                        prop="passName">
-            <el-input v-model="formPass.passName"></el-input>
+                        prop="pipelineName">
+            <el-input v-model="formPass.pipelineName"></el-input>
           </el-form-item>
         </el-col>
         <el-col style="width:380px">
@@ -61,8 +61,8 @@
         <el-col>
           <el-form-item label-width="85px"
                         label="通道类型："
-                        prop="passType">
-            <el-select v-model="formPass.passType"
+                        prop="channelId">
+            <el-select v-model="formPass.channelId"
                        placeholder="请选择">
               <el-option v-for="item in passTypeList"
                          :key="item"
@@ -74,14 +74,14 @@
         </el-col>
       </el-row>
 
-      <el-row v-if="formPass.passType==='串口'">
+      <el-row v-if="formPass.channelId==='串口'">
         <el-col style="width:160px">
           <el-form-item label-width="55px"
                         label="串口："
                         prop="sata">
             <el-select v-model="formPass.sata"
                        placeholder="请选择">
-              <el-option v-for="item in sataList"
+              <el-option v-for="item in serialList"
                          :key="item"
                          :label="item"
                          :value="item">
@@ -95,7 +95,7 @@
                         prop="baudRate">
             <el-select v-model="formPass.baudRate"
                        placeholder="请选择">
-              <el-option v-for="item in baudList"
+              <el-option v-for="item in baudRateList"
                          :key="item"
                          :label="item"
                          :value="item">
@@ -109,7 +109,7 @@
                         prop="dataBits">
             <el-select v-model="formPass.dataBits"
                        placeholder="请选择">
-              <el-option v-for="item in dataList"
+              <el-option v-for="item in dataBitsList"
                          :key="item"
                          :label="item"
                          :value="item">
@@ -123,7 +123,7 @@
                         prop="checkBits">
             <el-select v-model="formPass.checkBits"
                        placeholder="请选择">
-              <el-option v-for="item in checkList"
+              <el-option v-for="item in checkBitList"
                          :key="item"
                          :label="item"
                          :value="item">
@@ -137,7 +137,7 @@
                         prop="stopBits">
             <el-select v-model="formPass.stopBits"
                        placeholder="请选择">
-              <el-option v-for="item in stopList"
+              <el-option v-for="item in stopBitList"
                          :key="item"
                          :label="item"
                          :value="item">
@@ -148,22 +148,22 @@
 
       </el-row>
 
-      <el-row v-if="formPass.passType!=='串口' && formPass.passType!=='虚拟端口'">
+      <el-row v-if="formPass.channelId!=='串口' && formPass.channelId!=='虚拟端口'">
         <el-col style="width:300px">
           <el-form-item label-width="70px"
-                        :label="formPass.passType==='TCP客户端'?'远程IP：':'本地IP：'"
+                        :label="formPass.channelId==='TCP客户端'?'远程IP：':'本地IP：'"
                         prop="ip">
             <el-input v-model="formPass.ip"></el-input>
           </el-form-item>
         </el-col>
         <el-col style="width:300px">
           <el-form-item label-width="85px"
-                        :label="formPass.passType==='TCP客户端'?'远程端口：':'本地端口：'"
+                        :label="formPass.channelId==='TCP客户端'?'远程端口：':'本地端口：'"
                         prop="port">
             <el-input v-model="formPass.port"></el-input>
           </el-form-item>
         </el-col>
-        <el-button v-if="formPass.passType==='TCP客户端'"
+        <el-button v-if="formPass.channelId==='TCP客户端'"
                    style="margin-left:20px"
                    @click="bindingIP">需要绑定本地IP</el-button>
       </el-row>
@@ -188,8 +188,8 @@
             <el-col style="width:420px">
               <el-form-item label-width="105px"
                             label="名称(英文)："
-                            prop="passName">
-                <el-input v-model="formPass.passName"></el-input>
+                            prop="pipelineName">
+                <el-input v-model="formPass.pipelineName"></el-input>
               </el-form-item>
             </el-col>
             <el-col style="width:380px">
@@ -237,8 +237,8 @@
             <el-col>
               <el-form-item label-width="85px"
                             label="通道类型："
-                            prop="passType">
-                <el-select v-model="formPass.passType"
+                            prop="channelId">
+                <el-select v-model="formPass.channelId"
                            placeholder="请选择">
                   <el-option v-for="item in passTypeList"
                              :key="item"
@@ -250,14 +250,14 @@
             </el-col>
           </el-row>
 
-          <el-row v-if="formPass.passType==='串口'">
+          <el-row v-if="formPass.channelId==='串口'">
             <el-col style="width:160px">
               <el-form-item label-width="55px"
                             label="串口："
                             prop="sata">
                 <el-select v-model="formPass.sata"
                            placeholder="请选择">
-                  <el-option v-for="item in sataList"
+                  <el-option v-for="item in serialList"
                              :key="item"
                              :label="item"
                              :value="item">
@@ -271,7 +271,7 @@
                             prop="baudRate">
                 <el-select v-model="formPass.baudRate"
                            placeholder="请选择">
-                  <el-option v-for="item in baudList"
+                  <el-option v-for="item in baudRateList"
                              :key="item"
                              :label="item"
                              :value="item">
@@ -285,7 +285,7 @@
                             prop="dataBits">
                 <el-select v-model="formPass.dataBits"
                            placeholder="请选择">
-                  <el-option v-for="item in dataList"
+                  <el-option v-for="item in dataBitsList"
                              :key="item"
                              :label="item"
                              :value="item">
@@ -299,7 +299,7 @@
                             prop="checkBits">
                 <el-select v-model="formPass.checkBits"
                            placeholder="请选择">
-                  <el-option v-for="item in checkList"
+                  <el-option v-for="item in checkBitList"
                              :key="item"
                              :label="item"
                              :value="item">
@@ -313,7 +313,7 @@
                             prop="stopBits">
                 <el-select v-model="formPass.stopBits"
                            placeholder="请选择">
-                  <el-option v-for="item in stopList"
+                  <el-option v-for="item in stopBitList"
                              :key="item"
                              :label="item"
                              :value="item">
@@ -324,25 +324,25 @@
 
           </el-row>
 
-          <el-row v-if="formPass.passType!=='串口' && formPass.passType!=='虚拟端口'">
+          <el-row v-if="formPass.channelId!=='串口' && formPass.channelId!=='虚拟端口'">
             <el-col style="width:300px">
               <el-form-item label-width="70px"
-                            :label="formPass.passType==='TCP客户端'?'远程IP：':'本地IP：'"
+                            :label="formPass.channelId==='TCP客户端'?'远程IP：':'本地IP：'"
                             prop="ip">
                 <el-input v-model="formPass.ip"></el-input>
               </el-form-item>
             </el-col>
             <el-col style="width:300px">
               <el-form-item label-width="85px"
-                            :label="formPass.passType==='TCP客户端'?'远程端口：':'本地端口：'"
+                            :label="formPass.channelId==='TCP客户端'?'远程端口：':'本地端口：'"
                             prop="port">
                 <el-input v-model="formPass.port"></el-input>
               </el-form-item>
             </el-col>
-            <el-button v-if="formPass.passType==='TCP客户端'"
+            <el-button v-if="formPass.channelId==='TCP客户端'"
                        style="margin-left:20px"
                        @click="bindingIP">需要绑定本地IP</el-button>
-            <el-button v-if="formPass.passType==='TCP服务端'"
+            <el-button v-if="formPass.channelId==='TCP服务端'"
                        style="margin-left:20px">允许客户端接入列表</el-button>
           </el-row>
 
@@ -378,11 +378,11 @@
                  :id="id"
                  :form-pass="formPass"
                  :pass-type-list="passTypeList"
-                 :sata-list="sataList"
-                 :baud-list="baudList"
-                 :data-list="dataList"
-                 :check-list="checkList"
-                 :stop-list="stopList"></pass-params>
+                 :serial-list="serialList"
+                 :baud-rate-ist="baudRateList"
+                 :data-bits-list="dataBitsList"
+                 :check-bit-list="checkBitList"
+                 :stop-bit-list="stopBitList"></pass-params>
 
     <!-- dialog - 选择插件 -->
     <plugin-select ref="pluginSelect"
@@ -453,23 +453,23 @@ export default {
       type: Array
     },
     // 串口
-    sataList: {
+    serialList: {
       type: Array
     },
     // 波特率
-    baudList: {
+    baudRateList: {
       type: Array
     },
     // 数据位
-    dataList: {
+    dataBitsList: {
       type: Array
     },
     // 校验位
-    checkList: {
+    checkBitList: {
       type: Array
     },
     // 停止位
-    stopList: {
+    stopBitList: {
       type: Array
     }
   },
@@ -477,7 +477,7 @@ export default {
     return {
       formPass: {}, // 表单数据
       formPassRule: { // 表单验证
-        passName: [
+        pipelineName: [
           { required: true, message: "请输入名称", trigger: "blur" }
         ],
         passDescribe: [
@@ -534,7 +534,7 @@ export default {
             service.children.forEach((pass, i) => {
               pass.id === this.id &&
                 this.$set(pass, "text",
-                  `${this.formPass.passName}[${this.formPass.passDescribe}]`
+                  `${this.formPass.pipelineName}[${this.formPass.passDescribe}]`
                 );
             });
           });

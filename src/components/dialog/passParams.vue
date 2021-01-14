@@ -4,12 +4,12 @@
              :visible.sync="dialogVisible">
 
     <el-row class="params-dialog-row">
-      <el-checkbox v-model="formPass.otherParams.scanDelay">启用扫描间延迟</el-checkbox>
+      <el-checkbox v-model="formPass.passParams.delayIs">启用扫描间延迟</el-checkbox>
       <div class="params-dialog-row-div">
         延迟时间（毫秒）
-        <el-input v-model="formPass.otherParams.delayTime"
+        <el-input v-model="formPass.passParams.delay"
                   style="width:100px"
-                  :disabled="!formPass.otherParams.scanDelay"></el-input>
+                  :disabled="!formPass.passParams.delayIs"></el-input>
         <el-popover placement="top-start"
                     title="提示"
                     width="200"
@@ -23,155 +23,223 @@
       </div>
     </el-row>
 
-    <el-row v-if="id&&id.slice(0,1)==='1'"
+    <el-row v-if="serviceType===0"
             class="params-dialog-row">
-      <el-checkbox v-model="formPass.otherParams.linkReset">启用链路复位机制</el-checkbox>
+      <el-checkbox v-model="formPass.passParams.resetIs">启用链路复位机制</el-checkbox>
       <div class="params-dialog-row-div">
         端口无接收数据时间（秒）
-        <el-input v-model="formPass.otherParams.linkNoDataTime"
+        <el-input v-model="formPass.passParams.reset"
                   style="width:100px"
-                  :disabled="!formPass.otherParams.linkReset"></el-input>
+                  :disabled="!formPass.passParams.resetIs"></el-input>
         &nbsp;超过该时间，端口将重新关闭、打开（>=60）
       </div>
     </el-row>
 
     <el-row class="params-dialog-row">
-      <el-checkbox v-model="formPass.otherParams.faultDiagnosis"
+      <el-checkbox v-model="formPass.passParams.alertIs"
                    style="margin-bottom:10px">启用故障诊断</el-checkbox>
       <div class="params-dialog-row-div">
         端口无接收数据时间（秒）
-        <el-input v-model="formPass.otherParams.faultNoDataTime"
+        <el-input v-model="formPass.passParams.alert"
                   style="width:100px"
-                  :disabled="!formPass.otherParams.faultDiagnosis"></el-input>
-        &nbsp;超过该时间，{{id&&id.slice(0,1)==='1'?'端口为':'进入'}}故障状态（设定值>={{id&&id.slice(0,1)==='1'?'5秒':'120秒'}}）
-        <div v-if="id&&id.slice(0,1)==='2'"
+                  :disabled="!formPass.passParams.alertIs"></el-input>
+        &nbsp;超过该时间，{{serviceType===0?'端口为':'进入'}}故障状态（设定值>={{serviceType===0?'5秒':'120秒'}}）
+        <!-- <div v-if="serviceType===1"
              style="margin:10px 0">
           故障处理模式：
-          <el-radio v-model="formPass.otherParams.faultShooting"
+          <el-radio v-model="formPass.passParams.faultShooting"
                     label="1"
-                    :disabled="!formPass.otherParams.faultDiagnosis">端口将重新关闭、打开</el-radio>
-          <el-radio v-model="formPass.otherParams.faultShooting"
+                    :disabled="!formPass.passParams.alertIs">端口将重新关闭、打开</el-radio>
+          <el-radio v-model="formPass.passParams.faultShooting"
                     label="2"
-                    :disabled="!formPass.otherParams.faultDiagnosis">重启系统</el-radio>
-        </div>
+                    :disabled="!formPass.passParams.alertIs">重启系统</el-radio>
+        </div> -->
       </div>
     </el-row>
 
-    <el-row v-if="id&&id.slice(0,1)==='1'"
+    <!-- <el-row v-if="serviceType===0"
             class="params-dialog-row">
       设备间数据包扫描方：
       <div class="params-dialog-row-div"
            style="margin-top:10px">
-        <el-radio v-model="formPass.otherParams.packetScanning"
+        <el-radio v-model="formPass.passParams.packetScanning"
                   label="1"
                   disabled>扫面完一个包后，立刻进入下一个设备</el-radio>
-        <el-radio v-model="formPass.otherParams.packetScanning"
+        <el-radio v-model="formPass.passParams.packetScanning"
                   label="2"
                   disabled>设备所有包扫描完后，再进入下一个设备</el-radio>
       </div>
-    </el-row>
+    </el-row> -->
 
-    <el-row v-if="id&&id.slice(0,1)==='1'"
+    <el-row v-if="serviceType===0"
             class="params-dialog-row">
-      <el-checkbox v-model="formPass.otherParams.alternatePass">启用备用通道</el-checkbox>
+      <el-checkbox v-model="formPass.passParams.bakChannelIs">启用备用通道</el-checkbox>
     </el-row>
+    <div v-if="serviceType===0&&formPass.passParams.bakChannelIs">
 
-    <div v-if="id&&id.slice(0,1)==='1'&&formPass.otherParams.alternatePass">
+      <!-- 通道类型 -->
       <el-row class="params-dialog-row">
         <el-col>
           通道类型：
-          <el-select v-model="formPass.otherParams.passType"
+          <el-select v-model="formPass.passParams.bakChannelId"
                      placeholder="请选择">
             <el-option v-for="item in passTypeList"
-                       :key="item"
-                       :label="item"
-                       :value="item">
+                       :key="item.id"
+                       :label="item.value"
+                       :value="item.id">
             </el-option>
           </el-select>
         </el-col>
       </el-row>
 
-      <el-row class="params-dialog-row"
-              v-if="formPass.otherParams.passType==='串口'"
+      <!-- 串口 -->
+      <el-row v-if="formPass.passParams.bakChannelId===0"
+              class="params-dialog-row"
               :gutter="20">
         <el-col :span="8"
                 class="params-dialog-row-select">
           串口：
-          <el-select v-model="formPass.otherParams.sata"
+          <el-select v-model="formPass.passParams.bakSerial"
                      placeholder="请选择">
-            <el-option v-for="item in sataList"
-                       :key="item"
-                       :label="item"
-                       :value="item">
+            <el-option v-for="item in collectChannelList[0]['serialList']"
+                       :key="item.value"
+                       :label="item.label"
+                       :value="item.value">
             </el-option>
           </el-select>
         </el-col>
         <el-col :span="8"
                 class="params-dialog-row-select">
           波特率：
-          <el-select v-model="formPass.otherParams.baudRate"
+          <el-select v-model="formPass.passParams.bakBps"
                      placeholder="请选择">
-            <el-option v-for="item in baudList"
-                       :key="item"
-                       :label="item"
-                       :value="item">
+            <el-option v-for="item in collectChannelList[0]['baudRateList']"
+                       :key="item.value"
+                       :label="item.label"
+                       :value="item.value">
             </el-option>
           </el-select>
         </el-col>
         <el-col :span="8"
                 class="params-dialog-row-select">
           数据位：
-          <el-select v-model="formPass.otherParams.dataBits"
+          <el-select v-model="formPass.passParams.bakDataBit"
                      placeholder="请选择">
-            <el-option v-for="item in dataList"
-                       :key="item"
-                       :label="item"
-                       :value="item">
+            <el-option v-for="item in collectChannelList[0]['dataBitsList']"
+                       :key="item.value"
+                       :label="item.label"
+                       :value="item.value">
             </el-option>
           </el-select>
         </el-col>
         <el-col :span="8">
           校验位：
-          <el-select v-model="formPass.otherParams.checkBits"
+          <el-select v-model="formPass.passParams.bakCheckBit"
                      placeholder="请选择">
-            <el-option v-for="item in checkList"
-                       :key="item"
-                       :label="item"
-                       :value="item">
+            <el-option v-for="item in collectChannelList[0]['checkBitList']"
+                       :key="item.value"
+                       :label="item.label"
+                       :value="item.value">
             </el-option>
           </el-select>
         </el-col>
         <el-col :span="8">
           停止位：
-          <el-select v-model="formPass.otherParams.stopBits"
+          <el-select v-model="formPass.passParams.bakStopBit"
                      placeholder="请选择">
-            <el-option v-for="item in stopList"
-                       :key="item"
-                       :label="item"
-                       :value="item">
+            <el-option v-for="item in collectChannelList[0]['stopBitList']"
+                       :key="item.value"
+                       :label="item.label"
+                       :value="item.value">
             </el-option>
           </el-select>
         </el-col>
-
       </el-row>
 
-      <el-row class="params-dialog-row"
-              v-if="formPass.otherParams.passType!=='串口' && formPass.otherParams.passType!=='虚拟端口'"
+      <!-- TCP客户端 -->
+
+      <!-- TCP服务端 -->
+      <!-- UPD -->
+
+      <!-- <el-row class="params-dialog-row"
+              v-if="formPass.passParams.passType!=='串口' && formPass.passParams.passType!=='虚拟端口'"
               :gutter="20">
         <el-col>
-          {{formPass.otherParams.passType==='TCP客户端'?'远程IP：':'本地IP：'}}
-          <el-input v-model="formPass.otherParams.ip"
+          {{formPass.passParams.passType==='TCP客户端'?'远程IP：':'本地IP：'}}
+          <el-input v-model="formPass.passParams.ip"
                     style="width:150px;margin-right:10px"></el-input>
-          {{formPass.otherParams.passType==='TCP客户端'?'远程端口：':'本地端口：'}}
-          <el-input v-model="formPass.otherParams.port"
+          {{formPass.passParams.passType==='TCP客户端'?'远程端口：':'本地端口：'}}
+          <el-input v-model="formPass.passParams.port"
                     style="width:100px;margin-right:10px"></el-input>
         </el-col>
-      </el-row>
+      </el-row> -->
     </div>
+
+    <!-- TCP客户端 -->
+    <!-- <el-row v-if="formPass.passParams.channelId===1"
+            :gutter="20">
+      <el-col style="width:300px">
+        <el-form-item label-width="70px"
+                      label="远程IP："
+                      prop="ip">
+          <el-input v-model="formPass.passParams.ip"></el-input>
+        </el-form-item>
+      </el-col>
+      <el-col style="width:300px">
+        <el-form-item label-width="85px"
+                      label="远程端口："
+                      prop="port">
+          <el-input v-model="formPass.passParams.port"></el-input>
+        </el-form-item>
+      </el-col>
+      <el-button style="margin-left:20px"
+                 @click="bindingIP">需要绑定本地IP</el-button>
+    </el-row> -->
+
+    <!-- TCP服务端 -->
+    <!-- <el-row v-if="formPass.passParams.channelId===2"
+            :gutter="20">
+      <el-col style="width:300px">
+        <el-form-item label-width="70px"
+                      label="本地IP："
+                      prop="ip">
+          <el-input v-model="formPass.passParams.ip"></el-input>
+        </el-form-item>
+      </el-col>
+      <el-col style="width:300px">
+        <el-form-item label-width="85px"
+                      label="本地端口："
+                      prop="port">
+          <el-input v-model="formPass.passParams.port"></el-input>
+        </el-form-item>
+      </el-col>
+      <el-button v-if="serviceType===1"
+                 style="margin-left:20px"
+                 @click="bindingIP">允许客户端接入列表</el-button>
+    </el-row> -->
+
+    <!-- UPD -->
+    <!-- <el-row v-if="formPass.passParams.channelId===3"
+            :gutter="20">
+      <el-col style="width:300px">
+        <el-form-item label-width="70px"
+                      label="本地IP："
+                      prop="ip">
+          <el-input v-model="formPass.passParams.ip"></el-input>
+        </el-form-item>
+      </el-col>
+      <el-col style="width:300px">
+        <el-form-item label-width="85px"
+                      label="本地端口："
+                      prop="port">
+          <el-input v-model="formPass.passParams.port"></el-input>
+        </el-form-item>
+      </el-col>
+    </el-row> -->
 
     <div slot="footer"
          class="dialog-footer">
-      <el-button @click="dialogVisible = false;formPass.otherParams = paramsOrg">取 消</el-button>
+      <el-button @click="dialogVisible = false;formPass.passParams = paramsOrg">取 消</el-button>
       <el-button @click="dialogVisible = false"
                  type="primary">确 定</el-button>
     </div>
@@ -182,36 +250,21 @@
 
 export default {
   props: {
-    // 服务导航中被选择的id
-    id: {
-      type: String
+    // 0/1 采集服务/数据服务
+    serviceType: {
+      type: Number,
+      default: 0
     },
     // 当前通道数据
     formPass: {
       type: Object
     },
+    // 串口总数据
+    collectChannelList: {
+      type: Array
+    },
     // 通道类型
     passTypeList: {
-      type: Array
-    },
-    // 串口
-    sataList: {
-      type: Array
-    },
-    // 波特率
-    baudList: {
-      type: Array
-    },
-    // 数据位
-    dataList: {
-      type: Array
-    },
-    // 校验位
-    checkList: {
-      type: Array
-    },
-    // 停止位
-    stopList: {
       type: Array
     }
   },
@@ -225,8 +278,8 @@ export default {
     // 其他参数
     setParams () {
       this.dialogVisible = true;
-      this.paramsOrg = JSON.parse(JSON.stringify(this.formPass.otherParams)); // 深拷贝，取消时还原数据用
-      this.dialogTitle = `${this.id.slice(0, 1) === "1" ? "采集" : "数据服务"}通道 其他参数`;
+      this.paramsOrg = JSON.parse(JSON.stringify(this.formPass.passParams)); // 深拷贝，取消时还原数据用
+      this.dialogTitle = `${this.serviceType === 0 ? "采集" : "数据服务"}通道 其他参数`;
     }
   }
 };

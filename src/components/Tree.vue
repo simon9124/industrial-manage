@@ -31,7 +31,7 @@
       <v-jstree :data="data"
                 :collapse="collapse"
                 @item-click="itemClick"
-                @item-toggle="itemClick"></v-jstree>
+                @item-toggle="itemToggle"></v-jstree>
     </div>
 
     <!-- 树 · 不含右键菜单-->
@@ -74,7 +74,8 @@
 </template>
 
 <script>
-import VJstree from "vue-jstree"; // 组件：树
+// import VJstree from "vue-jstree"; // 组件：树
+import VJstree from "@/components/jstree/tree.vue"; // 组件：树
 import contextMenu from "vue-context-menu"; // 组件：右键功能弹窗
 
 export default {
@@ -115,6 +116,7 @@ export default {
     },
     // 点击树节点 - 展开 or 关闭
     itemToggle (node, item, e) {
+      // console.log(node);
       this.$emit("item-toggle", node.model);
     },
     // 树节点操作 - 增删改查

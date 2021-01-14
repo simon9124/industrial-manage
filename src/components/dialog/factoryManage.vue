@@ -198,7 +198,7 @@ export default {
       }
       this.$emit("factory-select", param);
     },
-    // 树节点展开/收起
+    // 树节点展开/收起 - 仅接口
     itemToggle (param) {
       if (!this.isMock && param.level === 2 && param.opened) {
         this.getProjectList(param.idStr, localStorage.getItem("project-id"));

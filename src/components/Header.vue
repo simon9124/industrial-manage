@@ -52,15 +52,15 @@
           <el-col :span="8">
             <el-form-item label-width="105px"
                           label="名称(英文)："
-                          prop="passName">
-              <el-input v-model="formPass.passName"></el-input>
+                          prop="pipelineName">
+              <el-input v-model="formPass.pipelineName"></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="8">
             <el-form-item label-width="65px"
                           label="描述："
-                          prop="passDescribe">
-              <el-input v-model="formPass.passDescribe"></el-input>
+                          prop="description">
+              <el-input v-model="formPass.description"></el-input>
             </el-form-item>
           </el-col>
           <el-button style="margin:0 0 20px 5px"
@@ -69,17 +69,33 @@
 
         <el-row :gutter="20">
           <el-col :span="8">
-            <el-form-item label-width="55px"
+            <el-form-item v-if="isMock"
+                          label-width="55px"
                           label="厂家：">
               <el-input disabled
                         v-model="formPass.plugin.factory"></el-input>
             </el-form-item>
+            <el-form-item v-else
+                          label-width="65px"
+                          label="厂家："
+                          prop="pluginFactory">
+              <el-input disabled
+                        v-model="formPass.pluginFactory"></el-input>
+            </el-form-item>
           </el-col>
           <el-col :span="8">
-            <el-form-item label-width="55px"
+            <el-form-item v-if="isMock"
+                          label-width="50px"
                           label="描述：">
               <el-input disabled
                         v-model="formPass.plugin.describe"></el-input>
+            </el-form-item>
+            <el-form-item v-else
+                          label-width="65px"
+                          label="描述："
+                          prop="pluginDescribe">
+              <el-input disabled
+                        v-model="formPass.pluginDescribe"></el-input>
             </el-form-item>
           </el-col>
           <el-button style="margin:0 0 20px 5px"
@@ -87,7 +103,7 @@
           <el-button style="margin-bottom:20px">帮助</el-button>
         </el-row>
 
-        <el-row>
+        <!-- <el-row>
           <el-col :span="22">
             <el-form-item label-width="55px"
                           label="路径：">
@@ -95,37 +111,40 @@
                         v-model="formPass.plugin.path"></el-input>
             </el-form-item>
           </el-col>
-        </el-row>
+        </el-row> -->
 
+        <!-- 通道类型 -->
         <el-row>
           <el-col>
-            <el-form-item label-width="85px"
+            <el-form-item v-show="passTypeListUse.length!==0"
+                          label-width="85px"
                           label="通道类型："
-                          prop="passType">
-              <el-select v-model="formPass.passType"
+                          prop="channelId">
+              <el-select v-model="formPass.channelId"
                          placeholder="请选择">
-                <el-option v-for="item in passTypeList"
-                           :key="item"
-                           :label="item"
-                           :value="item">
+                <el-option v-for="item in passTypeListUse"
+                           :key="item.id"
+                           :label="item.value"
+                           :value="item.id">
                 </el-option>
               </el-select>
             </el-form-item>
           </el-col>
         </el-row>
 
-        <el-row v-if="formPass.passType==='串口'"
+        <!-- 串口 -->
+        <el-row v-show="formPass.channelId===0"
                 :gutter="20">
           <el-col style="width:180px">
             <el-form-item label-width="55px"
                           label="串口："
-                          prop="sata">
-              <el-select v-model="formPass.sata"
+                          prop="serial">
+              <el-select v-model="formPass.serial"
                          placeholder="请选择">
-                <el-option v-for="item in sataList"
-                           :key="item"
-                           :label="item"
-                           :value="item">
+                <el-option v-for="item in collectChannelList[0]['serialList']"
+                           :key="item.value"
+                           :label="item.label"
+                           :value="item.value">
                 </el-option>
               </el-select>
             </el-form-item>
@@ -133,13 +152,13 @@
           <el-col style="width:180px">
             <el-form-item label-width="75px"
                           label="波特率："
-                          prop="baudRate">
-              <el-select v-model="formPass.baudRate"
+                          prop="bps">
+              <el-select v-model="formPass.bps"
                          placeholder="请选择">
-                <el-option v-for="item in baudList"
-                           :key="item"
-                           :label="item"
-                           :value="item">
+                <el-option v-for="item in collectChannelList[0]['baudRateList']"
+                           :key="item.value"
+                           :label="item.label"
+                           :value="item.value">
                 </el-option>
               </el-select>
             </el-form-item>
@@ -147,13 +166,13 @@
           <el-col style="width:160px">
             <el-form-item label-width="75px"
                           label="数据位："
-                          prop="dataBits">
-              <el-select v-model="formPass.dataBits"
+                          prop="dataBit">
+              <el-select v-model="formPass.dataBit"
                          placeholder="请选择">
-                <el-option v-for="item in dataList"
-                           :key="item"
-                           :label="item"
-                           :value="item">
+                <el-option v-for="item in collectChannelList[0]['dataBitsList']"
+                           :key="item.value"
+                           :label="item.label"
+                           :value="item.value">
                 </el-option>
               </el-select>
             </el-form-item>
@@ -161,13 +180,13 @@
           <el-col style="width:200px">
             <el-form-item label-width="75px"
                           label="校验位："
-                          prop="checkBits">
-              <el-select v-model="formPass.checkBits"
+                          prop="checkBit">
+              <el-select v-model="formPass.checkBit"
                          placeholder="请选择">
-                <el-option v-for="item in checkList"
-                           :key="item"
-                           :label="item"
-                           :value="item">
+                <el-option v-for="item in collectChannelList[0]['checkBitList']"
+                           :key="item.value"
+                           :label="item.label"
+                           :value="item.value">
                 </el-option>
               </el-select>
             </el-form-item>
@@ -175,42 +194,82 @@
           <el-col style="width:180px">
             <el-form-item label-width="75px"
                           label="停止位："
-                          prop="stopBits">
-              <el-select v-model="formPass.stopBits"
+                          prop="stopBit">
+              <el-select v-model="formPass.stopBit"
                          placeholder="请选择">
-                <el-option v-for="item in stopList"
-                           :key="item"
-                           :label="item"
-                           :value="item">
+                <el-option v-for="item in collectChannelList[0]['stopBitList']"
+                           :key="item.value"
+                           :label="item.label"
+                           :value="item.value">
                 </el-option>
               </el-select>
             </el-form-item>
           </el-col>
-
         </el-row>
 
-        <el-row v-if="formPass.passType!=='串口' && formPass.passType!=='虚拟端口'"
+        <!-- TCP客户端 -->
+        <el-row v-show="formPass.channelId===1"
                 :gutter="20">
           <el-col style="width:300px">
             <el-form-item label-width="70px"
-                          :label="formPass.passType==='TCP客户端'?'远程IP：':'本地IP：'"
+                          label="远程IP："
                           prop="ip">
               <el-input v-model="formPass.ip"></el-input>
             </el-form-item>
           </el-col>
           <el-col style="width:300px">
             <el-form-item label-width="85px"
-                          :label="formPass.passType==='TCP客户端'?'远程端口：':'本地端口：'"
+                          label="远程端口："
                           prop="port">
               <el-input v-model="formPass.port"></el-input>
             </el-form-item>
           </el-col>
-          <el-button v-if="formPass.passType==='TCP客户端'"
-                     style="margin-left:20px"
+          <el-button style="margin-left:20px"
                      @click="bindingIP">需要绑定本地IP</el-button>
         </el-row>
 
-        <el-collapse v-if="id&&id.slice(0,1)==='2'"
+        <!-- TCP服务端 -->
+        <el-row v-show="formPass.channelId===2"
+                :gutter="20">
+          <el-col style="width:300px">
+            <el-form-item label-width="70px"
+                          label="本地IP："
+                          prop="ip">
+              <el-input v-model="formPass.ip"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col style="width:300px">
+            <el-form-item label-width="85px"
+                          label="本地端口："
+                          prop="port">
+              <el-input v-model="formPass.port"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-button v-if="serviceType===1"
+                     style="margin-left:20px"
+                     @click="bindingIP">允许客户端接入列表</el-button>
+        </el-row>
+
+        <!-- UPD -->
+        <el-row v-show="formPass.channelId===3"
+                :gutter="20">
+          <el-col style="width:300px">
+            <el-form-item label-width="70px"
+                          label="本地IP："
+                          prop="ip">
+              <el-input v-model="formPass.ip"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col style="width:300px">
+            <el-form-item label-width="85px"
+                          label="本地端口："
+                          prop="port">
+              <el-input v-model="formPass.port"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <!-- <el-collapse v-if="id&&id.slice(0,1)==='2'"
                      v-model="disposeActiveNames">
           <el-collapse-item title="基本参数"
                             name="1">
@@ -219,7 +278,7 @@
                         v-model="formPass.delayTime"></el-input>
             </div>
           </el-collapse-item>
-        </el-collapse>
+        </el-collapse> -->
 
       </el-form>
 
@@ -318,26 +377,22 @@
 
     <!-- dialog - 其他参数 · 通道 -->
     <pass-params ref="passParams"
-                 :id="id"
                  :form-pass="formPass"
                  :pass-type-list="passTypeList"
-                 :sata-list="sataList"
-                 :baud-list="baudList"
-                 :data-list="dataList"
-                 :check-list="checkList"
-                 :stop-list="stopList"></pass-params>
+                 :collect-channel-list="collectChannelList"></pass-params>
 
     <!-- dialog - 其他参数 · 设备 -->
-    <equipment-params ref="equipmentParams"
+    <!-- <equipment-params ref="equipmentParams"
                       :id="id"
-                      :form-equipment="formEquipment"></equipment-params>
+                      :form-equipment="formEquipment"></equipment-params> -->
 
     <!-- dialog - 选择插件 -->
     <plugin-select ref="pluginSelect"
-                   :id="id"
+                   :service-type="serviceType"
                    :form-pass="formPass"
                    :plugin-list="pluginList"
-                   @plugin-click="pluginClick"></plugin-select>
+                   @plugin-click="pluginClick"
+                   @plugin-submit="pluginSubmit"></plugin-select>
 
     <!-- dialog - 复制 -->
     <el-dialog class="copy-dialog"
@@ -355,11 +410,11 @@
                          label="序号"
                          width="55">
         </el-table-column>
-        <el-table-column :prop="level===1?'passName':'equipmentName'"
+        <el-table-column :prop="level===1?'pipelineName':'equipmentName'"
                          label="对象名称"
                          width="130">
         </el-table-column>
-        <el-table-column :prop="level===1?'passDescribe':'equipmentDescribe'"
+        <el-table-column :prop="level===1?'description':'equipmentDescribe'"
                          label="对象描述">
         </el-table-column>
       </el-table>
@@ -394,7 +449,7 @@
                :visible.sync="bindingIPVisible">
       <el-row>
         本地IP：
-        <el-input v-model="formPass.bindingIp"
+        <el-input v-model="formPass.localIp"
                   style="width:300px"></el-input>
       </el-row>
       <el-row style="margin-top:20px">
@@ -403,7 +458,7 @@
 
       <div slot="footer"
            class="dialog-footer">
-        <el-button @click="bindingIPVisible = false;formPass.bindingIp = bindingIpOrg">取 消</el-button>
+        <el-button @click="bindingIPVisible = false;formPass.localIp = bindingIpOrg">取 消</el-button>
         <el-button @click="bindingIPVisible = false"
                    type="primary">确 定</el-button>
       </div>
@@ -414,7 +469,9 @@
 </template>
 
 <script>
+/* vuex */
 import { mapActions } from "vuex";
+/* components */
 import PluginSelect from "@/components/dialog/pluginSelect"; // 组件：选择插件
 import PassParams from "@/components/dialog/passParams"; // 组件：其他参数 - 通道
 import EquipmentParams from "@/components/dialog/equipmentParams"; // 组件：其他参数 - 通道
@@ -446,6 +503,11 @@ export default {
     id: {
       type: String
     },
+    // 0/1 采集服务/数据服务
+    serviceType: {
+      type: Number,
+      default: 0
+    },
     // 被选择的id - 工程
     idFactory: {
       type: String
@@ -462,28 +524,12 @@ export default {
     pluginList: {
       type: Array
     },
+    // 串口总数据
+    collectChannelList: {
+      type: Array
+    },
     // 通道类型
     passTypeList: {
-      type: Array
-    },
-    // 串口
-    sataList: {
-      type: Array
-    },
-    // 波特率
-    baudList: {
-      type: Array
-    },
-    // 数据位
-    dataList: {
-      type: Array
-    },
-    // 校验位
-    checkList: {
-      type: Array
-    },
-    // 停止位
-    stopList: {
       type: Array
     },
     // 设备列表
@@ -503,17 +549,38 @@ export default {
       bindingIPVisible: false, // IP地址框 - 是否可见
       /* 通道 */
       formPass: { // 表单数据
-        otherParams: {},
-        plugin: {}
+        pipelineName: null, // 通道名称
+        description: null, // 通道描述
+        plugin: {}, // 选择的插件数据
+        pluginFactory: null, // 插件厂家
+        pluginDescribe: null, // 插件描述
+        channelId: null, // 通道类型id
+        serial: 0, // 串口-串口
+        bps: 0, // 波特率-串口
+        dataBit: 0, // 数据位-串口
+        checkBit: 0, // 校验位-串口
+        stopBit: 0, // 停止位-串口
+        ip: null, // 远程IP-TCP客户端 or 本地IP-TCP服务端、UDP
+        port: null, // 远程端口-TCP客户端 or 本地端口服务端、UDP
+        localIp: null, // 需绑定本地IP-TCP客户端
+        ipList: null, // 允许客户端接入列表-TCP服务端
+        passParams: {} // 其他参数
       },
       formPassRule: { // 表单验证
-        passName: [
-          { required: true, message: "请输入名称", trigger: "blur" }
+        pipelineName: [
+          { required: true, message: "请输入名称", trigger: "change" }
         ],
-        passDescribe: [
-          { required: true, message: "请输入描述", trigger: "blur" }
+        description: [
+          { required: true, message: "请输入描述", trigger: "change" }
+        ],
+        pluginFactory: [
+          { required: true, message: "请选择插件", trigger: "change" }
+        ],
+        pluginDescribe: [
+          { required: true, message: "请选择插件", trigger: "change" }
         ]
       },
+      passTypeListUse: [],
       disposeActiveNames: ["1"], // 手风琴展开的标签
       /* 设备 */
       formEquipment: { // 表单数据
@@ -542,102 +609,133 @@ export default {
       this.dialogDisposeVisible = true;
       this.dialogDisposeTitle = `采集${this.level === 1 ? "通道" : "设备"}配置`;
       // 重置表单数据
-      if (this.level === 1) {
-        this.formPass = {
-          passName: "C1",
-          passDescribe: "通道1",
-          plugin: {
-            name: "IND_MODBUS_TCP",
-            describe: "MODBUS TCP",
-            factory: "莫迪康",
-            classification: "通用标准",
-            path: "C:\\Users\\43577\\Desktop\\软件\\CESTC\\PluginIo\\IND_MODBUS_RTU",
-            plugins: [
-              {
-                name: "BA_BACNET_IP.335x",
-                platform: "335x",
-                edition: "5.0.0.1",
-                lastModifiedDate: "2017-11-08 07:55:30"
-              },
-              {
-                name: "BA_BACNET_IP.dll",
-                platform: "dll",
-                edition: "5.0.0.1",
-                lastModifiedDate: "2019-02-19 03:45:30"
-              },
-              {
-                name: "BA_BACNET_IP.xt",
-                platform: "xt",
-                edition: "",
-                lastModifiedDate: "2020-02-22 08:47:32"
+      if (this.isMock) { // mock数据
+        if (this.level === 1) {
+          this.formPass = {
+            pipelineName: "C1",
+            description: "通道1",
+            plugin: {
+              name: "IND_MODBUS_TCP",
+              describe: "MODBUS TCP",
+              factory: "莫迪康",
+              classification: "通用标准",
+              path: "C:\\Users\\43577\\Desktop\\软件\\CESTC\\PluginIo\\IND_MODBUS_RTU",
+              plugins: [
+                {
+                  name: "BA_BACNET_IP.335x",
+                  platform: "335x",
+                  edition: "5.0.0.1",
+                  lastModifiedDate: "2017-11-08 07:55:30"
+                },
+                {
+                  name: "BA_BACNET_IP.dll",
+                  platform: "dll",
+                  edition: "5.0.0.1",
+                  lastModifiedDate: "2019-02-19 03:45:30"
+                },
+                {
+                  name: "BA_BACNET_IP.xt",
+                  platform: "xt",
+                  edition: "",
+                  lastModifiedDate: "2020-02-22 08:47:32"
+                }
+              ]
+            },
+            channelId: "串口",
+            channel: {
+              bps: 7,
+              checkBit: 0,
+              dataBit: 8,
+              serial: 0,
+              stopBit: 0
+            },
+            otherParams: {
+              delayIs: false,
+              delayTime: 100,
+              linkReset: false,
+              reset: 60,
+              alertIs: false,
+              alert: 60,
+              faultShooting: "1",
+              packetScanning: "1",
+              alternatePass: false,
+              channelId: "串口",
+              channel: {
+                bps: 7,
+                checkBit: 0,
+                dataBit: 8,
+                serial: 0,
+                stopBit: 0
               }
-            ]
-          },
-          passType: "串口",
-          sata: "COM01",
-          baudRate: "9600",
-          dataBits: "8",
-          checkBits: "无校验",
-          stopBits: "1",
-          ip: "192.168.0.253",
-          port: "50001",
-          bindingIp: "192.168.200.161",
-          otherParams: {
-            scanDelay: false,
-            delayTime: 100,
-            linkReset: false,
-            linkNoDataTime: 60,
-            faultDiagnosis: false,
-            faultNoDataTime: 60,
-            faultShooting: "1",
-            packetScanning: "1",
-            alternatePass: false,
-            passType: "串口",
-            sata: "COM01",
-            baudRate: "9600",
-            dataBits: "8",
-            checkBits: "无校验",
-            stopBits: "1",
-            ip: "192.168.0.253",
-            port: "50001"
-          },
-          delayTime: 10,
-          dataTags: []
-        };
-      } else {
-        this.formEquipment = {
-          equipmentName: "D1",
-          equipmentDescribe: "设备1",
-          userParam: "",
-          MODBUSAdd: "1",
-          searchNum: 32,
-          singleRegister: true,
-          multiRegister: true,
-          correspondingValue: "FF00",
-          subCorrespondingValue: "0000",
-          doubleByteCheck: true,
-          otherParams: {
-            delayTime: 3000,
-            failedTryAgain: false,
-            failedTryTimes: 1,
-            faultDiagnosis: false,
-            continuousQueryFailed: 5,
-            noReceivedLongTime: 120,
-            faultDataProcess: "保持之前值，质量戳为GOOD",
-            faultScanProcess: "正常扫描",
-            queryPeriod: 30,
-            equipmentFactor: false,
-            factorR1: "1.000",
-            factorR2: "1.000"
-          },
-          dataTags: []
-        };
+            },
+            delayTime: 10,
+            dataTags: []
+          };
+        } else {
+          this.formEquipment = {
+            equipmentName: "D1",
+            equipmentDescribe: "设备1",
+            userParam: "",
+            MODBUSAdd: "1",
+            searchNum: 32,
+            singleRegister: true,
+            multiRegister: true,
+            correspondingValue: "FF00",
+            subCorrespondingValue: "0000",
+            doubleByteCheck: true,
+            otherParams: {
+              delayTime: 3000,
+              failedTryAgain: false,
+              failedTryTimes: 1,
+              alertIs: false,
+              continuousQueryFailed: 5,
+              noReceivedLongTime: 120,
+              faultDataProcess: "保持之前值，质量戳为GOOD",
+              faultScanProcess: "正常扫描",
+              queryPeriod: 30,
+              equipmentFactor: false,
+              factorR1: "1.000",
+              factorR2: "1.000"
+            },
+            dataTags: []
+          };
+        }
+      } else { // 接口数据
+        if (this.level === 1) {
+          this.$nextTick(() => {
+            this.passTypeListUse = []; // 清空可选的通道类型
+            this.$refs["formPass"].resetFields();
+            this.formPass.passParams = {
+              delayIs: false, // 是否diabled - 延迟时间
+              delay: null, // 延迟时间
+              resetIs: false, // 是否diabled - 链路复位机制
+              reset: null, // 链路复位机制
+              alertIs: false, // 是否diabled - 故障诊断
+              alert: null, // 故障诊断
+              bakChannelIs: false, // 是否diabled - 备用通道
+              bakChannelId: null, // 备用通道：类型id
+              bakSerial: 0, // 备用通道：串口-串口
+              bakBps: 0, // 备用通道：波特率-串口
+              bakDataBit: 0, // 备用通道：数据位-串口
+              bakCheckBit: 0, // 备用通道：校验位-串口
+              bakStopBit: 0, // 备用通道：停止位-串口
+              bakIp: null, // 备用通道：远程IP-TCP客户端 or 本地IP-TCP服务端、UDP
+              bakPort: null // 备用通道：远程端口-TCP客户端 or 本地端口服务端、UDP
+            };
+            console.log(this.formPass);
+          });
+        } else {
+          this.$nextTick(() => {
+            this.$refs["formEquipment"].resetFields();
+          });
+        }
       }
     },
     // 回调：新增 通道/设备
     itemAdd () {
       this.level === 1 && this.$refs.formPass.validate(valid => {
-        valid && this.$emit("item-add", this.formPass);
+        // valid && this.$emit("item-add", this.formPass);
+        this.$emit("item-add", this.formPass);
       });
       this.level === 2 && this.$refs.formEquipment.validate(valid => {
         valid && this.$emit("item-add", this.formEquipment);
@@ -704,8 +802,41 @@ export default {
     pluginClick (param) {
       // console.log(param);
       const { level } = param;
-      level === 2 && (this.formPass.plugin = param);
-      console.log(this.formPass);
+      if (level === 2) {
+        if (this.isMock) { // mock数据
+          this.formPass.plugin = param;
+          console.log(this.formPass);
+        } else { // 接口数据
+          console.log(param);
+          localStorage.setItem("plugin-id", param.id);
+          localStorage.setItem("plugin-teamName", param.typeName);
+          this.formPass.plugin = {
+            name: param.name,
+            describe: param.description,
+            classification: param.typeName,
+            factory: param.manufacturers,
+            plugins: param.submodule,
+            id: param.id,
+            otherParams: param.collectionPipeOtherParam
+              ? param.collectionPipeOtherParam : param.dataPipeOtherParams,
+            outerParams: param.collectionPipeOuterParam
+              ? param.collectionPipeOuterParam : param.dataPipeOuterParams,
+            collectChannelList: param.collectChannelList,
+            collectChannelDefaultParam: param.collectChannelDefaultParam
+          };
+          // console.log(this.formPass);
+        }
+      }
+    },
+    // 确认插件 - 仅接口
+    pluginSubmit () {
+      // /* 根据将插件选择的数据，更新通道配置表单 */
+      this.formPass.pluginFactory = this.formPass.plugin.factory; // 厂家
+      this.formPass.pluginDescribe = this.formPass.plugin.describe; // （插件）描述
+      this.passTypeListUse = JSON.parse(JSON.stringify(this.passTypeList)).filter(type => // 通道类型select框
+        this.formPass.plugin.collectChannelList.indexOf(type.id) > -1);
+      // // console.log(this.passTypeListUse);
+      this.formPass.channelId = this.formPass.plugin.collectChannelDefaultParam; // 通道类型默认值
     },
     // 点击按钮 - 其他参数[设备] - 调用子组件事件
     setParamsEquipment () {
@@ -734,7 +865,7 @@ export default {
     // 点击按钮 - 需绑定本地IP
     bindingIP () {
       this.bindingIPVisible = true;
-      this.bindingIpOrg = JSON.parse(JSON.stringify(this.formPass.bindingIp)); // 深拷贝，取消时还原数据用
+      this.bindingIpOrg = JSON.parse(JSON.stringify(this.formPass.localIp)); // 深拷贝，取消时还原数据用
     },
     // 回调 - 保存
     itemSubmit () {
