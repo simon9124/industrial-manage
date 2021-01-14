@@ -4,6 +4,7 @@ const treeData = [
     text: "采集服务",
     icon: "fa fa-folder",
     id: "1",
+    type: 0,
     level: 1,
     selected: true,
     children: [
@@ -53,6 +54,7 @@ const treeData = [
     text: "数据服务",
     icon: "fa fa-database",
     id: "2",
+    type: 1,
     level: 1,
     children: [
       {
@@ -71,6 +73,7 @@ const treeTempleteData = [
     text: "采集服务",
     icon: "fa fa-folder",
     id: "1",
+    type: 0,
     level: 1,
     selected: true,
     opened: true, // 父节点须设置opened为true，否则子节点首次新增时打不开
@@ -80,6 +83,7 @@ const treeTempleteData = [
     text: "数据服务",
     icon: "fa fa-database",
     id: "2",
+    type: 1,
     level: 1,
     opened: true,
     selected: false, // 未被选中的父节点需设置selected为false，否则该节点切换时会有bug

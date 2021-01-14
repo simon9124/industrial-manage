@@ -2,8 +2,8 @@
 const passList = [
   {
     id: "1-1",
-    passName: "C1",
-    passDescribe: "通道1",
+    pipelineName: "C1",
+    description: "通道1",
     plugin: {
       name: "IND_MODBUS_TCP",
       describe: "MODBUS TCP",
@@ -31,41 +31,47 @@ const passList = [
         }
       ]
     },
-    passType: "TCP客户端",
-    sata: "COM01",
-    baudRate: "9600",
-    dataBits: "8",
-    checkBits: "无校验",
-    stopBits: "1",
-    ip: "192.168.0.253",
-    port: "50001",
-    bindingIp: "192.168.200.161",
-    otherParams: {
-      scanDelay: true,
-      delayTime: 100,
-      linkReset: true,
-      linkNoDataTime: 60,
-      faultDiagnosis: true,
-      faultNoDataTime: 60,
+    channelId: 1,
+    channel: {
+      bps: 7,
+      checkBit: 0,
+      dataBit: 8,
+      serial: 0,
+      stopBit: 0
+    },
+    passParams: {
+      delayIs: true,
+      delay: 100,
+      resetIs: true,
+      reset: 60,
+      alertIs: true,
+      alert: 60,
       faultShooting: "1",
       packetScanning: "1",
       alternatePass: true,
-      passType: "串口",
-      sata: "COM01",
-      baudRate: "9600",
-      dataBits: "8",
-      checkBits: "无校验",
-      stopBits: "1",
-      ip: "192.168.0.253",
-      port: "50001"
+      channelId: "串口",
+      channel: {
+        bps: 7,
+        checkBit: 0,
+        dataBit: 8,
+        serial: 0,
+        stopBit: 0
+      }
+      // sata: "COM01",
+      // baudRate: "9600",
+      // dataBits: "8",
+      // checkBits: "无校验",
+      // stopBits: "1",
+      // ip: "192.168.0.253",
+      // port: "50001"
     },
-    delayTime: 10,
+    delay: 10,
     idFactory: "factory-1"
   },
   {
     id: "1-2",
-    passName: "C2",
-    passDescribe: "通道2",
+    pipelineName: "C2",
+    description: "通道2",
     plugin: {
       name: "IND_CJT188_2004",
       describe: "T188 2004",
@@ -93,41 +99,55 @@ const passList = [
         }
       ]
     },
-    passType: "虚拟端口",
-    sata: "COM01",
-    baudRate: "9600",
-    dataBits: "8",
-    checkBits: "无校验",
-    stopBits: "1",
-    ip: "192.168.0.253",
-    port: "50001",
-    bindingIp: "192.168.200.161",
-    otherParams: {
-      scanDelay: true,
-      delayTime: 100,
-      linkReset: false,
-      linkNoDataTime: 60,
-      faultDiagnosis: true,
-      faultNoDataTime: 60,
+    channelId: "虚拟端口",
+    channel: {
+      bps: 7,
+      checkBit: 0,
+      dataBit: 8,
+      serial: 0,
+      stopBit: 0
+    },
+    // sata: "COM01",
+    // baudRate: "9600",
+    // dataBits: "8",
+    // checkBits: "无校验",
+    // stopBits: "1",
+    // ip: "192.168.0.253",
+    // port: "50001",
+    // bindingIp: "192.168.200.161",
+    passParams: {
+      delayIs: true,
+      delay: 100,
+      resetIs: false,
+      reset: 60,
+      alertIs: true,
+      alert: 60,
       faultShooting: "1",
       packetScanning: "1",
       alternatePass: false,
-      passType: "串口",
-      sata: "COM01",
-      baudRate: "9600",
-      dataBits: "8",
-      checkBits: "无校验",
-      stopBits: "1",
-      ip: "192.168.0.253",
-      port: "50001"
+      channelId: "串口",
+      channel: {
+        bps: 7,
+        checkBit: 0,
+        dataBit: 8,
+        serial: 0,
+        stopBit: 0
+      }
+      // sata: "COM01",
+      // baudRate: "9600",
+      // dataBits: "8",
+      // checkBits: "无校验",
+      // stopBits: "1",
+      // ip: "192.168.0.253",
+      // port: "50001"
     },
-    delayTime: 10,
+    delay: 10,
     idFactory: "factory-1"
   },
   {
     id: "2-1",
-    passName: "C3",
-    passDescribe: "通道3",
+    pipelineName: "C3",
+    description: "通道3",
     plugin: {
       name: "PLC_AB_LOGIX_TCP",
       describe: "AB LOGIX 5000 TCP",
@@ -156,35 +176,49 @@ const passList = [
         }
       ]
     },
-    passType: "串口",
-    sata: "COM01",
-    baudRate: "9600",
-    dataBits: "8",
-    checkBits: "无校验",
-    stopBits: "1",
-    ip: "192.168.0.253",
-    port: "50001",
-    bindingIp: "192.168.200.161",
-    otherParams: {
-      scanDelay: false,
-      delayTime: 100,
-      linkReset: false,
-      linkNoDataTime: 60,
-      faultDiagnosis: false,
-      faultNoDataTime: 60,
+    channelId: "串口",
+    channel: {
+      bps: 7,
+      checkBit: 0,
+      dataBit: 8,
+      serial: 0,
+      stopBit: 0
+    },
+    // sata: "COM01",
+    // baudRate: "9600",
+    // dataBits: "8",
+    // checkBits: "无校验",
+    // stopBits: "1",
+    // ip: "192.168.0.253",
+    // port: "50001",
+    // bindingIp: "192.168.200.161",
+    passParams: {
+      delayIs: false,
+      delay: 100,
+      resetIs: false,
+      reset: 60,
+      alertIs: false,
+      alert: 60,
       faultShooting: "1",
       packetScanning: "1",
       alternatePass: false,
-      passType: "串口",
-      sata: "COM01",
-      baudRate: "9600",
-      dataBits: "8",
-      checkBits: "无校验",
-      stopBits: "1",
-      ip: "192.168.0.253",
-      port: "50001"
+      channelId: "串口",
+      channel: {
+        bps: 7,
+        checkBit: 0,
+        dataBit: 8,
+        serial: 0,
+        stopBit: 0
+      }
+      // sata: "COM01",
+      // baudRate: "9600",
+      // dataBits: "8",
+      // checkBits: "无校验",
+      // stopBits: "1",
+      // ip: "192.168.0.253",
+      // port: "50001"
     },
-    delayTime: 10,
+    delay: 10,
     dataTags: [
       {
         id: "1",
@@ -277,11 +311,11 @@ const equipmentList = [
     correspondingValue: "FF00",
     subCorrespondingValue: "0000",
     doubleByteCheck: true,
-    otherParams: {
-      delayTime: 3000,
+    passParams: {
+      delay: 3000,
       failedTryAgain: true,
       failedTryTimes: 1,
-      faultDiagnosis: true,
+      alertIs: true,
       continuousQueryFailed: 5,
       noReceivedLongTime: 120,
       faultDataProcess: "保持之前值，质量戳为GOOD",
@@ -296,7 +330,7 @@ const equipmentList = [
         id: "1-1-1-1",
         name: "Tag1",
         describe: "标签1",
-        otherParams: {
+        passParams: {
           takeAbsoluteValue: true,
           absoluteValue: "",
           calculation: "不参与计算",
@@ -339,7 +373,7 @@ const equipmentList = [
         id: "1-1-1-2",
         name: "Tag2",
         describe: "标签2",
-        otherParams: {
+        passParams: {
           takeAbsoluteValue: false,
           absoluteValue: "",
           calculation: "不参与计算",
@@ -393,11 +427,11 @@ const equipmentList = [
     correspondingValue: "FF00",
     subCorrespondingValue: "0000",
     doubleByteCheck: true,
-    otherParams: {
-      delayTime: 3000,
+    passParams: {
+      delay: 3000,
       failedTryAgain: true,
       failedTryTimes: 1,
-      faultDiagnosis: false,
+      alertIs: false,
       continuousQueryFailed: 5,
       noReceivedLongTime: 120,
       faultDataProcess: "保持之前值，质量戳为BAD",
@@ -412,7 +446,7 @@ const equipmentList = [
         id: "1-1-2-1",
         name: "Tag1",
         describe: "标签1",
-        otherParams: {
+        passParams: {
           takeAbsoluteValue: true,
           absoluteValue: "",
           calculation: "乘设备系数R1",
@@ -455,7 +489,7 @@ const equipmentList = [
         id: "1-1-2-2",
         name: "Tag2",
         describe: "标签2",
-        otherParams: {
+        passParams: {
           takeAbsoluteValue: false,
           absoluteValue: "",
           calculation: "不参与计算",
@@ -509,11 +543,11 @@ const equipmentList = [
     correspondingValue: "FF00",
     subCorrespondingValue: "0000",
     doubleByteCheck: true,
-    otherParams: {
-      delayTime: 3000,
+    passParams: {
+      delay: 3000,
       failedTryAgain: false,
       failedTryTimes: 1,
-      faultDiagnosis: true,
+      alertIs: true,
       continuousQueryFailed: 5,
       noReceivedLongTime: 120,
       faultDataProcess: "保持之前值，质量戳为GOOD",
@@ -528,7 +562,7 @@ const equipmentList = [
         id: "1-2-1-1",
         name: "Tag1",
         describe: "标签1",
-        otherParams: {
+        passParams: {
           takeAbsoluteValue: true,
           absoluteValue: "",
           calculation: "乘设备系数R2",
@@ -571,7 +605,7 @@ const equipmentList = [
         id: "1-2-1-2",
         name: "Tag2",
         describe: "标签2",
-        otherParams: {
+        passParams: {
           takeAbsoluteValue: false,
           absoluteValue: "",
           calculation: "不参与计算",
@@ -625,11 +659,11 @@ const equipmentList = [
     correspondingValue: "FF00",
     subCorrespondingValue: "0000",
     doubleByteCheck: true,
-    otherParams: {
-      delayTime: 3000,
+    passParams: {
+      delay: 3000,
       failedTryAgain: false,
       failedTryTimes: 1,
-      faultDiagnosis: false,
+      alertIs: false,
       continuousQueryFailed: 5,
       noReceivedLongTime: 120,
       faultDataProcess: "保持之前值，质量戳为GOOD",
@@ -644,7 +678,7 @@ const equipmentList = [
         id: "1-2-2-1",
         name: "Tag1",
         describe: "标签1",
-        otherParams: {
+        passParams: {
           takeAbsoluteValue: true,
           absoluteValue: "",
           calculation: "乘设备系数R1*R2",
@@ -687,7 +721,7 @@ const equipmentList = [
         id: "1-2-2-2",
         name: "Tag2",
         describe: "标签2",
-        otherParams: {
+        passParams: {
           takeAbsoluteValue: false,
           absoluteValue: "",
           calculation: "不参与计算",
