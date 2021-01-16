@@ -75,6 +75,7 @@
             class="params-dialog-row">
       <el-checkbox v-model="formPass.passParams.bakChannelIs">启用备用通道</el-checkbox>
     </el-row>
+
     <div v-if="serviceType===0&&formPass.passParams.bakChannelIs">
 
       <!-- 通道类型 -->
@@ -157,85 +158,30 @@
       </el-row>
 
       <!-- TCP客户端 -->
-
-      <!-- TCP服务端 -->
-      <!-- UPD -->
-
-      <!-- <el-row class="params-dialog-row"
-              v-if="formPass.passParams.passType!=='串口' && formPass.passParams.passType!=='虚拟端口'"
+      <el-row v-if="formPass.passParams.bakChannelId===1"
+              class="params-dialog-row"
               :gutter="20">
         <el-col>
-          {{formPass.passParams.passType==='TCP客户端'?'远程IP：':'本地IP：'}}
-          <el-input v-model="formPass.passParams.ip"
+          远程IP：<el-input v-model="formPass.passParams.bakIp"
                     style="width:150px;margin-right:10px"></el-input>
-          {{formPass.passParams.passType==='TCP客户端'?'远程端口：':'本地端口：'}}
-          <el-input v-model="formPass.passParams.port"
+          远程端口：<el-input v-model="formPass.passParams.bakPort"
                     style="width:100px;margin-right:10px"></el-input>
         </el-col>
-      </el-row> -->
+      </el-row>
+
+      <!-- TCP服务端 & UDP -->
+      <el-row v-if="formPass.passParams.bakChannelId===2 || formPass.passParams.bakChannelId===3"
+              class="params-dialog-row"
+              :gutter="20">
+        <el-col>
+          本地IP：<el-input v-model="formPass.passParams.bakIp"
+                    style="width:150px;margin-right:10px"></el-input>
+          本地端口：<el-input v-model="formPass.passParams.bakPort"
+                    style="width:100px;margin-right:10px"></el-input>
+        </el-col>
+      </el-row>
+
     </div>
-
-    <!-- TCP客户端 -->
-    <!-- <el-row v-if="formPass.passParams.channelId===1"
-            :gutter="20">
-      <el-col style="width:300px">
-        <el-form-item label-width="70px"
-                      label="远程IP："
-                      prop="ip">
-          <el-input v-model="formPass.passParams.ip"></el-input>
-        </el-form-item>
-      </el-col>
-      <el-col style="width:300px">
-        <el-form-item label-width="85px"
-                      label="远程端口："
-                      prop="port">
-          <el-input v-model="formPass.passParams.port"></el-input>
-        </el-form-item>
-      </el-col>
-      <el-button style="margin-left:20px"
-                 @click="bindingIP">需要绑定本地IP</el-button>
-    </el-row> -->
-
-    <!-- TCP服务端 -->
-    <!-- <el-row v-if="formPass.passParams.channelId===2"
-            :gutter="20">
-      <el-col style="width:300px">
-        <el-form-item label-width="70px"
-                      label="本地IP："
-                      prop="ip">
-          <el-input v-model="formPass.passParams.ip"></el-input>
-        </el-form-item>
-      </el-col>
-      <el-col style="width:300px">
-        <el-form-item label-width="85px"
-                      label="本地端口："
-                      prop="port">
-          <el-input v-model="formPass.passParams.port"></el-input>
-        </el-form-item>
-      </el-col>
-      <el-button v-if="serviceType===1"
-                 style="margin-left:20px"
-                 @click="bindingIP">允许客户端接入列表</el-button>
-    </el-row> -->
-
-    <!-- UPD -->
-    <!-- <el-row v-if="formPass.passParams.channelId===3"
-            :gutter="20">
-      <el-col style="width:300px">
-        <el-form-item label-width="70px"
-                      label="本地IP："
-                      prop="ip">
-          <el-input v-model="formPass.passParams.ip"></el-input>
-        </el-form-item>
-      </el-col>
-      <el-col style="width:300px">
-        <el-form-item label-width="85px"
-                      label="本地端口："
-                      prop="port">
-          <el-input v-model="formPass.passParams.port"></el-input>
-        </el-form-item>
-      </el-col>
-    </el-row> -->
 
     <div slot="footer"
          class="dialog-footer">

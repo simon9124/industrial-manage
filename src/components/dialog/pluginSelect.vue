@@ -194,9 +194,13 @@ export default {
                   ? plugin.collectionPipeOtherParam : plugin.dataPipeOtherParams,
                 outerParams: plugin.collectionPipeOuterParam
                   ? plugin.collectionPipeOuterParam : plugin.dataPipeOuterParams,
-                collectChannelList: plugin.collectChannelList,
+                collectChannelList: plugin.collectChannelList
+                  ? plugin.collectChannelList : plugin.dataChannelList,
                 collectChannelDefaultParam: plugin.collectChannelDefaultParam
+                  ? plugin.collectChannelDefaultParam : plugin.dataChannelDefaultParams
               };
+            } else {
+              this.formPass.plugin = {};
             }
           });
         }

@@ -205,7 +205,7 @@ export default {
       }
     },
     // 获取工程列表，并添加到工程组 - 仅接口
-    async getProjectList (teamId, projectId, select = false) {
+    getProjectList (teamId, projectId, select = false) {
       this.factoryData[0].children.forEach(async group => { // 放到工程组列表
         if (group.idStr === teamId) {
           group.children = this.lazyTreeData; // 懒加载数据
