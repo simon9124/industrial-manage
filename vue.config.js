@@ -12,7 +12,8 @@ const resolve = dir => {
 // 例如：https://www.foobar.com/my-app/
 // 需要将它改为'/my-app/'
 const BASE_URL =
-  process.env.NODE_ENV === "production" ? "/industrial-manage" : "/";
+  // process.env.NODE_ENV === "production" ? "/industrial-manage" : "/";
+  process.env.NODE_ENV === "production" ? "/" : "/";
 
 module.exports = {
   // Project deployment base
@@ -38,8 +39,8 @@ module.exports = {
   devServer: {
     proxy: {
       "/network": {
-        target: "http://172.15.35.194:9004/network",
-        // target: "http://172.16.121.39:9004/network",
+        // target: "http://172.15.35.194:9004/network",
+        target: "http://172.16.121.39:9004/network",
         // target: "http://106.15.126.101:9004/network",
         changeOrigin: true,
         pathRewrite: {
