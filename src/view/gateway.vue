@@ -680,6 +680,7 @@ export default {
             type: this.serviceType
           };
           // console.log(formInsert);
+          this.dialogDisposeLoading = true;
           const result = (await addPass(formInsert));
           resultCallback(
             result.data.success,
@@ -687,7 +688,7 @@ export default {
             async () => {
               this.dialogDisposeLoading = false;
               this.treeLoading = true;
-              this.$refs.header.itemHandleOk("insert"); // 关闭dialog
+              this.$refs.header.addHandle(true); // 关闭dialog
               await localStorage.setItem("select-id", result.data.data.idStr);
               await this.getPassServiceData(this.idFactory); // 重新获取通道列表
               await this.getSelectedItem(); // 选中新增的通道
@@ -719,6 +720,7 @@ export default {
             r2: formData.equipmentParams.r2.toString()
           };
           // console.log(formInsert);
+          this.dialogDisposeLoading = true;
           const result = (await addEqupement(formInsert));
           resultCallback(
             result.data.success,
@@ -726,7 +728,7 @@ export default {
             async () => {
               this.dialogDisposeLoading = false;
               this.treeLoading = true;
-              this.$refs.header.itemHandleOk("insert"); // 关闭dialog
+              this.$refs.header.addHandle(true); // 关闭dialog
               this.passId = result.data.data.pipelineIdStr; // 新增设备的通道id
               await localStorage.setItem("select-id", result.data.data.idStr);
               await this.getEquipmentData(this.id, true); // 获取当前通道下的设备列表
