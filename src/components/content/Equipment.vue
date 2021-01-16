@@ -16,15 +16,15 @@
             <el-col style="width:420px">
               <el-form-item label-width="105px"
                             label="名称(英文)："
-                            prop="equipmentName">
-                <el-input v-model="formEquipment.equipmentName"></el-input>
+                            prop="name">
+                <el-input v-model="formEquipment.name"></el-input>
               </el-form-item>
             </el-col>
             <el-col style="width:380px">
               <el-form-item label-width="65px"
                             label="描述："
-                            prop="equipmentDescribe">
-                <el-input v-model="formEquipment.equipmentDescribe"></el-input>
+                            prop="description">
+                <el-input v-model="formEquipment.description"></el-input>
               </el-form-item>
             </el-col>
             <el-button style="margin:0 0 20px 20px"
@@ -110,10 +110,10 @@ export default {
     return {
       formEquipment: {}, // 表单数据
       formEquipmentRule: { // 表单验证
-        equipmentName: [
+        name: [
           { required: true, message: "请输入名称", trigger: "blur" }
         ],
-        equipmentDescribe: [
+        description: [
           { required: true, message: "请输入描述", trigger: "blur" }
         ]
       },
@@ -149,7 +149,7 @@ export default {
             pass.children.forEach((equipment, i) => {
               equipment.id === this.id &&
                 this.$set(equipment, "text",
-                  `${this.formEquipment.equipmentName}[${this.formEquipment.equipmentDescribe}]`
+                  `${this.formEquipment.name}[${this.formEquipment.description}]`
                 );
             });
           });
