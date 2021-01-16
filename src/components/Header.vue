@@ -42,7 +42,7 @@
                :visible.sync="dialogDisposeVisible">
 
       <!-- 采集通道配置 -->
-      <el-form v-if="level===1"
+      <el-form v-show="level===1"
                :model="formPass"
                ref="formPass"
                :rules="formPassRule"
@@ -276,7 +276,7 @@
       </el-form>
 
       <!-- 采集设备配置 -->
-      <el-form v-if="level===2"
+      <el-form v-show="level===2"
                :model="formEquipment"
                ref="formEquipment"
                :rules="formEquipmentRule"
@@ -567,6 +567,7 @@ export default {
       bindingIPVisible: false, // IP地址框 - 是否可见
       /* 通道 */
       formPass: { // 表单数据
+        id: null, // 通道id
         pipelineName: null, // 通道名称
         description: null, // 通道描述
         plugin: {}, // 选择的插件数据
@@ -604,11 +605,11 @@ export default {
       disposeActiveNames: ["1"], // 手风琴展开的标签
       /* 设备 */
       formEquipment: { // 表单数据
-        pipelineId: 0, // 通道id
         // deviceIp: null, // 设备ip - 通道为TCP/UDP时
         // devicePort: null, // 设备端口 - 通道为TCP/UDP时
         otherParams: null, // 插件相关
         outerParams: null, // 插件相关
+        id: null, // 设备id
         name: null, // 设备名称
         description: null, // 设备描述
         userParam: null, // 用户参数
@@ -623,7 +624,9 @@ export default {
         ]
       },
       /* collapse */
-      activeNames: ["0"] // 手风琴展开的标签
+      activeNames: ["0"], // 手风琴展开的标签
+      /* loading */
+      buttonLoading: false
     };
   },
   watch: {
@@ -762,7 +765,7 @@ export default {
           this.$nextTick(() => {
             this.$refs["formEquipment"].resetFields();
             this.formEquipment.otherParamsEqu = this.otherParamsEqu;
-            this.formEquipment.outerParamsEqu = this.outerParamsEqu; // 临时，需数据处理
+            this.formEquipment.outerParamsEqu = this.outerParamsEqu;
             this.formEquipment.equipmentParams = {
               waitTime: 3000, // 查询等待时间
               queryIs: false, // 启用查询失败重试机制
@@ -776,6 +779,7 @@ export default {
               r1: 1.000, // 设备层系数R1
               r2: 1.000 // 设备层系数R2
             };
+            console.log(this.formEquipment);
           });
         }
       }
@@ -790,13 +794,14 @@ export default {
       });
     },
     // 新增成功 通道/设备
-    itemHandleOk (type) {
+    addHandle (type) {
       switch (type) {
-        case "insert":
+        case true:
           this.dialogDisposeVisible = false;
+          this.buttonLoading = false;
           break;
-        case "delete":
-        // this.formPass.plugin = {};
+        case false:
+        // this.buttonLoading = false;
       }
     },
     // 复制
