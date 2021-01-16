@@ -183,22 +183,24 @@ export default {
         } else { // 接口数据
           classification.children.forEach(plugin => {
             if (plugin.id.toString() === localStorage.getItem("plugin-id")) { // 选中当前插件
-              this.formPass.plugin = {
-                name: plugin.name,
-                describe: plugin.description,
-                classification: plugin.typeName,
-                factory: plugin.manufacturers,
-                plugins: plugin.submodule,
-                id: plugin.id,
-                otherParams: plugin.collectionPipeOtherParam
-                  ? plugin.collectionPipeOtherParam : plugin.dataPipeOtherParams,
-                outerParams: plugin.collectionPipeOuterParam
-                  ? plugin.collectionPipeOuterParam : plugin.dataPipeOuterParams,
-                collectChannelList: plugin.collectChannelList
-                  ? plugin.collectChannelList : plugin.dataChannelList,
-                collectChannelDefaultParam: plugin.collectChannelDefaultParam
-                  ? plugin.collectChannelDefaultParam : plugin.dataChannelDefaultParams
-              };
+              this.$nextTick(() => {
+                this.formPass.plugin = {
+                  name: plugin.name,
+                  describe: plugin.description,
+                  classification: plugin.typeName,
+                  factory: plugin.manufacturers,
+                  plugins: plugin.submodule,
+                  id: plugin.id,
+                  otherParams: plugin.collectionPipeOtherParam
+                    ? plugin.collectionPipeOtherParam : plugin.dataPipeOtherParams,
+                  outerParams: plugin.collectionPipeOuterParam
+                    ? plugin.collectionPipeOuterParam : plugin.dataPipeOuterParams,
+                  collectChannelList: plugin.collectChannelList
+                    ? plugin.collectChannelList : plugin.dataChannelList,
+                  collectChannelDefaultParam: plugin.collectChannelDefaultParam
+                    ? plugin.collectChannelDefaultParam : plugin.dataChannelDefaultParams
+                };
+              });
             } else {
               this.formPass.plugin = {};
             }

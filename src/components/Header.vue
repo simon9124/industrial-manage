@@ -16,18 +16,18 @@
                  type="success"
                  :disabled="level===1"
                  @click="itemSubmit">保存</el-button>
-      <el-button size="small"
+      <!-- <el-button size="small"
                  icon="el-icon-caret-right"
-                 @click="localOperate">本地运行</el-button>
+                 @click="localOperate">本地运行</el-button> -->
       <el-button size="small"
                  icon="el-icon-suitcase"
                  @click="factoryManage">工程管理</el-button>
-      <el-button size="small"
+      <!-- <el-button size="small"
                  icon="el-icon-data-board"
-                 @click="remoteMonitor">远程监视</el-button>
-      <el-button size="small"
+                 @click="remoteMonitor">远程监视</el-button> -->
+      <!-- <el-button size="small"
                  icon="el-icon-download"
-                 type="info">上传下载</el-button>
+                 type="info">上传下载</el-button> -->
       <Button style="float:right"
               icon="ios-log-out"
               @click="logOut">退出登录</Button>
