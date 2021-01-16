@@ -17,3 +17,30 @@ export const addPass = data => {
     method: "post"
   });
 };
+
+// 获取通道详情
+export const queryPassMessage = data => {
+  return axios.request({
+    url: "/network/pipeline/queryMessage",
+    data,
+    method: "post"
+  });
+};
+
+// 修改通道
+export const updatePass = data => {
+  return axios.request({
+    url: "/network/pipeline/update",
+    data,
+    method: "post"
+  });
+};
+
+// 删除通道
+export const deletePass = data => {
+  return axios.request({
+    url: "/network/pipeline/delete",
+    data,
+    method: "post"
+  });
+};
