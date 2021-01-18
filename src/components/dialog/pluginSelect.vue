@@ -182,6 +182,7 @@ export default {
           });
         } else { // 接口数据
           classification.children.forEach(plugin => {
+            // console.log(plugin.id.toString());
             if (plugin.id.toString() === localStorage.getItem("plugin-id")) { // 选中当前插件
               this.$nextTick(() => {
                 this.formPass.plugin = {
@@ -202,7 +203,9 @@ export default {
                 };
               });
             } else {
-              this.formPass.plugin = {};
+              this.$nextTick(() => {
+                this.formPass.plugin = {};
+              });
             }
           });
         }
