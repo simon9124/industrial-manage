@@ -144,7 +144,7 @@ export function arraySort(key, sort) {
  * @param {String} getKey 要获取的key
  */
 export function getValueByKey(array, queryKey, queryValue, getKey) {
-  var getValue = "";
+  var getValue;
   array.forEach(item => {
     item[queryKey].toString() === queryValue.toString() &&
       (getValue = item[getKey]);
