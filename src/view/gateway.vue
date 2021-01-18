@@ -21,6 +21,7 @@
                 :outer-params-equ="outerParamsEqu"
                 :pass-list="passList"
                 :equipment-list="equipmentList"
+                :content-loading="contentLoading"
                 :dialog-dispose-loading="dialogDisposeLoading"
                 @item-add="itemAdd"
                 @items-copy="itemsCopy"
@@ -67,19 +68,24 @@
                  :data-bits-list="dataBitsList"
                  :check-bit-list="checkBitList"
                  :stop-bit-list="stopBitList"></Group> -->
-          <!-- <Pass v-if="level===2"
+          <Pass v-if="level===2"
                 ref="pass"
                 :id="id"
+                :service-type="serviceType"
                 :tree-data="treeData"
                 :pass-list="passList"
                 :equipment-list="equipmentList"
                 :plugin-list="pluginList"
+                :collect-channel-list="collectChannelList"
                 :pass-type-list="passTypeList"
+                :form-pass-org="formPassOrg"
+                :content-loading="contentLoading"
+                @item-update="itemUpdate"></Pass>
+          <!-- :stop-bit-list="stopBitList"
                 :serial-list="serialList"
                 :baud-rate-ist="baudRateList"
                 :data-bits-list="dataBitsList"
-                :check-bit-list="checkBitList"
-                :stop-bit-list="stopBitList"></Pass> -->
+                :check-bit-list="checkBitList" -->
           <!-- <Equipment v-if="level===3"
                      ref="equipment"
                      :id="id"
@@ -121,7 +127,7 @@ import {
 import { queryProjectTeamList } from "@/api/projectTeam.js"; // 工程组
 import { queryProjectList } from "@/api/project.js"; // 工程
 import { queryPlushTypeList, queryPlushList } from "@/api/plugin.js"; // 插件
-import { queryPassList, addPass, queryPassMessage, deletePass } from "@/api/pass.js"; // 通道
+import { queryPassList, addPass, queryPassMessage, updatePass, deletePass } from "@/api/pass.js"; // 通道
 import { queryEqupementList, addEqupement, queryEqupementMessage, deleteEqupement } from "@/api/equipment.js"; // 设备
 
 export default {
@@ -138,11 +144,11 @@ export default {
       serviceId: "", // 当前服务的id
       collectChannelList: [], // 串口总数据
       passTypeList: [], // select - 通道总类型
-      serialList: [], // select - 串口
-      baudRateList: [], // select - 波特率
-      dataBitsList: [], // select - 数据位
-      checkBitList: [], // select - 校验位
-      stopBitList: [], // select - 停止位
+      // serialList: [], // select - 串口
+      // baudRateList: [], // select - 波特率
+      // dataBitsList: [], // select - 数据位
+      // checkBitList: [], // select - 校验位
+      // stopBitList: [], // select - 停止位
       /* tree */
       level: 1, // 被选择的树的层级 - 服务导航
       id: null, // 被选择内容的id - 服务导航
@@ -154,6 +160,7 @@ export default {
       otherParamsEqu: null, // 通道传给设备的outerParams
       outerParamsEqu: null, // 通道传给设备outerParams
       passId: null, // 设备的上层通道id - 新增和删除设备时用
+      formPassOrg: {}, // 通道表单 - 修改通道时用
       /* plugins */
       idPlugin: null, // 被选择内容的id - 插件
       pluginTeamName: null, // 被选择内容的name - 插件类型
@@ -404,9 +411,15 @@ export default {
     async getMessage (selectId) {
       if (this.level === 2) {
         const result = (await queryPassMessage({ id: selectId })).data.data;
-        console.log(result);
-        this.outerParamsEqu = result.outerParams.length !== 0 ? result.outerParams : null;
-        this.otherParamsEqu = result.otherParams.length !== 0 ? result.otherParams : null;
+        // console.log(result);
+        await (this.formPassOrg = result);
+        localStorage.setItem("plugin-id", this.formPassOrg.plush.id);
+        localStorage.setItem("plugin-teamName", this.formPassOrg.plush.typeName);
+        this.outerParamsEqu = result.outerParams;
+        this.otherParamsEqu = result.otherParams;
+        this.$nextTick(() => {
+          this.$refs.pass.getData();
+        });
       } else if (this.level === 3) {
         const result = (await queryEqupementMessage({ id: selectId })).data.data;
         console.log(result);
@@ -419,7 +432,7 @@ export default {
       const { level, id, idStr, type } = param;
       this.level = level;
       this.id = this.isMock ? id : idStr;
-      this.level === 1 && (this.serviceType = type);
+      this.serviceType = type;
       if (this.level === 2) { // 点击通道
         localStorage.setItem("select-id", this.id);
       } else if (this.level === 3) { // 点击设备
@@ -636,15 +649,7 @@ export default {
         });
       } else { // 接口数据
         if (this.level === 1) { // 新增通道
-          // console.log(formData.outerParams);
-          let outerParams = [];
-          formData.outerParams && // outerParams参数处理
-            JSON.parse(JSON.stringify(formData.outerParams)).forEach(param => {
-              param.items.forEach(item => {
-                outerParams.push({ paramName: item.paramName, value: item.defaultValue });
-              });
-            });
-          // console.log(outerParams);
+          let outerParams = this.outerParamsHanding(formData.outerParams); // outerParams数据处理
           const formInsert = {
             alert: formData.passParams.alert,
             bakChannel: this.serviceType === 0 ? {
@@ -740,6 +745,79 @@ export default {
           );
         }
       }
+    },
+    // 更新 - 仅接口
+    async itemUpdate (formData) {
+      if (this.level === 2) { // 更新通道
+        // console.log(formData);
+        let outerParams = this.outerParamsHanding(formData.outerParams); // outerParams数据处理
+        const formUpdate = {
+          id: formData.idStr,
+          alert: formData.passParams.alert,
+          bakChannel: this.serviceType === 0 ? {
+            serial: formData.passParams.bakSerial,
+            bps: formData.passParams.bakBps,
+            dataBit: formData.passParams.bakDataBit,
+            checkBit: formData.passParams.bakCheckBit,
+            stopBit: formData.passParams.bakStopBit,
+            ip: formData.passParams.bakIp,
+            port: formData.passParams.bakPort
+          } : null,
+          bakChannelId: formData.passParams.bakChannelId,
+          channel: {
+            serial: formData.serial,
+            bps: formData.bps,
+            dataBit: formData.dataBit,
+            checkBit: formData.checkBit,
+            stopBit: formData.stopBit,
+            ip: formData.ip,
+            port: formData.port,
+            localIp: formData.localIp,
+            ipList: formData.ipList
+          },
+          channelId: formData.channelId,
+          delay: formData.passParams.delay,
+          description: formData.description,
+          otherParams: formData.plugin.otherParams,
+          outerParams: outerParams.length !== 0 ? outerParams : null,
+          pipelineName: formData.pipelineName,
+          plushId: formData.plugin.id,
+          projectId: this.idFactory,
+          reset: formData.passParams.reset,
+          type: this.serviceType
+        };
+        // console.log(formUpdate);
+        const result = (await updatePass(formUpdate));
+        resultCallback(
+          result.data.success,
+          "更新成功！",
+          async () => {
+            this.treeLoading = true;
+            this.contentLoading = true;
+            this.$refs.header.addHandle(true); // 关闭dialog
+            await this.getPassServiceData(this.idFactory); // 重新获取通道列表
+            await this.getSelectedItem(); // 选中修改的通道
+            this.treeLoading = false;
+            this.contentLoading = false;
+          },
+          () => { }
+        );
+      } else { // 更新设备
+
+      }
+    },
+    // outerParams数据处理成接口格式
+    outerParamsHanding (paramsArr) {
+      // console.log(paramsArr);
+      let outerParams = [];
+      paramsArr &&
+        JSON.parse(JSON.stringify(paramsArr)).forEach(param => {
+          param.items.forEach(item => {
+            outerParams.push({ paramName: item.paramName, value: item.value });
+          });
+        });
+      // console.log(outerParams);
+      return outerParams;
     },
     // 复制
     itemsCopy (multipleSelection) {
@@ -840,7 +918,6 @@ export default {
         this.idPlugin = null;
         this.pluginTeamName = null;
         await this.getPluginList(this.serviceType, this.idPlugin, this.pluginTeamName);
-        this.contentLoading = false;
       }
     },
     async id () { // id发生改变
@@ -848,8 +925,32 @@ export default {
         // console.log(this.id);
         this.contentLoading = true;
         await this.getMessage(this.id);
+        let plushList = getValueByKey(this.pluginList, "name", localStorage.getItem("plugin-teamName"), "children"); // 获取当前的插件列表
+        // console.log(plushList);
+        if (plushList && plushList[0].text === "Loading...") { // 将懒加载数据转换为真实数据
+          const teamName = localStorage.getItem("plugin-teamName");
+          const pluginId = localStorage.getItem("plugin-id");
+          plushList = (await queryPlushList({ // 展开的插件数据
+            plushTypeName: teamName,
+            serviceType: this.serviceType
+          })).data.data.map(plush => {
+            this.$set(plush, "text", plush.description);
+            this.$set(plush, "icon", "fa fa-cog");
+            this.$set(plush, "selected", pluginId === plush.id.toString());
+            this.$set(plush, "level", 2);
+            return plush;
+          });
+          this.pluginList.forEach(async plugin => {
+            if (plugin.name === teamName) {
+              await this.$set(plugin, "children", plushList);
+              plugin.opened = true;
+              this.contentLoading = false;
+            }
+          });
+        } else {
+          this.contentLoading = false;
+        }
       }
-      this.contentLoading = false;
     }
   }
 };
