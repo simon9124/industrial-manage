@@ -4,17 +4,17 @@
       <el-button size="small"
                  icon="el-icon-plus"
                  type="primary"
-                 :disabled="level===3"
+                 :disabled="level===3||serviceType===1||contentLoading"
                  @click="newBuild">新建</el-button>
       <el-button size="small"
                  icon="el-icon-close"
                  type="danger"
-                 :disabled="level===1"
+                 :disabled="level===1||contentLoading"
                  @click="itemDelete">删除</el-button>
       <el-button size="small"
                  icon="el-icon-check"
                  type="success"
-                 :disabled="level===1"
+                 :disabled="level===1||contentLoading"
                  @click="itemSubmit">保存</el-button>
       <!-- <el-button size="small"
                  icon="el-icon-caret-right"
@@ -121,7 +121,7 @@
         <!-- 串口 -->
         <el-row v-show="formPass.channelId===0"
                 :gutter="20">
-          <el-col style="width:180px">
+          <el-col style="width:170px">
             <el-form-item label-width="55px"
                           label="串口："
                           prop="serial">
@@ -135,7 +135,7 @@
               </el-select>
             </el-form-item>
           </el-col>
-          <el-col style="width:180px">
+          <el-col style="width:190px">
             <el-form-item label-width="75px"
                           label="波特率："
                           prop="bps">
@@ -163,7 +163,7 @@
               </el-select>
             </el-form-item>
           </el-col>
-          <el-col style="width:200px">
+          <el-col style="width:220px">
             <el-form-item label-width="75px"
                           label="校验位："
                           prop="checkBit">
@@ -177,7 +177,7 @@
               </el-select>
             </el-form-item>
           </el-col>
-          <el-col style="width:180px">
+          <el-col style="width:170px">
             <el-form-item label-width="75px"
                           label="停止位："
                           prop="stopBit">
@@ -267,7 +267,7 @@
               {{item.showName}}：
               <el-input v-if="item.valueTypeEnum==='文本输入框'"
                         style="max-width:200px"
-                        v-model="item.defaultValue"
+                        v-model="item.value"
                         :disabled="item.disabled"></el-input>
             </div>
           </el-collapse-item>
@@ -311,62 +311,22 @@
           </el-col>
         </el-row>
 
-        <!-- <el-collapse v-model="activeNames"
-                     accordion>
-          <el-collapse-item title="基本参数"
-                            name="1">
-            <div class="collapse-content">MODBUS设备地址：
-              <el-input style="max-width:400px"
-                        v-model="formEquipment.MODBUSAdd"></el-input>
-            </div>
-            <div>查询帧查询的最大字数：
-              <el-input style="max-width:400px"
-                        v-model="formEquipment.searchNum"></el-input>
-            </div>
-          </el-collapse-item> -->
-        <!-- <el-collapse-item title="基本参数"
-                            name="1">
-            <div class="collapse-content">MODBUS设备地址：
-              <el-input style="max-width:400px"
-                        v-model="formEquipment.MODBUSAdd"></el-input>
-            </div>
-            <div>查询帧查询的最大字数：
-              <el-input style="max-width:400px"
-                        v-model="formEquipment.searchNum"></el-input>
+        <el-collapse v-if="formEquipment.outerParamsEqu&&formEquipment.outerParamsEqu.length!==0"
+                     v-model="activeNames">
+          <el-collapse-item v-for="(param,i) in formEquipment.outerParamsEqu"
+                            :key="i"
+                            :title="param.typeName"
+                            :name="i.toString()">
+            <div class="collapse-content"
+                 v-for="(item,_i) in param.items"
+                 :key="_i">
+              {{item.showName}}：
+              <el-input v-if="item.valueTypeEnum==='文本输入框'"
+                        style="max-width:200px"
+                        v-model="item.value"
+                        :disabled="item.disabled"></el-input>
             </div>
           </el-collapse-item>
-          <el-collapse-item title="写寄存器"
-                            name="2">
-            <div class="collapse-content">单寄存器写是否按6号指令？
-              <el-radio v-model="formEquipment.singleRegister"
-                        :label="true">YES</el-radio>
-              <el-radio v-model="formEquipment.singleRegister"
-                        :label="false">NO</el-radio>
-            </div>
-            <div>多寄存器写是否按16号指令？
-              <el-radio v-model="formEquipment.multiRegister"
-                        :label="true">YES</el-radio>
-              <el-radio v-model="formEquipment.multiRegister"
-                        :label="false">NO</el-radio>
-            </div>
-          </el-collapse-item>
-          <el-collapse-item title="高级参数"
-                            name="3">
-            <div class="collapse-content">合对应的值：
-              <el-input style="max-width:400px"
-                        v-model="formEquipment.correspondingValue"></el-input>
-            </div>
-            <div class="collapse-content">分对应的值：
-              <el-input style="max-width:400px"
-                        v-model="formEquipment.subCorrespondingValue"></el-input>
-            </div>
-            <div>双字节校验CRC传送顺序，先低后高？
-              <el-radio v-model="formEquipment.doubleByteCheck"
-                        :label="true">YES</el-radio>
-              <el-radio v-model="formEquipment.doubleByteCheck"
-                        :label="false">NO</el-radio>
-            </div>
-          </el-collapse-item> -->
         </el-collapse>
 
       </el-form>
@@ -549,6 +509,11 @@ export default {
     equipmentList: {
       type: Array
     },
+    // loading - content
+    contentLoading: {
+      type: Boolean,
+      default: false
+    },
     // loading - 配置dialog
     dialogDisposeLoading: {
       type: Boolean,
@@ -602,7 +567,6 @@ export default {
         ]
       },
       passTypeListUse: [], // 可使用的通道类型列表
-      disposeActiveNames: ["1"], // 手风琴展开的标签
       /* 设备 */
       formEquipment: { // 表单数据
         // deviceIp: null, // 设备ip - 通道为TCP/UDP时
@@ -736,50 +700,52 @@ export default {
         }
       } else { // 接口数据
         if (this.level === 1) { // 新增通道
+          this.passTypeListUse = []; // 清空可选的通道类型
+          this.formPass.channelId = null;
+          this.formPass.pluginDescribe = null;
+          this.formPass.outerParams = null;
+          this.formPass.passParams = {
+            delayIs: false, // 是否diabled - 延迟时间
+            delay: null, // 延迟时间
+            resetIs: false, // 是否diabled - 链路复位机制
+            reset: null, // 链路复位机制
+            alertIs: false, // 是否diabled - 故障诊断
+            alert: null, // 故障诊断
+            bakChannelIs: false, // 是否diabled - 备用通道
+            bakChannelId: null, // 备用通道：类型id
+            bakSerial: 0, // 备用通道：串口-串口
+            bakBps: 0, // 备用通道：波特率-串口
+            bakDataBit: 0, // 备用通道：数据位-串口
+            bakCheckBit: 0, // 备用通道：校验位-串口
+            bakStopBit: 0, // 备用通道：停止位-串口
+            bakIp: null, // 备用通道：远程IP-TCP客户端 or 本地IP-TCP服务端、UDP
+            bakPort: null // 备用通道：远程端口-TCP客户端 or 本地端口服务端、UDP
+          };
           this.$nextTick(() => {
-            this.passTypeListUse = []; // 清空可选的通道类型
             this.$refs["formPass"].resetFields();
-            this.formPass.channelId = null;
-            this.formPass.pluginDescribe = null;
-            this.formPass.outerParams = null;
-            this.formPass.passParams = {
-              delayIs: false, // 是否diabled - 延迟时间
-              delay: null, // 延迟时间
-              resetIs: false, // 是否diabled - 链路复位机制
-              reset: null, // 链路复位机制
-              alertIs: false, // 是否diabled - 故障诊断
-              alert: null, // 故障诊断
-              bakChannelIs: false, // 是否diabled - 备用通道
-              bakChannelId: null, // 备用通道：类型id
-              bakSerial: 0, // 备用通道：串口-串口
-              bakBps: 0, // 备用通道：波特率-串口
-              bakDataBit: 0, // 备用通道：数据位-串口
-              bakCheckBit: 0, // 备用通道：校验位-串口
-              bakStopBit: 0, // 备用通道：停止位-串口
-              bakIp: null, // 备用通道：远程IP-TCP客户端 or 本地IP-TCP服务端、UDP
-              bakPort: null // 备用通道：远程端口-TCP客户端 or 本地端口服务端、UDP
-            };
             // console.log(this.formPass);
           });
         } else { // 新增设备
+          // console.log(this.outerParamsEqu);
+          this.formEquipment.otherParamsEqu = this.otherParamsEqu;
+          this.formEquipment.outerParamsEqu =
+            this.outerParamsHanding(this.outerParamsEqu); // outerParams数据处理
+          this.formEquipment.equipmentParams = {
+            waitTime: 3000, // 查询等待时间
+            queryIs: false, // 启用查询失败重试机制
+            queryCount: 1, // 查询失败后重试次数
+            fault: true, // 启用故障诊断
+            qcount: 5, // 连续查询失败次数
+            qtimers: 120, // 设备长时间未接收完整帧时间
+            dataMode: 0, // 故障时数据处理方式
+            scanMode: 0, // 故障时扫描处理方式
+            isDeviceParam: false, // 使用设备系数
+            r1: 1.000, // 设备层系数R1
+            r2: 1.000 // 设备层系数R2
+          };
           this.$nextTick(() => {
             this.$refs["formEquipment"].resetFields();
-            this.formEquipment.otherParamsEqu = this.otherParamsEqu;
-            this.formEquipment.outerParamsEqu = this.outerParamsEqu;
-            this.formEquipment.equipmentParams = {
-              waitTime: 3000, // 查询等待时间
-              queryIs: false, // 启用查询失败重试机制
-              queryCount: 1, // 查询失败后重试次数
-              fault: true, // 启用故障诊断
-              qcount: 5, // 连续查询失败次数
-              qtimers: 120, // 设备长时间未接收完整帧时间
-              dataMode: 0, // 故障时数据处理方式
-              scanMode: 0, // 故障时扫描处理方式
-              isDeviceParam: false, // 使用设备系数
-              r1: 1.000, // 设备层系数R1
-              r2: 1.000 // 设备层系数R2
-            };
-            console.log(this.formEquipment);
+            // console.log(this.formEquipment);
           });
         }
       }
@@ -895,26 +861,30 @@ export default {
     },
     // 确认插件 - 仅接口
     pluginSubmit () {
-      // /* 根据将插件选择的数据，更新通道配置表单 */
+      /* 根据将插件选择的数据，更新通道配置表单 */
       this.formPass.pluginFactory = this.formPass.plugin.factory; // 厂家
       this.formPass.pluginDescribe = this.formPass.plugin.describe; // （插件）描述
       this.passTypeListUse = // 通道类型select框
-        this.formPass.plugin.collectChannelList ? JSON.parse(JSON.stringify(this.passTypeList)).filter(type =>
-          this.formPass.plugin.collectChannelList.indexOf(type.id) > -1) : [];
-      // // console.log(this.passTypeListUse);
+        this.formPass.plugin.collectChannelList
+          ? JSON.parse(JSON.stringify(this.passTypeList)).filter(type =>
+            this.formPass.plugin.collectChannelList.indexOf(type.id) > -1) : [];
+      // console.log(this.passTypeListUse);
       this.formPass.channelId = this.formPass.plugin.collectChannelDefaultParam; // 通道类型默认值
-      /* 若插件的outerParams不为null */
-      if (this.formPass.plugin.outerParams) {
-        let outerParamsUse = [];
-        let outerParams = JSON.parse(JSON.stringify(this.formPass.plugin.outerParams));
-        outerParams.forEach((param, i) => {
+      this.formPass.outerParams = this.outerParamsHanding(this.formPass.plugin.outerParams); // outerParams数据处理
+    },
+    // outerParams数据处理
+    outerParamsHanding (outerParams) {
+      let outerParamsUse = [];
+      if (outerParams) {
+        let outerParamsCopy = JSON.parse(JSON.stringify(outerParams));
+        outerParamsCopy.forEach((param, i) => {
           if (i === 0) { // 第一项
             outerParamsUse.push({
               typeName: param.typeName,
               items: [param]
             });
           } else { // 不是第一项
-            if (param.typeName === outerParams[i - 1].typeName) { // 与前一项的typeName一致
+            if (param.typeName === outerParamsCopy[i - 1].typeName) { // 与前一项的typeName一致
               outerParamsUse.forEach(_param => {
                 _param.items = _param.items.concat(param);
               });
@@ -926,9 +896,9 @@ export default {
             }
           }
         });
-        // console.log(outerParamsUse);
-        this.formPass.outerParams = outerParamsUse;
       }
+      // console.log(outerParamsUse);
+      return outerParamsUse;
     },
     // 点击按钮 - 其他参数[设备] - 调用子组件事件
     setParamsEquipment () {
