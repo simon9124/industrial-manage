@@ -39,9 +39,9 @@ module.exports = {
   devServer: {
     proxy: {
       "/network": {
-        target: "http://172.15.35.194:9004/network",
+        // target: "http://172.15.35.194:9004/network",
         // target: "http://172.16.121.39:9004/network",
-        // target: "http://106.15.126.101:9004/network",
+        target: "http://106.15.126.101:9004/network",
         changeOrigin: true,
         pathRewrite: {
           "^/network": ""
