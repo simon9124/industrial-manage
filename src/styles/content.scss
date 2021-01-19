@@ -53,6 +53,21 @@
     .collapse-content {
       margin-bottom: 10px;
     }
+
+    .el-input-number {
+      &__decrease {
+        display: none;
+      }
+
+      &__increase {
+        display: none;
+      }
+
+      .el-input__inner {
+        padding: 0 15px;
+        text-align: left;
+      }
+    }
   }
 
   .el-dialog {
