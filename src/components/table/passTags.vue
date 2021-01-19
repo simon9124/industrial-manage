@@ -1,5 +1,6 @@
 <template>
-  <div class="table-component">
+  <div class="table-component"
+       v-if="!contentLoading">
 
     <!-- btns -->
     <el-row style="margin-bottom:20px">
@@ -114,15 +115,15 @@
           <el-col :span="9">
             <el-form-item label-width="65px"
                           label="名称："
-                          prop="name">
-              <el-input v-model="formData.name"></el-input>
+                          prop="source">
+              <el-input v-model="formData.source"></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="9">
             <el-form-item label-width="65px"
                           label="描述："
-                          prop="describe">
-              <el-input v-model="formData.describe"></el-input>
+                          prop="description">
+              <el-input v-model="formData.description"></el-input>
             </el-form-item>
           </el-col>
           <el-button style="margin:0 0 20px 10px"
@@ -132,8 +133,8 @@
         <el-row :gutter="0">
           <el-col :span="9">
             <el-form-item label="数据类型："
-                          prop="dataType">
-              <el-select v-model="formData.dataType"
+                          prop="type">
+              <el-select v-model="formData.type"
                          placeholder="请选择"
                          style="width:203px">
                 <el-option v-for="item in dataTypeList"
@@ -146,8 +147,8 @@
           </el-col>
           <el-col :span="10">
             <el-form-item label="读写方向："
-                          prop="direction">
-              <el-select v-model="formData.direction"
+                          prop="rw">
+              <el-select v-model="formData.rw"
                          placeholder="请选择">
                 <el-option v-for="item in directionList"
                            :key="item"
@@ -159,12 +160,12 @@
           </el-col>
         </el-row>
 
-        <el-row :gutter="0">
+        <!-- <el-row :gutter="0">
           <el-col :span="9">
             <el-form-item label-width="155px"
                           label="采集周期（毫秒）："
-                          prop="acquisitionCycle">
-              <el-input v-model="formData.acquisitionCycle"></el-input>
+                          prop="cycle">
+              <el-input v-model="formData.cycle"></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="10">
@@ -178,9 +179,9 @@
           </el-col>
           <el-button style="margin:0 0 20px 10px"
                      @click="tagSelect">选择标签</el-button>
-        </el-row>
+        </el-row> -->
 
-        <el-row :gutter="0">
+        <!-- <el-row :gutter="0">
           <el-col :span="9">
             <el-form-item label-width="70px"
                           label="从站ID："
@@ -203,9 +204,9 @@
               </el-select>
             </el-form-item>
           </el-col>
-        </el-row>
+        </el-row> -->
 
-        <el-row :gutter="0">
+        <!-- <el-row :gutter="0">
           <el-col :span="9">
             <el-form-item label-width="100px"
                           label="寄存器地址："
@@ -228,7 +229,7 @@
               </el-select>
             </el-form-item>
           </el-col>
-        </el-row>
+        </el-row> -->
 
       </el-form>
 
@@ -271,36 +272,55 @@
     </el-dialog>
 
     <!-- dialog - 选择标签 -->
-    <tag-select ref="tagSelect"
+    <!-- <tag-select ref="tagSelect"
                 :id="id"
-                :tag-describe="tagDescribe"
+                :tag-description="tagDescribe"
                 :tree-data="treeData"
                 :form-data="formData"
                 :pass-list="passList"
                 :equipment-list="equipmentList"
-                @tag-click="tagClick"></tag-select>
+                @tag-click="tagClick"></tag-select> -->
 
     <!-- dialog - 加载标签 -->
-    <tag-load ref="tagLoad"
+    <!-- <tag-load ref="tagLoad"
               :tree-data="treeData"
               :data-tags="dataTags"
               :pass-list="passList"
-              :equipment-list="equipmentList"></tag-load>
+              :equipment-list="equipmentList"></tag-load> -->
 
   </div>
 </template>
 
 <script>
+/* function */
 import { parseTime } from "@/libs/util"; // functions
 import { arraySort } from "@/libs/dataHanding";// function - 对象数组根据key排序
 import XLSX from "xlsx"; // plugin - excel
+/* mockData */
 import { passTagColumn, passTagHeader, tagTranslation } from "@/mock/tableColumn";
+/* components */
 import TagSelect from "@/components/dialog/tagSelect"; // 组件：选择标签
 import TagLoad from "@/components/dialog/tagLoad"; // 组件：选择标签
+/* api */
+import { queryTagList, addTag, queryTagMessage, updateTag, deleteTag } from "@/api/tag.js"; // 标签
 
 export default {
   components: { TagSelect, TagLoad },
   props: {
+    // 左侧树被选择的id
+    id: {
+      type: String
+    },
+    // 0/1 采集服务/数据服务
+    serviceType: {
+      type: Number,
+      default: 0
+    },
+    // 标签的动态列
+    labelOuterParams: {
+      type: Array,
+      default: () => []
+    },
     // 树数据 - 传递给tagSelect子组件选择标签用
     treeData: {
       type: Array,
@@ -316,21 +336,22 @@ export default {
       type: Array,
       default: () => []
     },
-    // 左侧树被选择的id
-    id: {
-      type: String
-    },
-    // 表格数据 - 原始数据
+    // 表格数据 - 原始数据 - 仅mock
     dataTagsOrg: {
       type: Array,
       default: () => []
+    },
+    // 通道/设备loading
+    contentLoading: {
+      type: Boolean,
+      default: false
     }
   },
   data () {
     return {
       /* table */
       dataTags: [], // 表格数据 - 要展示的数据
-      dataColumns: passTagColumn, // 表格列项
+      dataColumns: [], // 表格列项
       dataTypeList: ["全部", "浮点", "整型", "布尔", "字符串", "二进制"], // select - 数据类型
       dataTypeSelect: "全部", // 筛选 - 选中的数据类型
       multipleSelection: [], // 多选 - 选中的数据
@@ -340,31 +361,31 @@ export default {
       dialogType: "", // 类型：insert/edit
       dialogTitle: "", // dialog标题
       formData: { // 表单数据
-        name: "",
-        describe: "",
-        ratioCalculation: false,
-        magnification: "1.0000",
-        base: "0.0000",
-        dataType: "整型",
-        direction: "只读",
-        acquisitionCycle: "1000",
-        IOTag: "at._kernal_version",
-        IOTagParentId: "1",
-        IOTagSelectId: "0",
-        slaveStationID: "1",
-        registerType: 2,
-        registerAddr: "0",
-        dataFormat: 0
+        source: "", // 名称
+        description: "", // 描述
+        type: "整型", // 数据类型
+        rw: "只读" // 读写方向
+        // ratioCalculation: false,
+        // magnification: "1.0000",
+        // base: "0.0000",
+        // cycle: "1000",
+        // IOTag: "at._kernal_version",
+        // IOTagParentId: "1",
+        // IOTagSelectId: "0",
+        // slaveStationID: "1",
+        // registerType: 2,
+        // registerAddr: "0",
+        // dataFormat: 0
       },
       formDataOrg: {}, // 表单数据 - 行内原始
       formRule: { // 表单验证
-        name: [
+        source: [
           { required: true, message: "请输入名称", trigger: "blur" }
         ],
-        describe: [
+        description: [
           { required: true, message: "请输入描述", trigger: "blur" }
         ],
-        acquisitionCycle: [
+        cycle: [
           { required: true, message: "请输入采集周期", trigger: "blur" }
         ]
       },
@@ -429,20 +450,41 @@ export default {
   },
   methods: {
     // 获取数据
-    getData () {
-      this.refreshData();
+    async getData () {
+      if (this.isMock) { // mock数据
+        this.dataColumns = JSON.parse(JSON.stringify(passTagColumn));
+        this.refreshData();
+      } else { // 接口数据
+        // if (this.serviceType === 1) { // 通道标签
+        this.dataTags = (await queryTagList({ pipelineId: this.id })).data.data;
+        // console.log(this.dataTags);
+        const labelOuterParams = this.dataColumnsHandle(this.labelOuterParams);
+        this.dataColumns = JSON.parse(JSON.stringify(passTagColumn)).concat(labelOuterParams);
+        console.log(this.dataColumns);
+        // } else if (this.serviceType === 2) { // 设备标签
+        // }
+      }
     },
-    // 数据处理
+    // 标签列项数据处理
+    dataColumnsHandle (params) {
+      params.forEach(param => {
+        this.$set(param, "prop", param.paramName);
+        this.$set(param, "label", param.showName);
+      });
+      console.log(params);
+      return params;
+    },
+    // 数据处理 - 仅mock
     refreshData () {
       /* 根据条件筛选 */
       if (this.dataTypeSelect !== "全部") {
         this.dataTags = this.dataTagsOrg.filter(tag =>
-          tag.dataType === this.dataTypeSelect
+          tag.type === this.dataTypeSelect
         );
       } else {
         this.dataTags = this.dataTagsOrg;
       }
-      this.dataTags.sort(arraySort("name", "asc")); // 重排序
+      this.dataTags.sort(arraySort("source", "asc")); // 重排序
       this.dataTags.map((tag, i) => {
         this.$set(tag, "index", i + 1); // 追加序列号，从1开始
       });
@@ -492,11 +534,11 @@ export default {
       console.log(param);
       if (param) {
         this.formData.IOTag =
-          `${param.source === "IO属性" ? "at." : "io."}${param.passName ? param.passName + "." : ""}${param.equpimentName ? param.equpimentName + "." : ""}${param.name}`;
+          `${param.source === "IO属性" ? "at." : "io."}${param.passName ? param.passName + "." : ""}${param.equpimentName ? param.equpimentName + "." : ""}${param.source}`;
         this.formData.IOTagParentId = param.parentId;
         this.formData.IOTagSelectId = param.id;
         this.tagDescribe =
-          `${param.passDescribe ? param.passDescribe + " " : ""}${param.equipmentDescribe ? param.equipmentDescribe + " " : ""}${param.describe}`;
+          `${param.passDescribe ? param.passDescribe + " " : ""}${param.equipmentDescribe ? param.equipmentDescribe + " " : ""}${param.description}`;
       }
     },
     // 表单提交
@@ -509,7 +551,7 @@ export default {
             case "insert":
               if (
                 this.dataTags.some(
-                  tag => tag.name === this.formData.name
+                  tag => tag.source === this.formData.source
                 )
               ) {
                 // 判断重复
@@ -529,9 +571,9 @@ export default {
             case "edit":
               if (
                 this.dataTags.some(
-                  tag => tag.name === this.formData.name
+                  tag => tag.source === this.formData.source
                 ) &&
-                this.formData.name !== this.formDataOrg.name
+                this.formData.source !== this.formDataOrg.source
               ) {
                 // 判断重复
                 this.$message.error("该标签已存在！");
@@ -734,7 +776,7 @@ export default {
   },
   watch: {
     id (val) {
-      this.getData();
+      this.isMock && this.getData();
     }
   }
 };

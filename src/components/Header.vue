@@ -4,7 +4,7 @@
       <el-button size="small"
                  icon="el-icon-plus"
                  type="primary"
-                 :disabled="level===3||serviceType===1||contentLoading"
+                 :disabled="level===3||(serviceType===1&&level===2)||contentLoading"
                  @click="newBuild">新建</el-button>
       <el-button size="small"
                  icon="el-icon-close"
@@ -256,6 +256,7 @@
         </el-row>
 
         <el-collapse v-if="formPass.outerParams&&formPass.outerParams.length!==0"
+                     accordions
                      v-model="activeNames">
           <el-collapse-item v-for="(param,i) in formPass.outerParams"
                             :key="i"
@@ -268,7 +269,24 @@
               <el-input v-if="item.valueTypeEnum==='文本输入框'"
                         style="max-width:200px"
                         v-model="item.value"
-                        :disabled="item.disabled"></el-input>
+                        :disabled="item.disabled"
+                        @input="forceUpdate"></el-input>
+              <el-input-number v-if="item.valueTypeEnum==='数字输入框'"
+                               style="max-width:200px"
+                               :min="1"
+                               v-model="item.value"
+                               :disabled="item.disabled"
+                               @input="forceUpdate"></el-input-number>
+              <el-select v-if="item.valueTypeEnum==='选择框'"
+                         v-model="item.value"
+                         :disabled="item.disabled"
+                         @change="forceUpdate">
+                <el-option v-for="_item in item.selectTable"
+                           :key="_item.value"
+                           :label="_item.name"
+                           :value="_item.value">
+                </el-option>
+              </el-select>
             </div>
           </el-collapse-item>
         </el-collapse>
@@ -312,6 +330,7 @@
         </el-row>
 
         <el-collapse v-if="formEquipment.outerParamsEqu&&formEquipment.outerParamsEqu.length!==0"
+                     accordion
                      v-model="activeNames">
           <el-collapse-item v-for="(param,i) in formEquipment.outerParamsEqu"
                             :key="i"
@@ -324,7 +343,24 @@
               <el-input v-if="item.valueTypeEnum==='文本输入框'"
                         style="max-width:200px"
                         v-model="item.value"
-                        :disabled="item.disabled"></el-input>
+                        :disabled="item.disabled"
+                        @input="forceUpdate"></el-input>
+              <el-input-number v-if="item.valueTypeEnum==='数字输入框'"
+                               style="max-width:200px"
+                               :min="1"
+                               v-model="item.value"
+                               :disabled="item.disabled"
+                               @input="forceUpdate"></el-input-number>
+              <el-select v-if="item.valueTypeEnum==='选择框'"
+                         v-model="item.value"
+                         :disabled="item.disabled"
+                         @change="forceUpdate">
+                <el-option v-for="_item in item.selectTable"
+                           :key="_item.value"
+                           :label="_item.name"
+                           :value="_item.value">
+                </el-option>
+              </el-select>
             </div>
           </el-collapse-item>
         </el-collapse>
@@ -726,10 +762,12 @@ export default {
             // console.log(this.formPass);
           });
         } else { // 新增设备
-          // console.log(this.outerParamsEqu);
-          this.formEquipment.otherParamsEqu = this.otherParamsEqu;
+          console.log(this.outerParamsEqu);
+          this.formEquipment.otherParamsEqu =
+            this.outerParamsHanding(this.otherParamsEqu); // otherParams数据处理
           this.formEquipment.outerParamsEqu =
             this.outerParamsHanding(this.outerParamsEqu); // outerParams数据处理
+          console.log(this.formEquipment.outerParamsEqu);
           this.formEquipment.equipmentParams = {
             waitTime: 3000, // 查询等待时间
             queryIs: false, // 启用查询失败重试机制
@@ -745,6 +783,7 @@ export default {
           };
           this.$nextTick(() => {
             this.$refs["formEquipment"].resetFields();
+            // this.$refs["formEquipment"].clearValidate();
             // console.log(this.formEquipment);
           });
         }
@@ -871,6 +910,7 @@ export default {
       // console.log(this.passTypeListUse);
       this.formPass.channelId = this.formPass.plugin.collectChannelDefaultParam; // 通道类型默认值
       this.formPass.outerParams = this.outerParamsHanding(this.formPass.plugin.outerParams); // outerParams数据处理
+      console.log(this.formPass.outerParams);
     },
     // outerParams数据处理
     outerParamsHanding (outerParams) {
@@ -884,14 +924,16 @@ export default {
               items: [param]
             });
           } else { // 不是第一项
-            if (param.typeName === outerParamsCopy[i - 1].typeName) { // 与前一项的typeName一致
-              outerParamsUse.forEach(_param => {
-                _param.items = _param.items.concat(param);
-              });
-            } else { // 与前一项的typeName不一致
+            if (!outerParamsUse.some(
+              _param => _param.typeName === param.typeName
+            )) { // 数组中没有该类型
               outerParamsUse.push({
                 typeName: param.typeName,
                 items: [param]
+              });
+            } else { // 数组中已有该类型
+              outerParamsUse.forEach(_param => {
+                _param.typeName === param.typeName && (_param.items = _param.items.concat(param));
               });
             }
           }
@@ -933,6 +975,10 @@ export default {
     itemSubmit () {
       this.$emit("item-submit", this.level);
     },
+    // 强制刷新
+    forceUpdate () {
+      this.$forceUpdate();
+    },
     // 退出登录
     logOut () {
       this.handleLogOut().then(() => {
@@ -960,6 +1006,18 @@ export default {
     }
     .collapse-content {
       margin-bottom: 10px;
+    }
+    .el-input-number {
+      &__decrease {
+        display: none;
+      }
+      &__increase {
+        display: none;
+      }
+      .el-input__inner {
+        padding: 0 15px;
+        text-align: left;
+      }
     }
   }
   // 配置dialog
