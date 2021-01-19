@@ -161,7 +161,6 @@ export default {
             return plush;
           });
           plugin.children = plushList; // 加载真实数据
-          // select && this.getSelectedFactory(projectId); // 选中新增/修改的工程
         }
       });
     }
@@ -181,9 +180,10 @@ export default {
               (plugin.selected = true); // 选中与当前通道关联
           });
         } else { // 接口数据
+          this.formPass.plugin = {};
           classification.children.forEach(plugin => {
-            // console.log(plugin.id.toString());
             if (plugin.id.toString() === localStorage.getItem("plugin-id")) { // 选中当前插件
+              // console.log(plugin);
               this.$nextTick(() => {
                 this.formPass.plugin = {
                   name: plugin.name,
@@ -202,10 +202,7 @@ export default {
                     ? plugin.collectChannelDefaultParam : plugin.dataChannelDefaultParams
                 };
               });
-            } else {
-              this.$nextTick(() => {
-                this.formPass.plugin = {};
-              });
+              // console.log(this.formPass.plugin);
             }
           });
         }
