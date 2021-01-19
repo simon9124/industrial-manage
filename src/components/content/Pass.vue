@@ -210,6 +210,7 @@
 
       <!-- collapse -->
       <el-collapse v-if="formPass.outerParams&&formPass.outerParams.length!==0"
+                   accordion
                    v-model="activeNames">
         <el-collapse-item v-for="(param,i) in formPass.outerParams"
                           :key="i"
@@ -222,7 +223,24 @@
             <el-input v-if="item.valueTypeEnum==='文本输入框'"
                       style="max-width:200px"
                       v-model="item.value"
-                      :disabled="item.disabled"></el-input>
+                      :disabled="item.disabled"
+                      @input="forceUpdate"></el-input>
+            <el-input-number v-if="item.valueTypeEnum==='数字输入框'"
+                             style="max-width:200px"
+                             :min="1"
+                             v-model="item.value"
+                             :disabled="item.disabled"
+                             @input="forceUpdate"></el-input-number>
+            <el-select v-if="item.valueTypeEnum==='选择框'"
+                       v-model="item.value"
+                       :disabled="item.disabled"
+                       @change="forceUpdate">
+              <el-option v-for="_item in item.selectTable"
+                         :key="_item.value"
+                         :label="_item.name"
+                         :value="_item.value">
+              </el-option>
+            </el-select>
           </div>
         </el-collapse-item>
       </el-collapse>
@@ -443,6 +461,7 @@
           </el-row>
 
           <el-collapse v-if="formPass.outerParams&&formPass.outerParams.length!==0"
+                       accordion
                        v-model="activeNames">
             <el-collapse-item v-for="(param,i) in formPass.outerParams"
                               :key="i"
@@ -455,7 +474,24 @@
                 <el-input v-if="item.valueTypeEnum==='文本输入框'"
                           style="max-width:200px"
                           v-model="item.value"
-                          :disabled="item.disabled"></el-input>
+                          :disabled="item.disabled"
+                          @input="forceUpdate"></el-input>
+                <el-input-number v-if="item.valueTypeEnum==='数字输入框'"
+                                 style="max-width:200px"
+                                 :min="1"
+                                 v-model="item.value"
+                                 :disabled="item.disabled"
+                                 @input="forceUpdate"></el-input-number>
+                <el-select v-if="item.valueTypeEnum==='选择框'"
+                           v-model="item.value"
+                           :disabled="item.disabled"
+                           @change="forceUpdate">
+                  <el-option v-for="_item in item.selectTable"
+                             :key="_item.value"
+                             :label="_item.name"
+                             :value="_item.value">
+                  </el-option>
+                </el-select>
               </div>
             </el-collapse-item>
           </el-collapse>
@@ -470,11 +506,13 @@
         </span>
 
         <!-- table - 数据标签 · 通道 -->
-        <!-- <pass-tags :id="id"
+        <pass-tags :id="id"
+                   :service-type="serviceType"
                    :tree-data="treeData"
                    :pass-list="passList"
                    :equipment-list="equipmentList"
-                   :data-tags-org="formPass.dataTags"></pass-tags> -->
+                   :data-tags-org="formPass.dataTags"
+                   :label-outer-params="labelOuterParams"></pass-tags>
 
       </el-tab-pane>
 
@@ -551,6 +589,11 @@ export default {
       type: Array,
       default: () => []
     },
+    // 标签的动态列
+    labelOuterParams: {
+      type: Array,
+      default: () => []
+    },
     // 通道/设备loading
     contentLoading: {
       type: Boolean,
@@ -578,9 +621,9 @@ export default {
   },
   data () {
     return {
-      formPass: {
+      formPass: { // 表单数据
         passParams: {}
-      }, // 表单数据
+      },
       formPassRule: { // 表单验证
         pipelineName: [
           { required: true, message: "请输入名称", trigger: "change" }
@@ -619,6 +662,7 @@ export default {
           // console.log(this.formPassOrg);
           this.activeName = "first"; // tab重置
           /* 1.outerParams */
+          let otherParamsUse = this.outerParamsHanding(this.formPassOrg.otherParams);
           let outerParamsUse = this.outerParamsHanding(this.formPassOrg.outerParams);
           /* 2.表单数据 */
           this.formPass = {
@@ -626,7 +670,7 @@ export default {
             pipelineName: this.formPassOrg.name, // 通道名称
             description: this.formPassOrg.description, // 通道描述
             plugin: {}, // 选择的插件数据
-            otherParams: this.formPassOrg.otherParams, // 插件其他参数 - 标签时才用
+            otherParams: otherParamsUse, // 插件其他参数 - 标签时才用
             outerParams: outerParamsUse, // 插件外层参数 - 通道collapse用
             pluginFactory: this.formPassOrg.plush.manufacturers, // 插件厂家
             pluginDescribe: this.formPassOrg.plush.description, // 插件描述
@@ -680,14 +724,16 @@ export default {
               items: [param]
             });
           } else { // 不是第一项
-            if (param.typeName === outerParamsCopy[i - 1].typeName) { // 与前一项的typeName一致
-              outerParamsUse.forEach(_param => {
-                _param.items = _param.items.concat(param);
-              });
-            } else { // 与前一项的typeName不一致
+            if (!outerParamsUse.some(
+              _param => _param.typeName === param.typeName
+            )) { // 数组中没有该类型
               outerParamsUse.push({
                 typeName: param.typeName,
                 items: [param]
+              });
+            } else { // 数组中已有该类型
+              outerParamsUse.forEach(_param => {
+                _param.typeName === param.typeName && (_param.items = _param.items.concat(param));
               });
             }
           }
@@ -781,6 +827,10 @@ export default {
           }
         }
       });
+    },
+    // 强制刷新
+    forceUpdate () {
+      this.$forceUpdate();
     }
   },
   watch: {
