@@ -146,8 +146,10 @@ export function arraySort(key, sort) {
 export function getValueByKey(array, queryKey, queryValue, getKey) {
   var getValue;
   array.forEach(item => {
-    item[queryKey].toString() === queryValue.toString() &&
-      (getValue = item[getKey]);
+    if (item[queryKey] !== null) {
+      item[queryKey].toString() === queryValue.toString() &&
+        (getValue = item[getKey]);
+    }
   });
   return getValue;
 }
