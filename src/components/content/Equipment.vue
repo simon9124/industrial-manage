@@ -95,7 +95,8 @@
                    :tree-data="treeData"
                    :equipment-list="equipmentList"
                    :data-tags-org="formEquipment.dataTags"
-                   :label-outer-params="labelOuterParams"></pass-tags>
+                   :label-outer-params="labelOuterParams"
+                   :label-other-params="labelOtherParams"></pass-tags>
 
       </el-tab-pane>
 
@@ -131,6 +132,11 @@ export default {
     },
     // 标签的动态列
     labelOuterParams: {
+      type: Array,
+      default: () => []
+    },
+    // 标签的动态其他参数
+    labelOtherParams: {
       type: Array,
       default: () => []
     },

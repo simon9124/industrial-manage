@@ -1,166 +1,161 @@
 <template>
-  <el-dialog :title="dialogTitle"
+  <el-dialog title="其他参数"
              :visible.sync="dialogVisible">
 
-    <el-row class="params-dialog-row">
-      <el-checkbox v-model="formData.otherParams.takeAbsoluteValue"
+    <!-- 取绝对值 -->
+    <el-row v-if="serviceType===0"
+            class="params-dialog-row">
+      <el-checkbox v-model="formData.tagOtherParams.abs"
                    style="margin-right:20px">取绝对值</el-checkbox>
       &nbsp;单位&nbsp;
-      <el-input v-model="formData.otherParams.absoluteValue"
+      <el-input v-model="formData.tagOtherParams.unit"
                 style="width:100px;margin-right:20px"></el-input>
       &nbsp;设备系数计算&nbsp;
-      <el-select v-model="formData.otherParams.calculation"
+      <el-select v-model="formData.tagOtherParams.deviceRatio"
                  placeholder="请选择"
                  style="width:200px;margin-right:20px">
         <el-option v-for="item in calculationList"
-                   :key="item"
-                   :label="item"
-                   :value="item">
+                   :key="item.value"
+                   :label="item.label"
+                   :value="item.value">
         </el-option>
       </el-select>
     </el-row>
 
+    <!-- 系数计算 -->
     <el-row class="params-dialog-row">
-      <el-checkbox v-model="formData.otherParams.ratioCalculation">系数计算</el-checkbox>
+      <el-checkbox v-model="formData.tagOtherParams.func">系数计算</el-checkbox>
       <div class="params-dialog-row-div">
         倍率（a）
-        <el-input v-model="formData.otherParams.magnification"
+        <el-input v-model="formData.tagOtherParams.a"
                   style="width:100px"
-                  :disabled="!formData.otherParams.ratioCalculation"></el-input>
+                  :disabled="!formData.tagOtherParams.func"></el-input>
         基数（b）
-        <el-input v-model="formData.otherParams.base"
+        <el-input v-model="formData.tagOtherParams.b"
                   style="width:100px;margin-right:20px"
-                  :disabled="!formData.otherParams.ratioCalculation"></el-input>
+                  :disabled="!formData.tagOtherParams.func"></el-input>
         形如：y = ax + b
-        <el-checkbox v-model="formData.otherParams.reverseCoefficient"
-                     :disabled="!formData.otherParams.ratioCalculation"
+        <el-checkbox v-model="formData.tagOtherParams.isContrary"
+                     :disabled="!formData.tagOtherParams.func"
                      style="margin-left:20px">写使用反向系数</el-checkbox>
       </div>
     </el-row>
 
-    <el-row class="params-dialog-row">
-      <el-checkbox v-model="formData.otherParams.rangeConversion">量程转换</el-checkbox>
+    <!-- 量程转换 -->
+    <el-row v-if="serviceType===0"
+            class="params-dialog-row">
+      <el-checkbox v-model="formData.tagOtherParams.isInsToSam">量程转换</el-checkbox>
       <div class="params-dialog-row-div">
         量程最大&nbsp;
-        <el-input v-model="formData.otherParams.maxRange"
+        <el-input v-model="formData.tagOtherParams.insMax"
                   style="width:100px;margin-right:20px"
-                  :disabled="!formData.otherParams.rangeConversion"></el-input>
+                  :disabled="!formData.tagOtherParams.isInsToSam"></el-input>
         采集值最大&nbsp;
-        <el-input v-model="formData.otherParams.maxGather"
+        <el-input v-model="formData.tagOtherParams.samMax"
                   style="width:100px"
-                  :disabled="!formData.otherParams.rangeConversion"></el-input>
+                  :disabled="!formData.tagOtherParams.isInsToSam"></el-input>
       </div>
       <div class="params-dialog-row-div"
            style="margin-top:10px">
         量程最小&nbsp;
-        <el-input v-model="formData.otherParams.minRange"
+        <el-input v-model="formData.tagOtherParams.insMin"
                   style="width:100px;margin-right:20px"
-                  :disabled="!formData.otherParams.rangeConversion"></el-input>
+                  :disabled="!formData.tagOtherParams.isInsToSam"></el-input>
         采集值最小&nbsp;
-        <el-input v-model="formData.otherParams.minGather"
+        <el-input v-model="formData.tagOtherParams.samMin"
                   style="width:100px"
-                  :disabled="!formData.otherParams.rangeConversion"></el-input>
+                  :disabled="!formData.tagOtherParams.isInsToSam"></el-input>
       </div>
     </el-row>
 
-    <el-row class="params-dialog-row">
-      <el-checkbox v-model="formData.otherParams.dataFilter">数据有效范围过滤</el-checkbox>
+    <!-- 数据有效范围过滤 -->
+    <el-row v-if="serviceType===0"
+            class="params-dialog-row">
+      <el-checkbox v-model="formData.tagOtherParams.dataFilter">数据有效范围过滤</el-checkbox>
       <div class="params-dialog-row-div">
         数据最小&nbsp;
-        <el-input v-model="formData.otherParams.minData"
+        <el-input v-model="formData.tagOtherParams.min"
                   style="width:100px;margin-right:20px"
-                  :disabled="!formData.otherParams.dataFilter"></el-input>
+                  :disabled="!formData.tagOtherParams.dataFilter"></el-input>
         数据最大&nbsp;
-        <el-input v-model="formData.otherParams.maxData"
+        <el-input v-model="formData.tagOtherParams.max"
                   style="width:100px"
-                  :disabled="!formData.otherParams.dataFilter"></el-input>
+                  :disabled="!formData.tagOtherParams.dataFilter"></el-input>
       </div>
-      <div class="params-dialog-row-div"
+      <!-- <div class="params-dialog-row-div"
            style="margin-top:10px">
-        <el-radio v-model="formData.otherParams.dataRadio"
+        <el-radio v-model="formData.tagOtherParams.dataRadio"
                   label="1"
-                  :disabled="!formData.otherParams.dataFilter">小于最小值取最小值，大于最大值取最大值</el-radio>
-        <el-radio v-model="formData.otherParams.dataRadio"
+                  :disabled="!formData.tagOtherParams.dataFilter">小于最小值取最小值，大于最大值取最大值</el-radio>
+        <el-radio v-model="formData.tagOtherParams.dataRadio"
                   label="2"
-                  :disabled="!formData.otherParams.dataFilter">小于最小值、大于最大值忽略</el-radio>
-      </div>
+                  :disabled="!formData.tagOtherParams.dataFilter">小于最小值、大于最大值忽略</el-radio>
+      </div> -->
     </el-row>
 
-    <el-row class="params-dialog-row">
+    <!-- 高级运算 -->
+    <el-row v-if="serviceType===0"
+            class="params-dialog-row">
       高级运算
-      <el-select v-model="formData.otherParams.advancedOperation"
+      <el-select v-model="formData.tagOtherParams.calc"
                  placeholder="请选择"
                  style="width:200px;margin:0 20px">
         <el-option v-for="item in advancedOperationList"
-                   :key="item"
-                   :label="item"
-                   :value="item">
+                   :key="item.value"
+                   :label="item.label"
+                   :value="item.value">
         </el-option>
       </el-select>
       参数1&nbsp;
-      <el-input v-model="formData.otherParams.param1"
+      <el-input v-model="formData.tagOtherParams.cr1"
                 style="width:100px;margin-right:20px"
-                :disabled="!(formData.otherParams.advancedOperation==='取子字符串'||formData.otherParams.advancedOperation==='按位取')"></el-input>
+                :disabled="!(formData.tagOtherParams.calc==='取子字符串'||formData.tagOtherParams.calc==='按位取')"></el-input>
       参数2&nbsp;
-      <el-input v-model="formData.otherParams.param2"
+      <el-input v-model="formData.tagOtherParams.cr2"
                 style="width:100px"
-                :disabled="!(formData.otherParams.advancedOperation==='取子字符串'||formData.otherParams.advancedOperation==='按位取')"></el-input>
+                :disabled="!(formData.tagOtherParams.calc==='取子字符串'||formData.tagOtherParams.calc==='按位取')"></el-input>
     </el-row>
 
-    <el-collapse v-model="activeNames"
+    <el-collapse v-if="formData.labelOtherParams&&formData.labelOtherParams.length!==0"
                  accordion
-                 style="margin-top:20px">
-      <el-collapse-item title="用户参数"
-                        name="1">
-        <div class="collapse-content">类型编码：
-          <el-input style="max-width:400px"
-                    v-model="formData.otherParams.code"></el-input>
-        </div>
-        <div class="collapse-content">是否缓存：
-          <el-radio v-model="formData.otherParams.cache"
-                    :label="true">缓存</el-radio>
-          <el-radio v-model="formData.otherParams.cache"
-                    :label="false">不缓存</el-radio>
-        </div>
-      </el-collapse-item>
-      <el-collapse-item title="报警配置"
-                        name="2">
-        <div class="collapse-content">报警开关：
-          <el-radio v-model="formData.otherParams.alert"
-                    :label="true">打开</el-radio>
-          <el-radio v-model="formData.otherParams.alert"
-                    :label="false">关闭</el-radio>
-        </div>
-        <div class="collapse-content">高高限：
-          <el-input style="max-width:400px"
-                    v-model="formData.otherParams.maxLimit"></el-input>
-        </div>
-        <div class="collapse-content">高限：
-          <el-input style="max-width:400px"
-                    v-model="formData.otherParams.upperLimit"></el-input>
-        </div>
-        <div class="collapse-content">低限：
-          <el-input style="max-width:400px"
-                    v-model="formData.otherParams.lowerLimit"></el-input>
-        </div>
-        <div class="collapse-content">低低限：
-          <el-input style="max-width:400px"
-                    v-model="formData.otherParams.minLimit"></el-input>
-        </div>
-        <div class="collapse-content">报警延迟（秒，0：不延时）：
-          <el-input style="max-width:400px"
-                    v-model="formData.otherParams.alarmDelay"></el-input>
-        </div>
-        <div class="collapse-content">报警级别：
-          <el-input style="max-width:400px"
-                    v-model="formData.otherParams.alarmLevel"></el-input>
+                 v-model="activeNames"
+                 style="margin-top:30px">
+      <el-collapse-item v-for="(param,i) in formData.labelOtherParams"
+                        :key="i"
+                        :title="param.typeName"
+                        :name="i.toString()">
+        <div class="collapse-content"
+             v-for="(item,_i) in param.items"
+             :key="_i">
+          {{item.showName}}：
+          <el-input v-if="item.valueTypeEnum==='文本输入框'"
+                    style="max-width:200px"
+                    v-model="item.value"
+                    :disabled="item.disabled"
+                    @input="forceUpdate"></el-input>
+          <el-input-number v-if="item.valueTypeEnum==='数字输入框'"
+                           style="max-width:200px"
+                           :min="1"
+                           v-model="item.value"
+                           :disabled="item.disabled"
+                           @input="forceUpdate"></el-input-number>
+          <el-select v-if="item.valueTypeEnum==='选择框'"
+                     v-model="item.value"
+                     :disabled="item.disabled"
+                     @change="forceUpdate">
+            <el-option v-for="_item in item.selectTable"
+                       :key="_item.value"
+                       :label="_item.name"
+                       :value="_item.value">
+            </el-option>
+          </el-select>
         </div>
       </el-collapse-item>
     </el-collapse>
 
     <div slot="footer"
          class="dialog-footer">
-      <el-button @click="dialogVisible = false;formData.otherParams = paramsOrg;">
+      <el-button @click="dialogVisible = false;formData.tagOtherParams = paramsOrg;">
         取 消</el-button>
       <el-button @click="dialogVisible = false"
                  type="primary">确 定</el-button>
@@ -169,20 +164,30 @@
 </template>
 
 <script>
+import { calculationList, advancedOperationList } from "@/mock/tableColumn.js";
 export default {
   props: {
     // 当前标签数据
     formData: {
       type: Object
+    },
+    // 0/1 采集服务/数据服务
+    serviceType: {
+      type: Number,
+      default: 0
+    },
+    // 标签的动态其他参数
+    labelOtherParams: {
+      type: Array,
+      default: () => []
     }
   },
   data () {
     return {
       dialogVisible: false, // 是否可见
-      dialogTitle: "", // 弹框名称
-      calculationList: ["不参与计算", "乘设备系数R1", "乘设备系数R2", "乘设备系数R1*R2"], // 设备系数列表
-      advancedOperationList: ["无计算", "2字节无符号 先高后低", "8字节浮点数 顺序87654321", "取子字符串", "按位取"], // 高级运算列表
-      activeNames: ["1"] // 手风琴展开的标签
+      calculationList: calculationList, // 设备系数列表
+      advancedOperationList: advancedOperationList, // 高级运算列表
+      activeNames: ["0"] // 手风琴展开的标签
     };
   },
   methods: {
@@ -190,13 +195,16 @@ export default {
     setParams () {
       // console.log(this.formData);
       this.dialogVisible = true;
-      this.dialogTitle = `数据标签其他参数 ${this.formData.dataType}`;
-      this.paramsOrg = JSON.parse(JSON.stringify(this.formData.otherParams)); // 深拷贝，取消时还原数据用
+      this.paramsOrg = JSON.parse(JSON.stringify(this.formData.tagOtherParams)); // 深拷贝，取消时还原数据用
+    },
+    // 强制刷新
+    forceUpdate () {
+      this.$forceUpdate();
     }
   },
   watch: {
     dialogVisible (val) {
-      !val && (this.activeNames = ["1"]);
+      !val && (this.activeNames = ["0"]);
     }
   }
 };

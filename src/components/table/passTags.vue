@@ -7,11 +7,11 @@
       <el-select v-model="dataTypeSelect"
                  placeholder="请选择"
                  style="width:150px;margin-right:10px"
-                 @change="refreshData">
+                 @change="isMock?refreshData():getData()">
         <el-option v-for="item in dataTypeList"
-                   :key="item"
-                   :label="item"
-                   :value="item">
+                   :key="item.value"
+                   :label="item.label"
+                   :value="item.value">
         </el-option>
       </el-select>
       <el-button type="primary"
@@ -81,21 +81,21 @@
                      plain
                      icon="el-icon-delete"
                      style="margin-left:3px"
-                     @click="deleteTag(scope.row.id)"></el-button>
-          <el-button type="success"
+                     @click="deleteTag(scope.row)"></el-button>
+          <!-- <el-button type="success"
                      size="mini"
                      plain
                      icon="el-icon-top"
                      style="margin-left:3px"
                      :disabled="scope.row.index===1"
-                     @click="tagToggle(scope.row.index-1,'up')"></el-button>
-          <el-button type="success"
+                     @click="tagToggle(scope.row.index-1,'up')"></el-button> -->
+          <!-- <el-button type="success"
                      size="mini"
                      plain
                      icon="el-icon-bottom"
                      style="margin-left:3px"
                      :disabled="scope.row.index===dataTags.length"
-                     @click="tagToggle(scope.row.index-1,'down')"></el-button>
+                     @click="tagToggle(scope.row.index-1,'down')"></el-button> -->
         </template>
       </el-table-column>
 
@@ -115,8 +115,8 @@
           <el-col :span="9">
             <el-form-item label-width="65px"
                           label="名称："
-                          prop="source">
-              <el-input v-model="formData.source"></el-input>
+                          prop="name">
+              <el-input v-model="formData.name"></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="9">
@@ -131,105 +131,93 @@
         </el-row>
 
         <el-row :gutter="0">
-          <el-col :span="9">
+          <el-col :span="7">
             <el-form-item label="数据类型："
                           prop="type">
               <el-select v-model="formData.type"
                          placeholder="请选择"
-                         style="width:203px">
+                         style="width:130px">
                 <el-option v-for="item in dataTypeList"
-                           :key="item"
-                           :label="item"
-                           :value="item">
+                           :key="item.value"
+                           :label="item.label"
+                           :value="item.value"
+                           :disabled="item.value===null">
                 </el-option>
               </el-select>
             </el-form-item>
           </el-col>
-          <el-col :span="10">
+          <el-col :span="7">
             <el-form-item label="读写方向："
                           prop="rw">
               <el-select v-model="formData.rw"
-                         placeholder="请选择">
+                         placeholder="请选择"
+                         style="width:130px">
                 <el-option v-for="item in directionList"
-                           :key="item"
-                           :label="item"
-                           :value="item">
+                           :key="item.value"
+                           :label="item.label"
+                           :value="item.value">
                 </el-option>
               </el-select>
             </el-form-item>
           </el-col>
-        </el-row>
-
-        <!-- <el-row :gutter="0">
-          <el-col :span="9">
-            <el-form-item label-width="155px"
-                          label="采集周期（毫秒）："
+          <el-col :span="7">
+            <el-form-item label-width="95px"
+                          label="采集周期："
                           prop="cycle">
               <el-input v-model="formData.cycle"></el-input>
             </el-form-item>
           </el-col>
-          <el-col :span="10">
+        </el-row>
+
+        <!-- IO链接 -->
+        <el-row v-if="serviceType===1"
+                :gutter="0">
+          <el-col :span="15">
             <el-form-item label-width="100px"
                           label="IO标签链接："
                           prop="IOTag">
               <el-input v-model="formData.IOTag"
-                        style="width:fit-content"
                         disabled></el-input>
+              <!-- style="width:fit-content" -->
             </el-form-item>
           </el-col>
           <el-button style="margin:0 0 20px 10px"
                      @click="tagSelect">选择标签</el-button>
-        </el-row> -->
+        </el-row>
 
-        <!-- <el-row :gutter="0">
-          <el-col :span="9">
-            <el-form-item label-width="70px"
-                          label="从站ID："
-                          prop="slaveStationID">
-              <el-input v-model="formData.slaveStationID"></el-input>
-            </el-form-item>
+        <el-row>
+          <el-col :span="11"
+                  style="margin-bottom:20px;margin-left:0"
+                  v-for="(item,_i) in formData.labelOuterParams"
+                  :key="_i">
+            {{item.showName}}：
+            <el-input v-if="item.valueTypeEnum==='文本输入框'"
+                      style="width:auto"
+                      v-model="item.value"
+                      :disabled="paramDisabled(item.disabled)"
+                      @input="forceUpdate"></el-input>
+            <el-input-number v-if="item.valueTypeEnum==='数字输入框'"
+                             style="width:auto"
+                             :min="1"
+                             v-model="item.value"
+                             :disabled="paramDisabled(item.disabled)"
+                             @input="forceUpdate"></el-input-number>
+            <el-select v-if="item.valueTypeEnum==='选择框'"
+                       style="width:auto"
+                       v-model="item.value"
+                       :disabled="paramDisabled(item.disabled)"
+                       @change="forceUpdate">
+              <el-option v-for="_item in item.selectTable"
+                         :key="_item.value"
+                         :label="_item.name"
+                         :value="_item.value">
+              </el-option>
+            </el-select>
+            <el-checkbox v-if="item.valueTypeEnum==='单选框'"
+                         v-model="item.value"
+                         :disabled="paramDisabled(item.disabled)"></el-checkbox>
           </el-col>
-          <el-col :span="10">
-            <el-form-item label-width="100px"
-                          label="寄存器类型："
-                          prop="registerType">
-              <el-select v-model="formData.registerType"
-                         placeholder="请选择"
-                         style="width:250px">
-                <el-option v-for="item in registerTypeList"
-                           :key="item.value"
-                           :label="item.label"
-                           :value="item.value">
-                </el-option>
-              </el-select>
-            </el-form-item>
-          </el-col>
-        </el-row> -->
-
-        <!-- <el-row :gutter="0">
-          <el-col :span="9">
-            <el-form-item label-width="100px"
-                          label="寄存器地址："
-                          prop="registerAddr">
-              <el-input v-model="formData.registerAddr"></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="10">
-            <el-form-item label-width="90px"
-                          label="数据格式："
-                          prop="dataFormat">
-              <el-select v-model="formData.dataFormat"
-                         placeholder="请选择"
-                         style="width:250px">
-                <el-option v-for="item in dataFormatList"
-                           :key="item.value"
-                           :label="item.label"
-                           :value="item.value">
-                </el-option>
-              </el-select>
-            </el-form-item>
-          </el-col>
-        </el-row> -->
+        </el-row>
 
       </el-form>
 
@@ -243,33 +231,10 @@
     </el-dialog>
 
     <!-- dialog · 其他参数 -->
-    <el-dialog title="其他参数 浮点"
-               :visible.sync="dialogVisibleParam">
-
-      <el-checkbox v-model="formData.ratioCalculation"
-                   style="margin-right:20px">系数计算</el-checkbox>
-      <div class="params-dialog-row-div">
-        &nbsp;倍率（a）
-        <el-input v-model="formData.magnification"
-                  style="width:100px"
-                  :disabled="!formData.ratioCalculation"></el-input>
-        &nbsp;基数（b）
-        <el-input v-model="formData.base"
-                  style="width:100px;margin-right:20px"
-                  :disabled="!formData.ratioCalculation"></el-input>
-        形如：y = ax + b
-      </div>
-
-      <div slot="footer"
-           class="dialog-footer">
-        <el-button @click="dialogVisibleParam = false;
-                           formData.ratioCalculation = otherParamsOrg.ratioCalculation;
-                           formData.magnification = otherParamsOrg.magnification;
-                           formData.base = otherParamsOrg.base;">取 消</el-button>
-        <el-button type="primary"
-                   @click="dialogVisibleParam = false">确 定</el-button>
-      </div>
-    </el-dialog>
+    <equipment-tag-params ref="equipmentTagParams"
+                          :form-data="formData"
+                          :service-type="serviceType"
+                          :label-other-params="labelOtherParams"></equipment-tag-params>
 
     <!-- dialog - 选择标签 -->
     <!-- <tag-select ref="tagSelect"
@@ -294,18 +259,23 @@
 <script>
 /* function */
 import { parseTime } from "@/libs/util"; // functions
-import { arraySort } from "@/libs/dataHanding";// function - 对象数组根据key排序
+import {
+  getValueByKey, // 根据对象数组某个key的value，查询另一个key的value
+  arraySort, // 对象数组根据key排序
+  resultCallback // 根据请求的status执行回调函数
+} from "@/libs/dataHanding";
 import XLSX from "xlsx"; // plugin - excel
 /* mockData */
 import { passTagColumn, passTagHeader, tagTranslation } from "@/mock/tableColumn";
 /* components */
 import TagSelect from "@/components/dialog/tagSelect"; // 组件：选择标签
 import TagLoad from "@/components/dialog/tagLoad"; // 组件：选择标签
+import EquipmentTagParams from "@/components/dialog/equipmentTagParams"; // 组件：标签其他参数
 /* api */
-import { queryTagList, addTag, queryTagMessage, updateTag, deleteTag } from "@/api/tag.js"; // 标签
+import { queryTagList, addTag, updateTag, deleteTag } from "@/api/tag.js"; // 标签
 
 export default {
-  components: { TagSelect, TagLoad },
+  components: { TagSelect, TagLoad, EquipmentTagParams },
   props: {
     // 左侧树被选择的id
     id: {
@@ -318,6 +288,11 @@ export default {
     },
     // 标签的动态列
     labelOuterParams: {
+      type: Array,
+      default: () => []
+    },
+    // 标签的动态其他参数
+    labelOtherParams: {
       type: Array,
       default: () => []
     },
@@ -352,88 +327,48 @@ export default {
       /* table */
       dataTags: [], // 表格数据 - 要展示的数据
       dataColumns: [], // 表格列项
-      dataTypeList: ["全部", "浮点", "整型", "布尔", "字符串", "二进制"], // select - 数据类型
-      dataTypeSelect: "全部", // 筛选 - 选中的数据类型
+      dataTypeList: [ // select - 数据类型
+        { label: "全部", value: null },
+        { label: "浮点", value: 0 },
+        { label: "整型", value: 1 },
+        { label: "布尔", value: 2 },
+        { label: "字符串", value: 3 },
+        { label: "二进制", value: 4 }
+      ],
+      directionList: [ // select - 读写方向
+        { label: "只读", value: 0 },
+        { label: "只写", value: 1 },
+        { label: "读写", value: 2 }
+      ],
+      dataTypeSelect: null, // 筛选 - 选中的数据类型
       multipleSelection: [], // 多选 - 选中的数据
       /* dialog */
       dialogVisible: false, // 是否显示
-      dialogVisibleParam: false, // 是否显示 - 其他参数
       dialogType: "", // 类型：insert/edit
       dialogTitle: "", // dialog标题
       formData: { // 表单数据
-        source: "", // 名称
+        name: "", // 名称
         description: "", // 描述
-        type: "整型", // 数据类型
-        rw: "只读" // 读写方向
-        // ratioCalculation: false,
-        // magnification: "1.0000",
-        // base: "0.0000",
-        // cycle: "1000",
-        // IOTag: "at._kernal_version",
-        // IOTagParentId: "1",
-        // IOTagSelectId: "0",
-        // slaveStationID: "1",
-        // registerType: 2,
-        // registerAddr: "0",
-        // dataFormat: 0
+        type: 0, // 数据类型
+        rw: 0, // 读写方向
+        cycle: "1000", // 采集周期
+        tagOtherParams: {}, // 其他参数 - 固定
+        labelOtherParams: [], // 其他参数 - 动态
+        labelOuterParams: [], // 外层参数 - 动态
+        ioLabelId: null // io标签id
       },
       formDataOrg: {}, // 表单数据 - 行内原始
       formRule: { // 表单验证
-        source: [
-          { required: true, message: "请输入名称", trigger: "blur" }
+        name: [
+          { required: true, message: "请输入名称", trigger: "change" }
         ],
         description: [
-          { required: true, message: "请输入描述", trigger: "blur" }
+          { required: true, message: "请输入描述", trigger: "change" }
         ],
         cycle: [
-          { required: true, message: "请输入采集周期", trigger: "blur" }
+          { required: true, message: "请输入采集周期", trigger: "change" }
         ]
       },
-      directionList: ["只读", "只写", "读写"], // select - 读写方向
-      registerTypeList: [ // select列表 - 寄存器类型
-        {
-          label: "1号命令：读、写开关量",
-          value: 0
-        },
-        {
-          label: "2号命令：读开关量状态",
-          value: 1
-        },
-        {
-          label: "3号命令：读、写保持寄存器",
-          value: 2
-        },
-        {
-          label: "4号命令：读输入寄存器",
-          value: 3
-        }
-      ],
-      dataFormatList: [ // select列表 - 数据格式
-        {
-          label: "2字节整型 先高后低 顺序21",
-          value: 0
-        },
-        {
-          label: "2字节整型 先高后低 顺序12",
-          value: 1
-        },
-        {
-          label: "2字节整型 第1位",
-          value: 2
-        },
-        {
-          label: "2字节整型 第2位",
-          value: 3
-        },
-        {
-          label: "4字节整型 顺序4321",
-          value: 4
-        },
-        {
-          label: "8字节浮点 顺序87654321",
-          value: 5
-        }
-      ],
       /* loading */
       submitLoading: false, // loading - 提交按钮
       downloadLoading: false, // loading - 导出
@@ -443,60 +378,166 @@ export default {
       tableMaxHeight: 0 // 流体表格最大高度
     };
   },
+  computed: {
+    // 根据动态表单某个key的值，判断另一个key是否disabled
+    paramDisabled () {
+      return function (obj) {
+        if (obj) {
+          // console.log(obj);
+          const val = getValueByKey(this.formData.labelOuterParams, "paramName", obj.key, "value");
+          // console.log(val);
+          return obj.values.some(_val => _val === val);
+        }
+      };
+    }
+  },
   created () {
     const screenHeight = document.documentElement.clientHeight;
     this.tableMaxHeight = screenHeight - 73 - 20 * 2 - (40 + 15) - (40 + 20) - 40;
-    this.getData();
+    this.getData(); // 表格数据
+    this.getColumnData();// 表头列项
   },
   methods: {
-    // 获取数据
+    // 获取表格数据
     async getData () {
       if (this.isMock) { // mock数据
         this.dataColumns = JSON.parse(JSON.stringify(passTagColumn));
         this.refreshData();
       } else { // 接口数据
-        // if (this.serviceType === 1) { // 通道标签
-        this.dataTags = (await queryTagList({ pipelineId: this.id })).data.data;
-        // console.log(this.dataTags);
-        const labelOuterParams = this.dataColumnsHandle(this.labelOuterParams);
-        this.dataColumns = JSON.parse(JSON.stringify(passTagColumn)).concat(labelOuterParams);
-        console.log(this.dataColumns);
-        // } else if (this.serviceType === 2) { // 设备标签
-        // }
+        let dataTags = // 标签列表
+          this.serviceType === 0
+            ? (await queryTagList({ deviceId: this.id, type: this.dataTypeSelect })).data.data
+            : (await queryTagList({ pipelineId: this.id, type: this.dataTypeSelect })).data.data;
+        this.dataTags = dataTags.map((tag, i) => {
+          this.$set(tag, "index", i + 1); // 序号
+          this.$set(tag, "typeTable", // 数据类型
+            getValueByKey(this.dataTypeList, "value", tag.type, "label"));
+          this.$set(tag, "rwTable", // 读写方向
+            getValueByKey(this.directionList, "value", tag.rw, "label"));
+          tag.outerParams.forEach(param => { // 动态列
+            this.$set(tag, param.paramName, param.value);
+          });
+          return tag;
+        });
+        console.log(this.dataTags);
       }
     },
-    // 标签列项数据处理
+    // 获取表头数据
+    getColumnData () {
+      const labelOuterParams = this.dataColumnsHandle(this.labelOuterParams); // 外层参数
+      this.dataColumns = JSON.parse(JSON.stringify(passTagColumn)).concat(labelOuterParams); // 表头列项
+      // console.log(this.dataColumns);
+    },
+    // 表头列项数据处理
     dataColumnsHandle (params) {
       params.forEach(param => {
         this.$set(param, "prop", param.paramName);
-        this.$set(param, "label", param.showName);
+        this.$set(param, "label",
+          param.showName.substr(param.showName.length - 1, 1) === ":"
+            ? param.showName.slice(0, param.showName.length - 1) : param.showName
+        );
+        this.$set(param, "minWidth", 100);
       });
-      console.log(params);
+      // console.log(params);
       return params;
+    },
+    // params数据处理 - 手风琴
+    labelParamsHanding (otherParams) {
+      let otherParamsUse = [];
+      if (otherParams) {
+        let outerParamsCopy = JSON.parse(JSON.stringify(otherParams));
+        outerParamsCopy.forEach((param, i) => {
+          if (i === 0) { // 第一项
+            otherParamsUse.push({
+              typeName: param.typeName,
+              items: [param]
+            });
+          } else { // 不是第一项
+            if (!otherParamsUse.some(
+              _param => _param.typeName === param.typeName
+            )) { // 数组中没有该类型
+              otherParamsUse.push({
+                typeName: param.typeName,
+                items: [param]
+              });
+            } else { // 数组中已有该类型
+              otherParamsUse.forEach(_param => {
+                _param.typeName === param.typeName && (_param.items = _param.items.concat(param));
+              });
+            }
+          }
+        });
+      }
+      // console.log(otherParamsUse);
+      return otherParamsUse;
+    },
+    // params数据处理 - 接口格式
+    labelParamsAPI (paramsArr) {
+      // console.log(paramsArr);
+      let otherParams = [];
+      paramsArr &&
+        JSON.parse(JSON.stringify(paramsArr)).forEach(param => {
+          param.items.forEach(item => {
+            otherParams.push({ paramName: item.paramName, value: item.value });
+          });
+        });
+      // console.log(otherParams);
+      return otherParams;
     },
     // 数据处理 - 仅mock
     refreshData () {
-      /* 根据条件筛选 */
-      if (this.dataTypeSelect !== "全部") {
-        this.dataTags = this.dataTagsOrg.filter(tag =>
-          tag.type === this.dataTypeSelect
-        );
-      } else {
-        this.dataTags = this.dataTagsOrg;
+      if (this.isMock) { // mock数据
+        if (this.dataTypeSelect !== "全部") { // 根据条件筛选
+          this.dataTags = this.dataTagsOrg.filter(tag =>
+            tag.type === this.dataTypeSelect
+          );
+        } else {
+          this.dataTags = this.dataTagsOrg;
+        }
+        this.dataTags.sort(arraySort("name", "asc")); // 重排序
       }
-      this.dataTags.sort(arraySort("source", "asc")); // 重排序
-      this.dataTags.map((tag, i) => {
-        this.$set(tag, "index", i + 1); // 追加序列号，从1开始
+      this.dataTags.map((tag, i) => { // 追加序列号，从1开始
+        this.$set(tag, "index", i + 1);
       });
-      // console.log(this.dataTags);
+      console.log(this.dataTags);
     },
     // 新增
     insertTag () {
       this.dialogVisible = true;
       this.dialogType = "insert";
+      this.dialogTitle = `${this.serviceType === 0 ? "IO数据标签" : "数据服务标签"}-${this.dialogType === "insert" ? "新建" : "修改"}`;
       this.$nextTick(() => {
         this.$refs.dialogForm.resetFields();
-        this.dialogTitle = `数据服务标签-${this.dialogType === "insert" ? "新建" : "修改"}`;
+        this.formData = {
+          name: "", // 名称
+          description: "", // 描述
+          type: 0, // 数据类型
+          rw: 0, // 读写方向
+          cycle: "1000", // 采集周期
+          tagOtherParams: { // 其他参数 - 固定
+            abs: false, // 取绝对值
+            unit: "", // 单位
+            deviceRatio: 0, // 设备系数计算
+            func: false, // 系数计算
+            a: "2.0000", // 倍率
+            b: "0.0000", // 基数
+            isContrary: false, // 写使用反向系数
+            isInsToSam: false, // 量程转换
+            insMax: 10, // 量程最大
+            insMin: 0, // 量程最小
+            samMax: 4096, // 采集值最大
+            samMin: 0, // 采集值最小
+            dataFilter: false, // 数据有效范围过滤
+            max: 100, // 数据最大
+            min: 0, // 数据最小
+            calc: 0, // 高级运算
+            cr1: "", // 参数1
+            cr2: "" // 参数2
+          },
+          labelOtherParams: this.labelParamsHanding(this.labelOtherParams), // 其他参数 - 动态
+          labelOuterParams: JSON.parse(JSON.stringify(this.labelOuterParams)) // 外层参数 - 动态
+        };
+        console.log(this.formData);
       });
     },
     // 点击按钮 - 加载标签 - 调用子组件事件
@@ -507,23 +548,48 @@ export default {
     editTag (row) {
       this.dialogVisible = true;
       this.dialogType = "edit";
+      // console.log(row);
+      this.dialogTitle = `${this.serviceType === 0 ? "IO数据标签" : "数据服务标签"}-${this.dialogType === "insert" ? "新建" : "修改"}`;
       this.$nextTick(() => {
         this.$refs.dialogForm.resetFields();
-        this.dialogTitle = `数据服务标签-${this.dialogType === "insert" ? "新建" : "修改"}`;
         this.formDataOrg = row;
-        this.formData = JSON.parse(JSON.stringify(row)); // 深拷贝，取消时还原数据用
+        const rowCopy = JSON.parse(JSON.stringify(row)); // 深拷贝，取消时还原数据用
+        this.formData = {
+          idStr: rowCopy.idStr, // id
+          name: rowCopy.name, // 名称
+          description: rowCopy.description, // 描述
+          type: rowCopy.type, // 数据类型
+          rw: rowCopy.rw, // 读写方向
+          cycle: rowCopy.cycle, // 采集周期
+          labelOtherParams: this.labelParamsHanding(rowCopy.otherParams), // 其他参数 - 动态
+          labelOuterParams: rowCopy.outerParams, // 外层参数 - 动态
+          tagOtherParams: { // 其他参数 - 固定
+            abs: rowCopy.abs, // 取绝对值
+            unit: rowCopy.unit, // 单位
+            deviceRatio: rowCopy.deviceRatio, // 设备系数计算
+            func: rowCopy.func, // 系数计算
+            a: rowCopy.a, // 倍率
+            b: rowCopy.b, // 基数
+            isContrary: rowCopy.isContrary, // 写使用反向系数
+            isInsToSam: rowCopy.isInsToSam, // 量程转换
+            insMax: rowCopy.insMax, // 量程最大
+            insMin: rowCopy.insMin, // 量程最小
+            samMax: rowCopy.samMax, // 采集值最大
+            samMin: rowCopy.samMin, // 采集值最小
+            dataFilter: rowCopy.dataFilter, // 数据有效范围过滤
+            max: rowCopy.max, // 数据最大
+            min: rowCopy.min, // 数据最小
+            calc: rowCopy.calc, // 高级运算
+            cr1: rowCopy.cr1, // 参数1
+            cr2: rowCopy.cr2 // 参数2
+          }
+        };
+        console.log(this.formData);
       });
     },
-    // 其他参数
+    // 点击按钮 - 其他参数 - 调用子组件事件
     setParams () {
-      this.dialogVisibleParam = true;
-      this.otherParamsOrg = JSON.parse(JSON.stringify( // 深拷贝，取消时还原数据用
-        {
-          ratioCalculation: this.formData.ratioCalculation,
-          magnification: this.formData.magnification,
-          base: this.formData.base
-        }
-      ));
+      this.$refs.equipmentTagParams.setParams();
     },
     // 点击按钮 - 选择标签 - 调用子组件事件
     tagSelect () {
@@ -534,7 +600,7 @@ export default {
       console.log(param);
       if (param) {
         this.formData.IOTag =
-          `${param.source === "IO属性" ? "at." : "io."}${param.passName ? param.passName + "." : ""}${param.equpimentName ? param.equpimentName + "." : ""}${param.source}`;
+          `${param.name === "IO属性" ? "at." : "io."}${param.passName ? param.passName + "." : ""}${param.equpimentName ? param.equpimentName + "." : ""}${param.name}`;
         this.formData.IOTagParentId = param.parentId;
         this.formData.IOTagSelectId = param.id;
         this.tagDescribe =
@@ -544,48 +610,143 @@ export default {
     // 表单提交
     tagSubmit () {
       const formData = JSON.parse(JSON.stringify(this.formData));
-      this.$refs.dialogForm.validate(valid => {
+      this.$refs.dialogForm.validate(async valid => {
         if (valid) {
           this.submitLoading = true;
           switch (this.dialogType) {
             case "insert":
-              if (
-                this.dataTags.some(
-                  tag => tag.source === this.formData.source
-                )
-              ) {
-                // 判断重复
-                this.$message.error("该标签已存在！");
-                this.submitLoading = false;
-              } else {
-                // 随机生成id
-                formData.id = Math.random()
-                  .toString(36)
-                  .substr(-10);
-                this.dataTags.push(JSON.parse(JSON.stringify(formData)));
-                this.refreshData();
-                this.submitLoading = false;
-                this.dialogVisible = false;
+              if (this.isMock) { // mock数据
+                if (
+                  this.dataTags.some(
+                    tag => tag.name === this.formData.name
+                  )
+                ) { // 判断重复
+                  this.$message.error("该标签已存在！");
+                  this.submitLoading = false;
+                } else {
+                  formData.id = Math.random() // 随机生成id
+                    .toString(36)
+                    .substr(-10);
+                  this.dataTags.push(JSON.parse(JSON.stringify(formData)));
+                  this.refreshData();
+                  this.submitLoading = false;
+                  this.dialogVisible = false;
+                }
+              } else { // 接口数据
+                if (this.serviceType === 0) { // 设备标签
+                  console.log(this.formData);
+                  let labelOtherParams = this.labelParamsAPI(this.formData.labelOtherParams);
+                  let labelOuterParams = this.formData.labelOuterParams;
+                  const formInsert = {
+                    a: this.formData.tagOtherParams.a,
+                    abs: this.formData.tagOtherParams.abs,
+                    b: this.formData.tagOtherParams.b,
+                    calc: this.formData.tagOtherParams.calc,
+                    cr1: this.formData.tagOtherParams.cr1,
+                    cr2: this.formData.tagOtherParams.cr2,
+                    cycle: this.formData.cycle,
+                    dataFilter: this.formData.tagOtherParams.dataFilter,
+                    description: this.formData.description,
+                    deviceId: localStorage.getItem("select-id"),
+                    deviceRatio: this.formData.tagOtherParams.deviceRatio,
+                    func: this.formData.tagOtherParams.func,
+                    insMax: this.formData.tagOtherParams.insMax,
+                    insMin: this.formData.tagOtherParams.insMin,
+                    ioLabelId: this.formData.ioLabelId,
+                    isContrary: this.formData.tagOtherParams.isContrary,
+                    isInsToSam: this.formData.tagOtherParams.isInsToSam,
+                    len: this.formData.len,
+                    max: this.formData.tagOtherParams.max,
+                    min: this.formData.tagOtherParams.min,
+                    name: this.formData.name,
+                    otherParams: labelOtherParams.length !== 0 ? labelOtherParams : null,
+                    outerParams: labelOuterParams.length !== 0 ? labelOuterParams : null,
+                    // pipelineId: this.passId,
+                    rw: this.formData.rw,
+                    samMax: this.formData.tagOtherParams.samMax,
+                    samMin: this.formData.tagOtherParams.samMin,
+                    type: this.formData.type,
+                    unit: this.formData.tagOtherParams.unit
+                  };
+                  console.log(formInsert);
+                  const result = (await addTag(formInsert));
+                  resultCallback(result.data.success, "新增成功！", () => {
+                    this.getData();
+                    this.submitLoading = false;
+                    this.dialogVisible = false;
+                  }, () => {
+                    this.submitLoading = false;
+                  });
+                } else { // 通道标签
+                  console.log(this.formData);
+                }
               }
               break;
             case "edit":
-              if (
-                this.dataTags.some(
-                  tag => tag.source === this.formData.source
-                ) &&
-                this.formData.source !== this.formDataOrg.source
-              ) {
-                // 判断重复
-                this.$message.error("该标签已存在！");
-                this.submitLoading = false;
-              } else {
-                this.$set(
-                  this.dataTags,
-                  this.formData.index - 1,
-                  JSON.parse(JSON.stringify(formData))
-                );
-                this.submitLoading = false;
-                this.dialogVisible = false;
+              if (this.isMock) { // mock数据
+                if (
+                  this.dataTags.some(
+                    tag => tag.name === this.formData.name
+                  ) &&
+                  this.formData.name !== this.formDataOrg.name
+                ) {
+                  // 判断重复
+                  this.$message.error("该标签已存在！");
+                  this.submitLoading = false;
+                } else {
+                  this.$set(
+                    this.dataTags,
+                    this.formData.index - 1,
+                    JSON.parse(JSON.stringify(formData))
+                  );
+                  this.submitLoading = false;
+                  this.dialogVisible = false;
+                }
+              } else { // 接口数据
+                console.log(formData);
+                let labelOtherParams = this.labelParamsAPI(this.formData.labelOtherParams);
+                let labelOuterParams = this.formData.labelOuterParams;
+                const formUpdate = {
+                  id: this.formData.idStr,
+                  a: this.formData.tagOtherParams.a,
+                  abs: this.formData.tagOtherParams.abs,
+                  b: this.formData.tagOtherParams.b,
+                  calc: this.formData.tagOtherParams.calc,
+                  cr1: this.formData.tagOtherParams.cr1,
+                  cr2: this.formData.tagOtherParams.cr2,
+                  cycle: this.formData.cycle,
+                  dataFilter: this.formData.tagOtherParams.dataFilter,
+                  description: this.formData.description,
+                  deviceId: localStorage.getItem("select-id"),
+                  deviceRatio: this.formData.tagOtherParams.deviceRatio,
+                  func: this.formData.tagOtherParams.func,
+                  insMax: this.formData.tagOtherParams.insMax,
+                  insMin: this.formData.tagOtherParams.insMin,
+                  ioLabelId: this.formData.ioLabelId,
+                  isContrary: this.formData.tagOtherParams.isContrary,
+                  isInsToSam: this.formData.tagOtherParams.isInsToSam,
+                  len: this.formData.len,
+                  max: this.formData.tagOtherParams.max,
+                  min: this.formData.tagOtherParams.min,
+                  name: this.formData.name,
+                  otherParams: labelOtherParams.length !== 0 ? labelOtherParams : null,
+                  outerParams: labelOuterParams.length !== 0 ? labelOuterParams : null,
+                  // pipelineId: this.passId,
+                  rw: this.formData.rw,
+                  samMax: this.formData.tagOtherParams.samMax,
+                  samMin: this.formData.tagOtherParams.samMin,
+                  type: this.formData.type,
+                  unit: this.formData.tagOtherParams.unit
+                };
+                console.log(formUpdate);
+                const result = (await updateTag(formUpdate));
+                resultCallback(result.data.success, "修改成功！", () => {
+                  this.getData();
+                  this.submitLoading = false;
+                  this.dialogVisible = false;
+                }, () => {
+                  this.submitLoading = false;
+                });
               }
               break;
           }
@@ -593,14 +754,21 @@ export default {
       });
     },
     // 删除单个标签
-    deleteTag (id) {
+    deleteTag (row) {
       this.$confirm("将删除标签, 是否继续?", "提示", {
         type: "warning"
-      }).then(() => {
-        this.dataTags.forEach((tag, i) => {
-          tag.id === id && this.dataTags.splice(i, 1);
-        });
-        this.refreshData();
+      }).then(async () => {
+        if (this.isMock) { // mock数据
+          this.dataTags.forEach((tag, i) => {
+            tag.id === row.id && this.dataTags.splice(i, 1);
+          });
+          this.refreshData();
+        } else { // 接口数据
+          const result = await deleteTag({ ids: [row.idStr] });
+          resultCallback(result.data.success, "删除成功！", () => {
+            this.getData();
+          }, () => { });
+        }
       }).catch(() => { });
     },
     // 获取选中的数据
@@ -619,13 +787,25 @@ export default {
       }
       this.$confirm("将删除标签, 是否继续?", "提示", {
         type: "warning"
-      }).then(() => {
-        for (let i = 0; i < this.dataTags.length; i++) {
+      }).then(async () => {
+        if (this.isMock) { // mock数据
+          for (let i = 0; i < this.dataTags.length; i++) {
+            this.multipleSelection.forEach(select => {
+              this.dataTags[i].id === select.id && this.dataTags.splice(i, 1);
+            });
+          }
+          this.refreshData();
+        } else { // 接口数据
+          const ids = [];
           this.multipleSelection.forEach(select => {
-            this.dataTags[i].id === select.id && this.dataTags.splice(i, 1);
+            ids.push(select.idStr);
           });
+          // console.log(ids);
+          const result = await deleteTag({ ids });
+          resultCallback(result.data.success, "删除成功！", () => {
+            this.getData();
+          }, () => { });
         }
-        this.refreshData();
       }).catch(() => { });
     },
     // 工序重新排序
@@ -772,6 +952,10 @@ export default {
         this.dataTagsOrg.push(row);
       });
       this.refreshData();
+    },
+    // 强制刷新
+    forceUpdate () {
+      this.$forceUpdate();
     }
   },
   watch: {

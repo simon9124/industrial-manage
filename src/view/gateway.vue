@@ -89,6 +89,7 @@
                      :equipment-list="equipmentList"
                      :form-equipment-org="formEquipmentOrg"
                      :label-outer-params="labelOuterParams"
+                     :label-other-params="labelOtherParams"
                      :content-loading="contentLoading"
                      @item-update="itemUpdate"></Equipment>
         </el-container>
@@ -154,10 +155,11 @@ export default {
       idSelect: null, // 通道id or 设备id
       otherParamsEqu: null, // 通道传给设备的outerParams
       outerParamsEqu: null, // 通道传给设备outerParams
-      passId: null, // 设备的上层通道id - 新增和删除设备时用
+      passId: null, // 设备的上层通道id - 新增删除设备时用
       formPassOrg: {}, // 通道表单 - 修改通道时用
       formEquipmentOrg: {}, // 通道表单 - 修改设备时用
       labelOuterParams: [], // 标签列表的动态列 - 标签用
+      labelOtherParams: [], // 标签列表的动态其他参数 - 标签用
       /* plugins */
       idPlugin: null, // 被选择内容的id - 插件
       pluginTeamName: null, // 被选择内容的name - 插件类型
@@ -418,9 +420,10 @@ export default {
         this.pluginTeamName = this.formPassOrg.plush.typeName;
         localStorage.setItem("plugin-id", this.idPlugin);
         localStorage.setItem("plugin-teamName", this.pluginTeamName);
-        this.outerParamsEqu = this.formPassOrg.plush.deviceOuterParams; // 设备用
-        this.otherParamsEqu = this.formPassOrg.plush.deviceOtherParams; // 设备用
-        this.labelOuterParams = this.formPassOrg.plush.dataLabelOuterParams || []; // 通道标签用
+        this.outerParamsEqu = this.formPassOrg.plush.deviceOuterParams; // 设备外层参数
+        this.otherParamsEqu = this.formPassOrg.plush.deviceOtherParams; // 设备其他参数
+        this.labelOuterParams = this.formPassOrg.plush.dataLabelOuterParams || []; // 通道标签列
+        this.labelOtherParams = this.formPassOrg.plush.dataLabelOtherParams || []; // 通道标签其他参数
         this.$nextTick(() => {
           this.$refs.pass.getData();
         });
@@ -429,9 +432,10 @@ export default {
         // console.log(result);
         await (this.formEquipmentOrg = result);
         this.passId = result.pipelineIdStr; // 当前设备的上层通道id
-        this.labelOuterParams = // 设备标签用
-          (await queryPassMessage({ id: this.passId })).data.data.plush.collectLabelOuterParams || [];
-        console.log(this.labelOuterParams);
+        /* 查询该设备上层的通道的插件相关信息：collectLabelOtherParams & collectLabelOuterParams */
+        const passResult = (await queryPassMessage({ id: this.passId })).data.data;
+        this.labelOuterParams = passResult.plush.collectLabelOuterParams || []; // 设备标签列
+        this.labelOtherParams = passResult.plush.collectLabelOtherParams || []; // 设备标签其他参数
         // 设备标签用
         this.$nextTick(() => {
           this.$refs.equipment.getData();

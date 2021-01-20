@@ -169,8 +169,8 @@
           <el-col :span="9">
             <el-form-item label-width="155px"
                           label="采集周期（毫秒）："
-                          prop="cycle">
-              <el-input v-model="formData.cycle"></el-input>
+                          prop="acquisitionCycle">
+              <el-input v-model="formData.acquisitionCycle"></el-input>
             </el-form-item>
           </el-col>
         </el-row>
@@ -320,7 +320,7 @@ export default {
         },
         dataType: "整型",
         direction: "只读",
-        cycle: "1000",
+        acquisitionCycle: "1000",
         registerType: 0,
         registerAddr: "0",
         analyticalMethod: 0,
@@ -335,7 +335,7 @@ export default {
         describe: [
           { required: true, message: "请输入描述", trigger: "blur" }
         ],
-        cycle: [
+        acquisitionCycle: [
           { required: true, message: "请输入采集周期", trigger: "blur" }
         ]
       },
