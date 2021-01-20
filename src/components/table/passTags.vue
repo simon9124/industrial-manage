@@ -215,6 +215,8 @@
             </el-select>
             <el-checkbox v-if="item.valueTypeEnum==='单选框'"
                          v-model="item.value"
+                         :true-label="1"
+                         :false-label="0"
                          :disabled="paramDisabled(item.disabled)"></el-checkbox>
           </el-col>
         </el-row>
@@ -419,7 +421,7 @@ export default {
           });
           return tag;
         });
-        console.log(this.dataTags);
+        // console.log(this.dataTags);
       }
     },
     // 获取表头数据
@@ -478,7 +480,10 @@ export default {
       paramsArr &&
         JSON.parse(JSON.stringify(paramsArr)).forEach(param => {
           param.items.forEach(item => {
-            otherParams.push({ paramName: item.paramName, value: item.value });
+            otherParams.push({
+              paramName: item.paramName,
+              value: item.value === true ? 1 : item.value === false ? 0 : item.value
+            });
           });
         });
       // console.log(otherParams);
@@ -584,7 +589,7 @@ export default {
             cr2: rowCopy.cr2 // 参数2
           }
         };
-        console.log(this.formData);
+        // console.log(this.formData);
       });
     },
     // 点击按钮 - 其他参数 - 调用子组件事件
@@ -634,9 +639,12 @@ export default {
                 }
               } else { // 接口数据
                 if (this.serviceType === 0) { // 设备标签
-                  console.log(this.formData);
+                  // console.log(this.formData);
                   let labelOtherParams = this.labelParamsAPI(this.formData.labelOtherParams);
-                  let labelOuterParams = this.formData.labelOuterParams;
+                  let labelOuterParams = this.formData.labelOuterParams.map(param => {
+                    param.value = param.value === true ? 1 : param.value === false ? 0 : param.value;
+                    return param;
+                  });
                   const formInsert = {
                     a: this.formData.tagOtherParams.a,
                     abs: this.formData.tagOtherParams.abs,
@@ -668,7 +676,7 @@ export default {
                     type: this.formData.type,
                     unit: this.formData.tagOtherParams.unit
                   };
-                  console.log(formInsert);
+                  // console.log(formInsert);
                   const result = (await addTag(formInsert));
                   resultCallback(result.data.success, "新增成功！", () => {
                     this.getData();
@@ -703,9 +711,12 @@ export default {
                   this.dialogVisible = false;
                 }
               } else { // 接口数据
-                console.log(formData);
+                // console.log(formData);
                 let labelOtherParams = this.labelParamsAPI(this.formData.labelOtherParams);
-                let labelOuterParams = this.formData.labelOuterParams;
+                let labelOuterParams = this.formData.labelOuterParams.map(param => {
+                  param.value = param.value === true ? 1 : param.value === false ? 0 : param.value;
+                  return param;
+                });
                 const formUpdate = {
                   id: this.formData.idStr,
                   a: this.formData.tagOtherParams.a,
@@ -738,7 +749,7 @@ export default {
                   type: this.formData.type,
                   unit: this.formData.tagOtherParams.unit
                 };
-                console.log(formUpdate);
+                // console.log(formUpdate);
                 const result = (await updateTag(formUpdate));
                 resultCallback(result.data.success, "修改成功！", () => {
                   this.getData();
