@@ -8,24 +8,29 @@
 
       <!--左 · 树-->
       <el-aside class="left-panel">
-        <left-tree class="left-panel-tree"
+        <left-tree v-loading="treeLoading"
+                   class="left-panel-tree"
                    :data="tagTreeData"
                    :contextmenu="false"
                    :collapse="false"
-                   @item-click="itemClick">
+                   @item-click="itemClick"
+                   @item-toggle="itemToggle">
         </left-tree>
       </el-aside>
 
       <!--右 · 表-->
-      <el-container class="right-panel is-vertical">
+      <el-container class="right-panel is-vertical"
+                    v-loading="tableLoading">
         <el-form label-position="left">
 
-          <el-form-item label-width="55px"
+          <el-form-item v-if="isMock"
+                        label-width="55px"
                         label="名称：">
             <el-input v-model="formData.IOTag"
                       disabled></el-input>
           </el-form-item>
-          <el-form-item label-width="55px"
+          <el-form-item v-if="isMock"
+                        label-width="55px"
                         label="描述：">
             {{tagDescribe}}
           </el-form-item>
@@ -44,15 +49,15 @@
                              label="名称"
                              width="110">
             </el-table-column>
-            <el-table-column prop="describe"
+            <el-table-column prop="description"
                              label="描述"
                              width="140">
             </el-table-column>
-            <el-table-column prop="dataType"
+            <el-table-column prop="typeTable"
                              label="类型"
                              width="70">
             </el-table-column>
-            <el-table-column prop="direction"
+            <el-table-column prop="rwTable"
                              label="方向"
                              width="60">
             </el-table-column>
@@ -69,10 +74,13 @@
 
     <div slot="footer"
          class="dialog-footer">
-      <el-button @click="dialogVisible = false;
+      <el-button v-if="isMock"
+                 @click="dialogVisible = false;
                          formData.IOTag = IOTagOrg;
                          formData.IOTagParentId = IOTagParentIdOrg;
                          formData.IOTagSelectId = IOTagSelectIdOrg">取 消</el-button>
+      <el-button v-else
+                 @click="dialogVisible = false">取 消</el-button>
       <el-button type="primary"
                  @click="dialogVisible = false">确 定</el-button>
     </div>
@@ -80,7 +88,12 @@
 </template>
 
 <script>
+import { getValueByKey } from "@/libs/dataHanding"; // 根据对象数组某个key的value，查询另一个key的value
+/* components */
 import LeftTree from "@/components/Tree"; // 组件：左侧树
+/* api */
+import { queryEqupementList } from "@/api/equipment.js"; // 获取设备列表
+import { queryTagList } from "@/api/tag.js"; // 获取标签列表
 
 export default {
   components: { LeftTree },
@@ -109,15 +122,27 @@ export default {
       type: Array,
       default: () => []
     },
-    // 描述
+    // 描述 - 仅mock
     tagDescribe: {
       type: String
+    },
+    // 数据类型列表
+    dataTypeList: {
+      type: Array
+    },
+    // 读写方向列表
+    directionList: {
+      type: Array
     }
   },
   data () {
     return {
+      tagTreeData: [], // 树数据
       dialogVisible: false, // 是否可见
-      tableData: [] // 表格内容
+      tableData: [], // 表格内容
+      /* loading */
+      treeLoading: false,
+      tableLoading: false
     };
   },
   methods: {
@@ -126,14 +151,16 @@ export default {
       this.dialogVisible = true;
       // console.log(this.formData);
       this.getTagTreeData();
-      /* 深拷贝，取消时还原数据用 */
-      this.IOTagOrg = JSON.parse(JSON.stringify(this.formData.IOTag));
-      this.IOTagParentIdOrg =
-        this.formData.IOTagParentId ? JSON.parse(JSON.stringify(this.formData.IOTagParentId)) : "";
-      this.IOTagSelectIdOrg =
-        this.formData.IOTagSelectId ? JSON.parse(JSON.stringify(this.formData.IOTagSelectId)) : "";
+      if (this.isMock) {
+        /* 深拷贝，取消时还原数据用 */
+        this.IOTagOrg = JSON.parse(JSON.stringify(this.formData.IOTag));
+        this.IOTagParentIdOrg =
+          this.formData.IOTagParentId ? JSON.parse(JSON.stringify(this.formData.IOTagParentId)) : "";
+        this.IOTagSelectIdOrg =
+          this.formData.IOTagSelectId ? JSON.parse(JSON.stringify(this.formData.IOTagSelectId)) : "";
+      }
     },
-    // 处理原树数据，刷新左侧树和其对应内容
+    // 处理原树数据，刷新左侧树和其对应内容 - 仅接口
     getTagTreeData () {
       this.tagTreeData = JSON.parse(JSON.stringify(this.treeData));
       /* group */
@@ -143,27 +170,27 @@ export default {
           group.tagSelectList = [
             {
               name: "_kernal_version",
-              describe: "应用程序内核版本",
-              dataType: "整型",
-              direction: "读写",
+              description: "应用程序内核版本",
+              typeTable: "整型",
+              rwTable: "读写",
               source: "IO属性",
               parentId: group.id,
               id: "0"
             },
             {
               name: "_cpu",
-              describe: "CPU负荷",
-              dataType: "整型",
-              direction: "只读",
+              description: "CPU负荷",
+              typeTable: "整型",
+              rwTable: "只读",
               source: "IO属性",
               parentId: group.id,
               id: "1"
             },
             {
               name: "_mem_total",
-              describe: "内存总数(k)",
-              dataType: "整型",
-              direction: "只读",
+              description: "内存总数(k)",
+              typeTable: "整型",
+              rwTable: "只读",
               source: "IO属性",
               parentId: group.id,
               id: "2"
@@ -174,15 +201,15 @@ export default {
           group.children = [];
         };
         /* pass */
-        group.children.forEach(pass => {
+        this.isMock && group.children.forEach(pass => {
           this.passList.forEach(_pass => {
             if (pass.id === _pass.id) {
               pass.tagSelectList = [
                 {
                   name: "_send_byte",
-                  describe: "发送字节数(BYTE)",
-                  dataType: "整型",
-                  direction: "只读",
+                  description: "发送字节数(BYTE)",
+                  typeTable: "整型",
+                  rwTable: "只读",
                   source: "IO属性",
                   passName: _pass.passName,
                   passDescribe: _pass.passDescribe,
@@ -191,9 +218,9 @@ export default {
                 },
                 {
                   name: "_rev_byte",
-                  describe: "接收字节数(BYTE)",
-                  dataType: "整型",
-                  direction: "只读",
+                  description: "接收字节数(BYTE)",
+                  typeTable: "整型",
+                  rwTable: "只读",
                   source: "IO属性",
                   passName: _pass.passName,
                   passDescribe: _pass.passDescribe,
@@ -202,9 +229,9 @@ export default {
                 },
                 {
                   name: "_io_status",
-                  describe: "通道状态",
-                  dataType: "整型",
-                  direction: "只读",
+                  description: "通道状态",
+                  typeTable: "整型",
+                  rwTable: "只读",
                   source: "IO属性",
                   passName: _pass.passName,
                   passDescribe: _pass.passDescribe,
@@ -219,9 +246,9 @@ export default {
                     equpiment.tagSelectList = [
                       {
                         name: "_send_package",
-                        describe: "发送帧个数",
-                        dataType: "整型",
-                        direction: "只读",
+                        description: "发送帧个数",
+                        typeTable: "整型",
+                        rwTable: "只读",
                         source: "IO属性",
                         passName: _pass.passName,
                         passDescribe: _pass.passDescribe,
@@ -232,9 +259,9 @@ export default {
                       },
                       {
                         name: "_rev_package",
-                        describe: "接收帧个数",
-                        dataType: "整型",
-                        direction: "只读",
+                        description: "接收帧个数",
+                        typeTable: "整型",
+                        rwTable: "只读",
                         source: "IO属性",
                         passName: _pass.passName,
                         passDescribe: _pass.passDescribe,
@@ -245,9 +272,9 @@ export default {
                       },
                       {
                         name: "_success_rate",
-                        describe: "通信成功率",
-                        dataType: "浮点",
-                        direction: "只读",
+                        description: "通信成功率",
+                        typeTable: "浮点",
+                        rwTable: "只读",
                         source: "IO属性",
                         passName: _pass.passName,
                         passDescribe: _pass.passDescribe,
@@ -258,9 +285,9 @@ export default {
                       },
                       {
                         name: "_io_status",
-                        describe: "设备状态",
-                        dataType: "布尔",
-                        direction: "只读",
+                        description: "设备状态",
+                        typeTable: "布尔",
+                        rwTable: "只读",
                         source: "IO属性",
                         passName: _pass.passName,
                         passDescribe: _pass.passDescribe,
@@ -273,9 +300,9 @@ export default {
                     _equipment.dataTags.forEach(tag => {
                       equpiment.tagSelectList.push({
                         name: tag.name,
-                        describe: tag.describe,
-                        dataType: tag.dataType,
-                        direction: tag.direction,
+                        description: tag.description,
+                        typeTable: tag.typeTable,
+                        rwTable: tag.rwTable,
                         source: "IO采集",
                         passName: _pass.passName,
                         passDescribe: _pass.passDescribe,
@@ -295,8 +322,66 @@ export default {
       // console.log(this.tagTreeData);
     },
     // 点击树节点：更新表格
-    itemClick (param) {
-      this.tableData = param.tagSelectList;
+    async itemClick (param) {
+      if (this.isMock) { // mock数据
+        this.tableData = param.tagSelectList;
+      } else { // 接口数据
+        this.tableLoading = true;
+        let dataTags = // 标签列表
+          param.level === 2
+            ? (await queryTagList({ pipelineId: param.idStr })).data.data
+            : param.level === 3
+              ? (await queryTagList({ deviceId: param.idStr })).data.data : [];
+        this.tableData = dataTags.map((tag, i) => {
+          this.$set(tag, "index", i + 1); // 序号
+          this.$set(tag, "typeTable", // 数据类型
+            getValueByKey(this.dataTypeList, "value", tag.type, "label"));
+          this.$set(tag, "rwTable", // 读写方向
+            getValueByKey(this.directionList, "value", tag.rw, "label"));
+          this.$set(tag, "source", "IO属性"); // IO属性
+          return tag;
+        });
+        this.tableLoading = false;
+      }
+    },
+    // 树节点展开/收起 - 仅接口
+    itemToggle (param) {
+      if (!this.isMock && param.opened) {
+        if (param.level === 1) { // 展开通道
+        } else { // 展开设备
+          // console.log(param);
+          this.getEquipmentData(param.idStr);
+        }
+      }
+    },
+    // 获取设备数据 - 仅接口
+    async getEquipmentData (passId, select = false) {
+      // console.log(this.passId);
+      this.tagTreeData.forEach(service => { // 服务
+        service.children.forEach(async pass => { // 通道
+          if (pass.idStr === passId) {
+            this.treeLoading = true;
+            pass.opened = true;
+            const equipmentList = (await queryEqupementList({ // 展开的设备数据
+              page: 1,
+              pipelineId: passId,
+              size: 1000
+            })).data.data.map(equipment => {
+              this.$set(equipment, "text", `D${equipment.name}[${equipment.description}]`);
+              this.$set(equipment, "description", equipment.description);
+              this.$set(equipment, "icon", "fa fa-edit");
+              this.$set(equipment, "id", equipment.idStr);
+              this.$set(equipment, "level", 3);
+              this.$set(equipment, "selected", false);
+              return equipment;
+            });
+            // console.log(equipmentList);
+            pass.children = equipmentList; // 加载真实数据
+            this.treeLoading = false;
+            // select && this.getSelectedItem(); // 自动选中设备
+          }
+        });
+      });
     },
     // 点击表格：传递给父组件
     tagClick (val) {
@@ -320,13 +405,17 @@ export default {
     dialogVisible (val) {
       // console.log(this.formData);
       val === true && this.tagTreeData.forEach(group => {
-        this.visibleSelect(group);
-        group.children.forEach(pass => {
-          this.visibleSelect(pass);
-          pass.children.forEach(equipment => {
-            this.visibleSelect(equipment);
+        if (this.isMock) { // mock数据
+          this.visibleSelect(group);
+          group.children.forEach(pass => {
+            this.visibleSelect(pass);
+            pass.children.forEach(equipment => {
+              this.visibleSelect(equipment);
+            });
           });
-        });
+        } else { // 接口数据
+
+        }
       });
     }
   }

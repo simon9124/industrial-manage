@@ -169,14 +169,14 @@
           </el-col>
         </el-row>
 
-        <!-- IO链接 -->
+        <!-- IO标签id -->
         <el-row v-if="serviceType===1"
                 :gutter="0">
           <el-col :span="15">
             <el-form-item label-width="100px"
-                          label="IO标签链接："
-                          prop="IOTag">
-              <el-input v-model="formData.IOTag"
+                          label="IO标签ID："
+                          prop="ioLabelId">
+              <el-input v-model="formData.ioLabelId"
                         disabled></el-input>
               <!-- style="width:fit-content" -->
             </el-form-item>
@@ -239,14 +239,16 @@
                           :label-other-params="labelOtherParams"></equipment-tag-params>
 
     <!-- dialog - 选择标签 -->
-    <!-- <tag-select ref="tagSelect"
+    <tag-select ref="tagSelect"
                 :id="id"
                 :tag-description="tagDescribe"
                 :tree-data="treeData"
                 :form-data="formData"
                 :pass-list="passList"
                 :equipment-list="equipmentList"
-                @tag-click="tagClick"></tag-select> -->
+                :data-type-list="dataTypeList"
+                :direction-list="directionList"
+                @tag-click="tagClick"></tag-select>
 
     <!-- dialog - 加载标签 -->
     <!-- <tag-load ref="tagLoad"
@@ -369,6 +371,9 @@ export default {
         ],
         cycle: [
           { required: true, message: "请输入采集周期", trigger: "change" }
+        ],
+        ioLabelId: [
+          { required: true, message: "请选择IO标签", trigger: "change" }
         ]
       },
       /* loading */
@@ -540,7 +545,8 @@ export default {
             cr2: "" // 参数2
           },
           labelOtherParams: this.labelParamsHanding(this.labelOtherParams), // 其他参数 - 动态
-          labelOuterParams: JSON.parse(JSON.stringify(this.labelOuterParams)) // 外层参数 - 动态
+          labelOuterParams: JSON.parse(JSON.stringify(this.labelOuterParams)), // 外层参数 - 动态
+          ioLabelId: null // io标签id
         };
         console.log(this.formData);
       });
@@ -561,6 +567,7 @@ export default {
         const rowCopy = JSON.parse(JSON.stringify(row)); // 深拷贝，取消时还原数据用
         this.formData = {
           idStr: rowCopy.idStr, // id
+          ioLabelId: rowCopy.ioLabelId, // IO标签id
           name: rowCopy.name, // 名称
           description: rowCopy.description, // 描述
           type: rowCopy.type, // 数据类型
@@ -604,12 +611,16 @@ export default {
     tagClick (param) {
       console.log(param);
       if (param) {
-        this.formData.IOTag =
-          `${param.name === "IO属性" ? "at." : "io."}${param.passName ? param.passName + "." : ""}${param.equpimentName ? param.equpimentName + "." : ""}${param.name}`;
-        this.formData.IOTagParentId = param.parentId;
-        this.formData.IOTagSelectId = param.id;
-        this.tagDescribe =
-          `${param.passDescribe ? param.passDescribe + " " : ""}${param.equipmentDescribe ? param.equipmentDescribe + " " : ""}${param.description}`;
+        if (this.isMock) { // mock数据
+          this.formData.ioLabelId =
+            `${param.name === "IO属性" ? "at." : "io."}${param.passName ? param.passName + "." : ""}${param.equpimentName ? param.equpimentName + "." : ""}${param.name}`;
+          this.formData.IOTagParentId = param.parentId;
+          this.formData.IOTagSelectId = param.id;
+          this.tagDescribe =
+            `${param.passDescribe ? param.passDescribe + " " : ""}${param.equipmentDescribe ? param.equipmentDescribe + " " : ""}${param.description}`;
+        } else { // 接口数据
+          this.formData.ioLabelId = param.idStr;
+        }
       }
     },
     // 表单提交
@@ -638,56 +649,52 @@ export default {
                   this.dialogVisible = false;
                 }
               } else { // 接口数据
-                if (this.serviceType === 0) { // 设备标签
-                  // console.log(this.formData);
-                  let labelOtherParams = this.labelParamsAPI(this.formData.labelOtherParams);
-                  let labelOuterParams = this.formData.labelOuterParams.map(param => {
-                    param.value = param.value === true ? 1 : param.value === false ? 0 : param.value;
-                    return param;
-                  });
-                  const formInsert = {
-                    a: this.formData.tagOtherParams.a,
-                    abs: this.formData.tagOtherParams.abs,
-                    b: this.formData.tagOtherParams.b,
-                    calc: this.formData.tagOtherParams.calc,
-                    cr1: this.formData.tagOtherParams.cr1,
-                    cr2: this.formData.tagOtherParams.cr2,
-                    cycle: this.formData.cycle,
-                    dataFilter: this.formData.tagOtherParams.dataFilter,
-                    description: this.formData.description,
-                    deviceId: localStorage.getItem("select-id"),
-                    deviceRatio: this.formData.tagOtherParams.deviceRatio,
-                    func: this.formData.tagOtherParams.func,
-                    insMax: this.formData.tagOtherParams.insMax,
-                    insMin: this.formData.tagOtherParams.insMin,
-                    ioLabelId: this.formData.ioLabelId,
-                    isContrary: this.formData.tagOtherParams.isContrary,
-                    isInsToSam: this.formData.tagOtherParams.isInsToSam,
-                    len: this.formData.len,
-                    max: this.formData.tagOtherParams.max,
-                    min: this.formData.tagOtherParams.min,
-                    name: this.formData.name,
-                    otherParams: labelOtherParams.length !== 0 ? labelOtherParams : null,
-                    outerParams: labelOuterParams.length !== 0 ? labelOuterParams : null,
-                    // pipelineId: this.passId,
-                    rw: this.formData.rw,
-                    samMax: this.formData.tagOtherParams.samMax,
-                    samMin: this.formData.tagOtherParams.samMin,
-                    type: this.formData.type,
-                    unit: this.formData.tagOtherParams.unit
-                  };
-                  // console.log(formInsert);
-                  const result = (await addTag(formInsert));
-                  resultCallback(result.data.success, "新增成功！", () => {
-                    this.getData();
-                    this.submitLoading = false;
-                    this.dialogVisible = false;
-                  }, () => {
-                    this.submitLoading = false;
-                  });
-                } else { // 通道标签
-                  console.log(this.formData);
-                }
+                // console.log(this.formData);
+                let labelOtherParams = this.labelParamsAPI(this.formData.labelOtherParams);
+                let labelOuterParams = this.formData.labelOuterParams.map(param => {
+                  param.value = param.value === true ? 1 : param.value === false ? 0 : param.value;
+                  return param;
+                });
+                const formInsert = {
+                  a: this.formData.tagOtherParams.a, // both
+                  abs: this.serviceType === 1 ? null : this.formData.tagOtherParams.abs,
+                  b: this.formData.tagOtherParams.b, // both
+                  calc: this.serviceType === 1 ? null : this.formData.tagOtherParams.calc,
+                  cr1: this.serviceType === 1 ? null : this.formData.tagOtherParams.cr1,
+                  cr2: this.serviceType === 1 ? null : this.formData.tagOtherParams.cr2,
+                  cycle: this.formData.cycle,
+                  dataFilter: this.serviceType === 1 ? null : this.formData.tagOtherParams.dataFilter,
+                  description: this.formData.description,
+                  deviceRatio: this.serviceType === 1 ? null : this.formData.tagOtherParams.deviceRatio,
+                  func: this.formData.tagOtherParams.func, // both
+                  insMax: this.serviceType === 1 ? null : this.formData.tagOtherParams.insMax,
+                  insMin: this.serviceType === 1 ? null : this.formData.tagOtherParams.insMin,
+                  isContrary: this.serviceType === 1 ? null : this.formData.tagOtherParams.isContrary,
+                  isInsToSam: this.serviceType === 1 ? null : this.formData.tagOtherParams.isInsToSam,
+                  len: this.formData.len,
+                  max: this.serviceType === 1 ? null : this.formData.tagOtherParams.max,
+                  min: this.serviceType === 1 ? null : this.formData.tagOtherParams.min,
+                  name: this.formData.name,
+                  otherParams: labelOtherParams.length !== 0 ? labelOtherParams : null,
+                  outerParams: labelOuterParams.length !== 0 ? labelOuterParams : null,
+                  rw: this.formData.rw,
+                  samMax: this.serviceType === 1 ? null : this.formData.tagOtherParams.samMax,
+                  samMin: this.serviceType === 1 ? null : this.formData.tagOtherParams.samMin,
+                  type: this.formData.type,
+                  unit: this.serviceType === 1 ? null : this.formData.tagOtherParams.unit,
+                  deviceId: this.serviceType === 1 ? null : localStorage.getItem("select-id"),
+                  pipelineId: this.serviceType === 0 ? null : this.id,
+                  ioLabelId: this.serviceType === 0 ? null : this.formData.ioLabelId
+                };
+                console.log(formInsert);
+                const result = (await addTag(formInsert));
+                resultCallback(result.data.success, "新增成功！", () => {
+                  this.getData();
+                  this.submitLoading = false;
+                  this.dialogVisible = false;
+                }, () => {
+                  this.submitLoading = false;
+                });
               }
               break;
             case "edit":
@@ -719,35 +726,33 @@ export default {
                 });
                 const formUpdate = {
                   id: this.formData.idStr,
-                  a: this.formData.tagOtherParams.a,
-                  abs: this.formData.tagOtherParams.abs,
-                  b: this.formData.tagOtherParams.b,
-                  calc: this.formData.tagOtherParams.calc,
-                  cr1: this.formData.tagOtherParams.cr1,
-                  cr2: this.formData.tagOtherParams.cr2,
+                  a: this.formData.tagOtherParams.a, // a
+                  abs: this.serviceType === 1 ? null : this.formData.tagOtherParams.abs,
+                  b: this.formData.tagOtherParams.b, // b
+                  calc: this.serviceType === 1 ? null : this.formData.tagOtherParams.calc,
+                  cr1: this.serviceType === 1 ? null : this.formData.tagOtherParams.cr1,
+                  cr2: this.serviceType === 1 ? null : this.formData.tagOtherParams.cr2,
                   cycle: this.formData.cycle,
-                  dataFilter: this.formData.tagOtherParams.dataFilter,
+                  dataFilter: this.serviceType === 1 ? null : this.formData.tagOtherParams.dataFilter,
                   description: this.formData.description,
-                  deviceId: localStorage.getItem("select-id"),
-                  deviceRatio: this.formData.tagOtherParams.deviceRatio,
-                  func: this.formData.tagOtherParams.func,
-                  insMax: this.formData.tagOtherParams.insMax,
-                  insMin: this.formData.tagOtherParams.insMin,
-                  ioLabelId: this.formData.ioLabelId,
-                  isContrary: this.formData.tagOtherParams.isContrary,
-                  isInsToSam: this.formData.tagOtherParams.isInsToSam,
+                  deviceRatio: this.serviceType === 1 ? null : this.formData.tagOtherParams.deviceRatio,
+                  func: this.formData.tagOtherParams.func, // func
+                  insMax: this.serviceType === 1 ? null : this.formData.tagOtherParams.insMax,
+                  insMin: this.serviceType === 1 ? null : this.formData.tagOtherParams.insMin,
+                  isContrary: this.serviceType === 1 ? null : this.formData.tagOtherParams.isContrary,
+                  isInsToSam: this.serviceType === 1 ? null : this.formData.tagOtherParams.isInsToSam,
                   len: this.formData.len,
-                  max: this.formData.tagOtherParams.max,
-                  min: this.formData.tagOtherParams.min,
+                  max: this.serviceType === 1 ? null : this.formData.tagOtherParams.max,
+                  min: this.serviceType === 1 ? null : this.formData.tagOtherParams.min,
                   name: this.formData.name,
                   otherParams: labelOtherParams.length !== 0 ? labelOtherParams : null,
                   outerParams: labelOuterParams.length !== 0 ? labelOuterParams : null,
-                  // pipelineId: this.passId,
                   rw: this.formData.rw,
-                  samMax: this.formData.tagOtherParams.samMax,
-                  samMin: this.formData.tagOtherParams.samMin,
+                  samMax: this.serviceType === 1 ? null : this.formData.tagOtherParams.samMax,
+                  samMin: this.serviceType === 1 ? null : this.formData.tagOtherParams.samMin,
                   type: this.formData.type,
-                  unit: this.formData.tagOtherParams.unit
+                  unit: this.serviceType === 1 ? null : this.formData.tagOtherParams.unit,
+                  ioLabelId: this.serviceType === 0 ? null : this.formData.ioLabelId
                 };
                 // console.log(formUpdate);
                 const result = (await updateTag(formUpdate));
