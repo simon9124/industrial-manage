@@ -186,38 +186,49 @@
         </el-row>
 
         <el-row>
-          <el-col :span="11"
-                  style="margin-bottom:20px;margin-left:0"
+          <el-col :span="12"
+                  style="margin-left:0"
                   v-for="(item,_i) in formData.labelOuterParams"
                   :key="_i">
-            {{item.showName}}：
-            <el-input v-if="item.valueTypeEnum==='文本输入框'"
-                      style="width:auto"
-                      v-model="item.value"
-                      :disabled="paramDisabled(item.disabled)"
-                      @input="forceUpdate"></el-input>
-            <el-input-number v-if="item.valueTypeEnum==='数字输入框'"
-                             style="width:auto"
-                             :min="1"
-                             v-model="item.value"
-                             :disabled="paramDisabled(item.disabled)"
-                             @input="forceUpdate"></el-input-number>
-            <el-select v-if="item.valueTypeEnum==='选择框'"
-                       style="width:auto"
-                       v-model="item.value"
-                       :disabled="paramDisabled(item.disabled)"
-                       @change="forceUpdate">
-              <el-option v-for="_item in item.selectTable"
-                         :key="_item.value"
-                         :label="_item.name"
-                         :value="_item.value">
-              </el-option>
-            </el-select>
-            <el-checkbox v-if="item.valueTypeEnum==='单选框'"
+            <div ref="outerParams"
+                 v-if="item.valueTypeEnum==='文本输入框'&&!paramDisabled(item.disabled)"
+                 style="margin-bottom:20px;display:inline-block">
+              {{item.showName}}
+              <el-input style="width:auto"
+                        v-model="item.value"
+                        @input="forceUpdate"></el-input>
+            </div>
+            <div ref="outerParams"
+                 v-if="item.valueTypeEnum==='数字输入框'&&!paramDisabled(item.disabled)"
+                 style="margin-bottom:20px;display:inline-block">
+              {{item.showName}}
+              <el-input-number style="width:auto"
+                               :min="1"
+                               v-model="item.value"
+                               @input="forceUpdate"></el-input-number>
+            </div>
+            <div ref="outerParams"
+                 v-if="item.valueTypeEnum==='选择框'&&!paramDisabled(item.disabled)"
+                 style="margin-bottom:20px;display:inline-block">
+              {{item.showName}}
+              <el-select style="width:auto"
                          v-model="item.value"
-                         :true-label="1"
-                         :false-label="0"
-                         :disabled="paramDisabled(item.disabled)"></el-checkbox>
+                         @change="forceUpdate">
+                <el-option v-for="_item in item.selectTable"
+                           :key="_item.value"
+                           :label="_item.name"
+                           :value="_item.value">
+                </el-option>
+              </el-select>
+            </div>
+            <div ref="outerParams"
+                 v-if="item.valueTypeEnum==='单选框'&&!paramDisabled(item.disabled)"
+                 style="margin-bottom:20px;display:inline-block">
+              {{item.showName}}
+              <el-checkbox v-model="item.value"
+                           :true-label="1"
+                           :false-label="0"></el-checkbox>
+            </div>
           </el-col>
         </el-row>
 
@@ -393,7 +404,7 @@ export default {
           // console.log(obj);
           const val = getValueByKey(this.formData.labelOuterParams, "paramName", obj.key, "value");
           // console.log(val);
-          return obj.values.some(_val => _val === val);
+          return !obj.values.some(_val => _val === val);
         }
       };
     }
@@ -431,6 +442,7 @@ export default {
     },
     // 获取表头数据
     getColumnData () {
+      // console.log(this.labelOuterParams);
       const labelOuterParams = this.dataColumnsHandle(this.labelOuterParams); // 外层参数
       this.dataColumns = JSON.parse(JSON.stringify(passTagColumn)).concat(labelOuterParams); // 表头列项
       // console.log(this.dataColumns);
@@ -628,7 +640,7 @@ export default {
       const formData = JSON.parse(JSON.stringify(this.formData));
       this.$refs.dialogForm.validate(async valid => {
         if (valid) {
-          this.submitLoading = true;
+          // this.submitLoading = true;
           switch (this.dialogType) {
             case "insert":
               if (this.isMock) { // mock数据
@@ -651,10 +663,14 @@ export default {
               } else { // 接口数据
                 // console.log(this.formData);
                 let labelOtherParams = this.labelParamsAPI(this.formData.labelOtherParams);
+                // console.log(this.$refs.outerParams);
                 let labelOuterParams = this.formData.labelOuterParams.map(param => {
                   param.value = param.value === true ? 1 : param.value === false ? 0 : param.value;
                   return param;
-                });
+                }).filter(param =>
+                  this.$refs.outerParams.some(_param =>
+                    _param.innerText.indexOf(param.showName) > -1)
+                );
                 const formInsert = {
                   a: this.formData.tagOtherParams.a, // both
                   abs: this.serviceType === 1 ? null : this.formData.tagOtherParams.abs,
@@ -686,7 +702,7 @@ export default {
                   pipelineId: this.serviceType === 0 ? null : this.id,
                   ioLabelId: this.serviceType === 0 ? null : this.formData.ioLabelId
                 };
-                console.log(formInsert);
+                // console.log(formInsert);
                 const result = (await addTag(formInsert));
                 resultCallback(result.data.success, "新增成功！", () => {
                   this.getData();
@@ -971,6 +987,18 @@ export default {
     },
     // 强制刷新
     forceUpdate () {
+      this.$nextTick(() => {
+        // console.log(this.formData.labelOuterParams);
+        // console.log(this.$refs.outerParams);
+        this.formData.labelOuterParams.forEach(param => {
+          if ( // 如果当前div已经隐藏
+            !this.$refs.outerParams.some(_param =>
+              _param.innerText.indexOf(param.showName) > -1)
+          ) {
+            param.value = null; // 将其值重置为null
+          }
+        });
+      });
       this.$forceUpdate();
     }
   },
