@@ -28,7 +28,8 @@
                 @item-delete="itemHandle('del')"
                 @item-submit="itemSubmit"
                 @factory-select="factorySelect"
-                @factory-handle="factoryHandle"></Header>
+                @factory-handle="factoryHandle"
+                @save-project-xml="saveProjectXml"></Header>
       </el-header>
 
       <!-- 中 · 内容 -->
@@ -126,7 +127,7 @@ import {
 } from "@/mock/content.js";
 /* api */
 import { queryProjectTeamList } from "@/api/projectTeam.js"; // 工程组
-import { queryProjectList } from "@/api/project.js"; // 工程
+import { queryProjectList, saveProjectXml } from "@/api/project.js"; // 工程
 import { queryPlushTypeList, queryPlushList } from "@/api/plugin.js"; // 插件
 import { queryPassList, addPass, queryPassMessage, updatePass, deletePass } from "@/api/pass.js"; // 通道
 import { queryEqupementList, addEqupement, queryEqupementMessage, updateEqupement, deleteEqupement } from "@/api/equipment.js"; // 设备
@@ -960,6 +961,17 @@ export default {
     itemSubmit (level) {
       level === 2 && this.$refs.pass.passSubmit();
       level === 3 && this.$refs.equipment.equipmentSubmit();
+    },
+    // 生成配置文件
+    async saveProjectXml () {
+      this.contentLoading = true;
+      const result = (await saveProjectXml({ id: this.idFactory })).data.success;
+      resultCallback(
+        result,
+        "保存成功！",
+        () => { this.contentLoading = false; },
+        () => { this.contentLoading = false; }
+      );
     }
   },
   watch: {

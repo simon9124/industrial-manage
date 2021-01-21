@@ -15,13 +15,17 @@
                  icon="el-icon-check"
                  type="success"
                  :disabled="level===1||contentLoading"
-                 @click="itemSubmit">保存</el-button>
+                 @click="itemSubmit">更新</el-button>
       <!-- <el-button size="small"
                  icon="el-icon-caret-right"
                  @click="localOperate">本地运行</el-button> -->
       <el-button size="small"
                  icon="el-icon-suitcase"
                  @click="factoryManage">工程管理</el-button>
+      <el-button size="small"
+                 icon="el-icon-document"
+                 :disabled="contentLoading"
+                 @click="saveProjectXml">保存</el-button>
       <!-- <el-button size="small"
                  icon="el-icon-data-board"
                  @click="remoteMonitor">远程监视</el-button> -->
@@ -974,6 +978,10 @@ export default {
     // 回调 - 保存
     itemSubmit () {
       this.$emit("item-submit", this.level);
+    },
+    // 回调 - 生成配置文件
+    saveProjectXml () {
+      this.$emit("save-project-xml", "");
     },
     // 强制刷新
     forceUpdate () {
