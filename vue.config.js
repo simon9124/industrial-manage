@@ -13,7 +13,7 @@ const resolve = dir => {
 // 需要将它改为'/my-app/'
 const BASE_URL =
   // process.env.NODE_ENV === "production" ? "/industrial-manage" : "/";
-  process.env.NODE_ENV === "production" ? "/" : "/";
+  process.env.NODE_ENV === "production" ? "./" : "/";
 
 module.exports = {
   // Project deployment base
@@ -39,9 +39,10 @@ module.exports = {
   devServer: {
     proxy: {
       "/network": {
-        // target: "http://172.15.35.194:9004/network",
-        target: "http://172.16.121.39:9004/network",
-        // target: "http://106.15.126.101:9004/network",
+        // target: "http://172.15.35.194:9004/network", // cestc
+        // target: "http://172.16.121.39:9004/network", // guest
+        target: "http://192.168.68.101:9004/network", // gwap
+        // target: "http://106.15.126.101:9004/network", // 阿里云
         changeOrigin: true,
         pathRewrite: {
           "^/network": ""
