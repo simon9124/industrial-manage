@@ -685,13 +685,13 @@ export default {
             localIp: this.formPassOrg.channel ? this.formPassOrg.channel.localIp : null, // 需绑定本地IP-TCP客户端
             ipList: this.formPassOrg.channel ? this.formPassOrg.channel.ipList : null, // 允许客户端接入列表-TCP服务端
             passParams: {
-              delayIs: !!this.formPassOrg.delay, // 是否diabled - 延迟时间
+              delayIs: this.formPassOrg.delay !== null, // 是否diabled - 延迟时间
               delay: this.formPassOrg.delay, // 延迟时间
-              resetIs: !!this.formPassOrg.reset, // 是否diabled - 链路复位机制
+              resetIs: this.formPassOrg.reset !== null, // 是否diabled - 链路复位机制
               reset: this.formPassOrg.reset, // 链路复位机制
-              alertIs: !!this.formPassOrg.alert, // 是否diabled - 故障诊断
+              alertIs: this.formPassOrg.alert !== null, // 是否diabled - 故障诊断
               alert: this.formPassOrg.alert, // 故障诊断
-              bakChannelIs: !!this.formPassOrg.bakChannelId, // 是否diabled - 备用通道
+              bakChannelIs: this.formPassOrg.bakChannelId !== null, // 是否diabled - 备用通道
               bakChannelId: this.formPassOrg.bakChannelId, // 备用通道：类型id
               bakSerial: this.formPassOrg.bakChannel ? (this.formPassOrg.bakChannel.serial || 0) : 0, // 备用通道：串口-串口
               bakBps: this.formPassOrg.bakChannel ? (this.formPassOrg.bakChannel.bps || 0) : 0, // 备用通道：波特率-串口
@@ -791,7 +791,7 @@ export default {
         this.formPass.plugin.collectChannelList
           ? JSON.parse(JSON.stringify(this.passTypeList)).filter(type =>
             this.formPass.plugin.collectChannelList.indexOf(type.id) > -1) : [];
-      // // console.log(this.passTypeListUse);
+      // console.log(this.passTypeListUse);
       this.formPass.channelId = this.formPass.plugin.collectChannelDefaultParam; // 通道类型默认值
       this.formPass.outerParams = this.outerParamsHanding(this.formPass.plugin.outerParams); // outerParams数据处理
     },

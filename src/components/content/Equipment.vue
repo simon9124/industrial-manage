@@ -202,9 +202,9 @@ export default {
             userParam: this.formEquipmentOrg.userParam, // 用户参数
             equipmentParams: {
               waitTime: this.formEquipmentOrg.userParam, // 查询等待时间
-              queryIs: !!this.formEquipmentOrg.queryCount, // 启用查询失败重试机制
+              queryIs: this.formEquipmentOrg.queryCount !== null, // 启用查询失败重试机制
               queryCount: this.formEquipmentOrg.queryCount, // 查询失败后重试次数
-              fault: !!this.formEquipmentOrg.fault, // 启用故障诊断
+              fault: this.formEquipmentOrg.fault !== null, // 启用故障诊断
               qcount: this.formEquipmentOrg.qcount, // 连续查询失败次数
               qtimers: this.formEquipmentOrg.qtimers, // 设备长时间未接收完整帧时间
               dataMode: this.formEquipmentOrg.dataMode, // 故障时数据处理方式
