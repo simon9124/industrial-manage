@@ -18,23 +18,23 @@
                  size="small"
                  plain
                  @click="insertTag">新增</el-button>
-      <el-button type="success"
+      <!-- <el-button type="success"
                  size="small"
                  plain
-                 @click="loadTags">加载</el-button>
+                 @click="loadTags">加载</el-button> -->
       <el-button type="danger"
                  size="small"
                  plain
                  @click="deleteTags">删除</el-button>
-      <el-button type="info"
+      <!-- <el-button type="info"
                  size="small"
                  plain
                  :loading="downloadLoading"
-                 @click="downloadTable">导出</el-button>
-      <el-button type="info"
+                 @click="downloadTable">导出</el-button> -->
+      <!-- <el-button type="info"
                  size="small"
                  plain
-                 @click="uploadTable">导入</el-button>
+                 @click="uploadTable">导入</el-button> -->
       <input ref="excel-upload-input"
              class="excel-upload-input"
              type="file"

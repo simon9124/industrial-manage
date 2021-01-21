@@ -437,9 +437,9 @@
                 <el-input v-model="formPass.port"></el-input>
               </el-form-item>
             </el-col>
-            <el-button v-show="serviceType===1"
+            <!-- <el-button v-show="serviceType===1"
                        style="margin-left:20px"
-                       @click="bindingIP">允许客户端接入列表</el-button>
+                       @click="bindingIP">允许客户端接入列表</el-button> -->
           </el-row>
 
           <!-- UPD -->
