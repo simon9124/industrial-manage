@@ -679,7 +679,7 @@ export default {
               ip: formData.passParams.bakIp,
               port: formData.passParams.bakPort
             } : null,
-            bakChannelId: formData.passParams.bakChannelId,
+            bakChannelId: !formData.passParams.bakChannelIs ? null : formData.passParams.bakChannelId,
             channel: {
               serial: formData.serial,
               bps: formData.bps,
@@ -784,7 +784,7 @@ export default {
             ip: formData.passParams.bakIp,
             port: formData.passParams.bakPort
           } : null,
-          bakChannelId: formData.passParams.bakChannelId,
+          bakChannelId: !formData.passParams.bakChannelIs ? null : formData.passParams.bakChannelId,
           channel: {
             serial: formData.serial,
             bps: formData.bps,
