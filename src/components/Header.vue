@@ -913,8 +913,9 @@ export default {
             this.formPass.plugin.collectChannelList.indexOf(type.id) > -1) : [];
       // console.log(this.passTypeListUse);
       this.formPass.channelId = this.formPass.plugin.collectChannelDefaultParam; // 通道类型默认值
+      // console.log(this.formPass.channelId);
       this.formPass.outerParams = this.outerParamsHanding(this.formPass.plugin.outerParams); // outerParams数据处理
-      console.log(this.formPass.outerParams);
+      // console.log(this.formPass.outerParams);
     },
     // outerParams数据处理
     outerParamsHanding (outerParams) {
