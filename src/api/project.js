@@ -36,3 +36,12 @@ export const deleteProject = data => {
     method: "post"
   });
 };
+
+// 生成工程配置文件
+export const saveProjectXml = data => {
+  return axios.request({
+    url: "/network/project/saveProjectXml",
+    data,
+    method: "post"
+  });
+};
