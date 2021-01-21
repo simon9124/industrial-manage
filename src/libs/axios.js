@@ -1,6 +1,7 @@
 import axios from "axios";
 import store from "@/store";
 import { getToken } from "./util";
+import router from "@/router";
 import { Message } from "iview";
 // import { Spin } from 'iview'
 
@@ -61,12 +62,20 @@ class HttpRequest {
     // 响应拦截
     instance.interceptors.response.use(
       res => {
-        // 全局提示5秒的错误讯息
-        res.data.success !== "200" &&
-          Message.error({
-            content: res.data.message,
-            duration: 5
-          });
+        if (res.data.success === "4081") {
+          // token过期
+          store.dispatch("handleLogOut");
+          router.push({ path: "/login" });
+        } else {
+          // 非token过期
+          res.data.success !== "200" &&
+            Message.error({
+              // 全局提示5秒的错误讯息
+              content: res.data.message,
+              duration: 5
+            });
+        }
+
         this.destroy(url);
         const { data } = res;
         return { data };
