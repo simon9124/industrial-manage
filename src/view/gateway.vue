@@ -24,6 +24,7 @@
                 :content-loading="contentLoading"
                 :dialog-dispose-loading="dialogDisposeLoading"
                 @item-add="itemAdd"
+                @item-copy="itemCopy"
                 @items-copy="itemsCopy"
                 @item-delete="itemHandle('del')"
                 @item-submit="itemSubmit"
@@ -129,7 +130,7 @@ import {
 import { queryProjectTeamList } from "@/api/projectTeam.js"; // 工程组
 import { queryProjectList, saveProjectXml } from "@/api/project.js"; // 工程
 import { queryPlushTypeList, queryPlushList } from "@/api/plugin.js"; // 插件
-import { queryPassList, addPass, queryPassMessage, updatePass, deletePass } from "@/api/pass.js"; // 通道
+import { queryPassList, addPass, queryPassMessage, updatePass, deletePass, copyPass } from "@/api/pass.js"; // 通道
 import { queryEqupementList, addEqupement, queryEqupementMessage, updateEqupement, deleteEqupement } from "@/api/equipment.js"; // 设备
 
 export default {
@@ -925,6 +926,25 @@ export default {
         });
       });
       // console.log(this.treeData);
+    },
+    // 复制 - 仅接口
+    async itemCopy (num) {
+      this.contentLoading = true;
+      let result = await copyPass({ copyId: this.id, number: num });
+      resultCallback(
+        result.data.success,
+        "复制成功！",
+        async () => {
+          this.treeLoading = true;
+          await this.getPassServiceData(this.idFactory); // 重新获取通道列表
+          await this.getSelectedItem(); // 选中原通道
+          this.treeLoading = false;
+          this.contentLoading = false;
+        },
+        () => {
+          this.contentLoading = false;
+        }
+      );
     },
     // 点击树节点 - 选择工程
     async factorySelect (param) {

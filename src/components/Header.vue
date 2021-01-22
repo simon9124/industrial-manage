@@ -16,6 +16,11 @@
                  type="success"
                  :disabled="level===1||contentLoading"
                  @click="itemSubmit">更新</el-button>
+      <el-button size="small"
+                 icon="el-icon-document-copy"
+                 type="info"
+                 :disabled="level===1||level===3||contentLoading"
+                 @click="itemCopy">复制</el-button>
       <!-- <el-button size="small"
                  icon="el-icon-caret-right"
                  @click="localOperate">本地运行</el-button> -->
@@ -999,6 +1004,17 @@ export default {
     // 回调 - 保存
     itemSubmit () {
       this.$emit("item-submit", this.level);
+    },
+    // 回调 - 复制
+    itemCopy () {
+      this.$prompt("复制份数", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        inputPattern: /^[+]{0,1}(\d+)$/,
+        inputErrorMessage: "份数格式不正确"
+      }).then(({ value }) => {
+        this.$emit("item-copy", value);
+      }).catch(() => { });
     },
     // 回调 - 生成配置文件
     saveProjectXml () {
