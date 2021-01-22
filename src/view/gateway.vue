@@ -937,6 +937,7 @@ export default {
         async () => {
           this.treeLoading = true;
           await this.getPassServiceData(this.idFactory); // 重新获取通道列表
+          await this.getEquipmentData(this.id); // 重新获取当前通道下的设备
           await this.getSelectedItem(); // 选中原通道
           this.treeLoading = false;
           this.contentLoading = false;
