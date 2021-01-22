@@ -437,9 +437,9 @@
                 <el-input v-model="formPass.port"></el-input>
               </el-form-item>
             </el-col>
-            <!-- <el-button v-show="serviceType===1"
+            <el-button v-show="serviceType===1"
                        style="margin-left:20px"
-                       @click="bindingIP">允许客户端接入列表</el-button> -->
+                       @click="bindingIPList">允许客户端接入列表</el-button>
           </el-row>
 
           <!-- UPD -->
@@ -555,6 +555,11 @@
 
     </el-dialog>
 
+    <!-- dialog - 允许客户端接入列表 -->
+    <ip-list-binding ref="ipListBinding"
+                     :ip-list-org="formPass.ipList"
+                     @ip-list-submit="ipListSubmit"></ip-list-binding>
+
   </div>
 </template>
 
@@ -562,10 +567,11 @@
 /* components */
 import PluginSelect from "@/components/dialog/pluginSelect"; // 组件：选择插件
 import PassParams from "@/components/dialog/passParams"; // 组件：其他参数 - 通道
+import IpListBinding from "@/components/dialog/ipListBinding"; // 组件：允许客户端接入列表
 import PassTags from "@/components/table/passTags"; // 组件：数据标签 - 通道
 
 export default {
-  components: { PluginSelect, PassParams, PassTags },
+  components: { PluginSelect, PassParams, IpListBinding, PassTags },
   props: {
     // 表单数据 - 仅接口
     formPassOrg: {
@@ -683,7 +689,7 @@ export default {
             ip: this.formPassOrg.channel ? (this.formPassOrg.channel.ip) : 0, // 远程IP-TCP客户端 or 本地IP-TCP服务端、UDP
             port: this.formPassOrg.channel ? this.formPassOrg.channel.port : null, // 远程端口-TCP客户端 or 本地端口服务端、UDP
             localIp: this.formPassOrg.channel ? this.formPassOrg.channel.localIp : null, // 需绑定本地IP-TCP客户端
-            ipList: this.formPassOrg.channel ? this.formPassOrg.channel.ipList : null, // 允许客户端接入列表-TCP服务端
+            ipList: this.formPassOrg.channel ? this.formPassOrg.channel.ipList || [] : null, // 允许客户端接入列表-TCP服务端
             passParams: {
               delayIs: this.formPassOrg.delay !== null, // 是否diabled - 延迟时间
               delay: this.formPassOrg.delay, // 延迟时间
@@ -799,6 +805,19 @@ export default {
     bindingIP () {
       this.bindingIPVisible = true;
       this.bindingIpOrg = JSON.parse(JSON.stringify(this.formPass.bindingIp)); // 深拷贝，取消时还原数据用
+    },
+    // 点击按钮 - 允许客户端接入列表 - 调用子组件事件
+    bindingIPList () {
+      this.$refs.ipListBinding.bindingIPList();
+    },
+    // 提交客户端接入列表
+    ipListSubmit (list) {
+      // console.log(list);
+      const ipList = [];
+      list.forEach(item => {
+        ipList.push(item.ip);
+      });
+      this.formPass.ipList = ipList;
     },
     // 保存通道
     passSubmit () {

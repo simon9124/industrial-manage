@@ -237,7 +237,7 @@
           </el-col>
           <el-button v-show="serviceType===1"
                      style="margin-left:20px"
-                     @click="bindingIP">允许客户端接入列表</el-button>
+                     @click="bindingIPList">允许客户端接入列表</el-button>
         </el-row>
 
         <!-- UPD -->
@@ -470,6 +470,11 @@
 
     </el-dialog>
 
+    <!-- dialog - 允许客户端接入列表 -->
+    <ip-list-binding ref="ipListBinding"
+                     :ip-list-org="formPass.ipList"
+                     @ip-list-submit="ipListSubmit"></ip-list-binding>
+
   </div>
 </template>
 
@@ -482,9 +487,10 @@ import PassParams from "@/components/dialog/passParams"; // 组件：其他参�
 import EquipmentParams from "@/components/dialog/equipmentParams"; // 组件：其他参数 - 通道
 import FactoryManage from "@/components/dialog/factoryManage"; // 组件：工程管理
 import RemoteMonitor from "@/components/dialog/remoteMonitor"; // 组件：远程监视
+import IpListBinding from "@/components/dialog/ipListBinding"; // 组件：允许客户端接入列表
 
 export default {
-  components: { PluginSelect, PassParams, EquipmentParams, FactoryManage, RemoteMonitor },
+  components: { PluginSelect, PassParams, EquipmentParams, FactoryManage, RemoteMonitor, IpListBinding },
   props: {
     // 树数据
     treeData: {
@@ -744,6 +750,7 @@ export default {
           this.formPass.channelId = null;
           this.formPass.pluginDescribe = null;
           this.formPass.outerParams = null;
+          this.formPass.ipList = [];
           this.formPass.passParams = {
             delayIs: false, // 是否diabled - 延迟时间
             delay: null, // 延迟时间
@@ -763,7 +770,7 @@ export default {
           };
           this.$nextTick(() => {
             this.$refs["formPass"].resetFields();
-            // console.log(this.formPass);
+            console.log(this.formPass);
           });
         } else { // 新增设备
           console.log(this.outerParamsEqu);
@@ -975,6 +982,19 @@ export default {
     bindingIP () {
       this.bindingIPVisible = true;
       this.bindingIpOrg = JSON.parse(JSON.stringify(this.formPass.localIp)); // 深拷贝，取消时还原数据用
+    },
+    // 点击按钮 - 允许客户端接入列表 - 调用子组件事件
+    bindingIPList () {
+      this.$refs.ipListBinding.bindingIPList();
+    },
+    // 提交客户端接入列表
+    ipListSubmit (list) {
+      // console.log(list);
+      const ipList = [];
+      list.forEach(item => {
+        ipList.push(item.ip);
+      });
+      this.formPass.ipList = ipList;
     },
     // 回调 - 保存
     itemSubmit () {
