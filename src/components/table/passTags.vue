@@ -194,7 +194,7 @@
                  v-if="item.valueTypeEnum==='文本输入框'&&!paramDisabled(item.disabled)"
                  style="margin-bottom:20px;display:inline-block">
               {{item.showName}}
-              <el-input style="width:auto"
+              <el-input style="width:auto;margin-left:12px"
                         v-model="item.value"
                         @input="forceUpdate"></el-input>
             </div>
@@ -202,8 +202,7 @@
                  v-if="item.valueTypeEnum==='数字输入框'&&!paramDisabled(item.disabled)"
                  style="margin-bottom:20px;display:inline-block">
               {{item.showName}}
-              <el-input-number style="width:auto"
-                               :min="1"
+              <el-input-number style="width:auto;margin-left:12px"
                                v-model="item.value"
                                @input="forceUpdate"></el-input-number>
             </div>
@@ -211,7 +210,7 @@
                  v-if="item.valueTypeEnum==='选择框'&&!paramDisabled(item.disabled)"
                  style="margin-bottom:20px;display:inline-block">
               {{item.showName}}
-              <el-select style="width:auto"
+              <el-select style="width:auto;margin-left:12px"
                          v-model="item.value"
                          @change="forceUpdate">
                 <el-option v-for="_item in item.selectTable"
@@ -225,7 +224,8 @@
                  v-if="item.valueTypeEnum==='单选框'&&!paramDisabled(item.disabled)"
                  style="margin-bottom:20px;display:inline-block">
               {{item.showName}}
-              <el-checkbox v-model="item.value"
+              <el-checkbox style=";margin-left:12px"
+                           v-model="item.value"
                            :true-label="1"
                            :false-label="0"></el-checkbox>
             </div>

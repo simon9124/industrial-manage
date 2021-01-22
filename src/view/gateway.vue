@@ -689,7 +689,7 @@ export default {
               ip: formData.ip,
               port: formData.port,
               localIp: formData.localIp,
-              ipList: formData.ipList
+              ipList: formData.ipList.length !== 0 ? formData.ipList : null
             },
             channelId: formData.channelId,
             delay: formData.passParams.delay,
@@ -794,7 +794,7 @@ export default {
             ip: formData.ip,
             port: formData.port,
             localIp: formData.localIp,
-            ipList: formData.ipList
+            ipList: formData.ipList.length !== 0 ? formData.ipList : null
           },
           channelId: formData.channelId,
           delay: formData.passParams.delay,
