@@ -16,9 +16,9 @@
           <el-row>
             <el-col style="width:420px">
               <el-form-item label-width="105px"
-                            label="名称(英文)："
+                            label="名称(数字)："
                             prop="name">
-                <el-input v-model="formEquipment.name"></el-input>
+                <el-input-number v-model="formEquipment.name"></el-input-number>
               </el-form-item>
             </el-col>
             <el-col style="width:380px">
@@ -60,7 +60,6 @@
                           @input="forceUpdate"></el-input>
                 <el-input-number v-if="item.valueTypeEnum==='数字输入框'"
                                  style="max-width:200px"
-                                 :min="1"
                                  v-model="item.value"
                                  :disabled="item.disabled"
                                  @input="forceUpdate"></el-input-number>
@@ -87,9 +86,7 @@
           <i class="el-icon-edit-outline"></i> 数据标签
         </span>
 
-        <!-- table - 数据标签 · 通道 -->
-        <!-- <equipment-tags :id="id"
-                        :data-tags-org="formEquipment.dataTags"></equipment-tags> -->
+        <!-- table - 数据标签 -->
         <pass-tags :id="id"
                    :service-type="serviceType"
                    :tree-data="treeData"

@@ -60,9 +60,9 @@
         <el-row :gutter="20">
           <el-col :span="8">
             <el-form-item label-width="105px"
-                          label="名称(英文)："
+                          label="名称(数字)："
                           prop="pipelineName">
-              <el-input v-model="formPass.pipelineName"></el-input>
+              <el-input-number v-model="formPass.pipelineName"></el-input-number>
             </el-form-item>
           </el-col>
           <el-col :span="8">
@@ -282,7 +282,6 @@
                         @input="forceUpdate"></el-input>
               <el-input-number v-if="item.valueTypeEnum==='数字输入框'"
                                style="max-width:200px"
-                               :min="1"
                                v-model="item.value"
                                :disabled="item.disabled"
                                @input="forceUpdate"></el-input-number>
@@ -312,9 +311,9 @@
         <el-row :gutter="20">
           <el-col :span="8">
             <el-form-item label-width="105px"
-                          label="名称(英文)："
+                          label="名称(数字)："
                           prop="name">
-              <el-input v-model="formEquipment.name"></el-input>
+              <el-input-number v-model="formEquipment.name"></el-input-number>
             </el-form-item>
           </el-col>
           <el-col :span="8">
@@ -356,7 +355,6 @@
                         @input="forceUpdate"></el-input>
               <el-input-number v-if="item.valueTypeEnum==='数字输入框'"
                                style="max-width:200px"
-                               :min="1"
                                v-model="item.value"
                                :disabled="item.disabled"
                                @input="forceUpdate"></el-input-number>
@@ -657,7 +655,8 @@ export default {
       this.dialogDisposeTitle =
         this.level === 2 ? "采集设备配置"
           : this.serviceType === 0 ? "采集通道配置" : "数据服务通道配置";
-      // 重置表单数据
+      this.activeNames = ["0"];
+      /* 重置表单数据 */
       if (this.isMock) { // mock数据
         if (this.level === 1) {
           this.formPass = {
@@ -1052,17 +1051,18 @@ export default {
     .collapse-content {
       margin-bottom: 10px;
     }
-    .el-input-number {
-      &__decrease {
-        display: none;
-      }
-      &__increase {
-        display: none;
-      }
-      .el-input__inner {
-        padding: 0 15px;
-        text-align: left;
-      }
+  }
+  .el-input-number {
+    width: 100%;
+    &__decrease {
+      display: none;
+    }
+    &__increase {
+      display: none;
+    }
+    .el-input__inner {
+      padding: 0 15px;
+      text-align: left;
     }
   }
   // 配置dialog

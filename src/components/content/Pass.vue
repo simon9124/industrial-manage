@@ -12,9 +12,9 @@
       <el-row>
         <el-col style="width:420px">
           <el-form-item label-width="105px"
-                        label="名称(英文)："
+                        label="名称(数字)："
                         prop="pipelineName">
-            <el-input v-model="formPass.pipelineName"></el-input>
+            <el-input-number v-model="formPass.pipelineName"></el-input-number>
           </el-form-item>
         </el-col>
         <el-col style="width:380px">
@@ -227,7 +227,6 @@
                       @input="forceUpdate"></el-input>
             <el-input-number v-if="item.valueTypeEnum==='数字输入框'"
                              style="max-width:200px"
-                             :min="1"
                              v-model="item.value"
                              :disabled="item.disabled"
                              @input="forceUpdate"></el-input-number>
@@ -264,9 +263,9 @@
           <el-row>
             <el-col style="width:420px">
               <el-form-item label-width="105px"
-                            label="名称(英文)："
+                            label="名称(数字)："
                             prop="pipelineName">
-                <el-input v-model="formPass.pipelineName"></el-input>
+                <el-input-number v-model="formPass.pipelineName"></el-input-number>
               </el-form-item>
             </el-col>
             <el-col style="width:380px">
@@ -478,7 +477,6 @@
                           @input="forceUpdate"></el-input>
                 <el-input-number v-if="item.valueTypeEnum==='数字输入框'"
                                  style="max-width:200px"
-                                 :min="1"
                                  v-model="item.value"
                                  :disabled="item.disabled"
                                  @input="forceUpdate"></el-input-number>
@@ -667,6 +665,7 @@ export default {
         if (this.formPassOrg.name) {
           // console.log(this.formPassOrg);
           this.activeName = "first"; // tab重置
+          this.activeNames = ["0"]; // 手风琴重置
           /* 1.outerParams */
           let otherParamsUse = this.outerParamsHanding(this.formPassOrg.otherParams);
           let outerParamsUse = this.outerParamsHanding(this.formPassOrg.outerParams);
