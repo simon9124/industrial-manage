@@ -116,7 +116,7 @@
             <el-form-item label-width="65px"
                           label="名称："
                           prop="name">
-              <el-input v-model="formData.name"></el-input>
+              <el-input-number v-model="formData.name"></el-input-number>
             </el-form-item>
           </el-col>
           <el-col :span="9">
@@ -175,8 +175,8 @@
           <el-col :span="15">
             <el-form-item label-width="100px"
                           label="IO标签ID："
-                          prop="ioLabelId">
-              <el-input v-model="formData.ioLabelId"
+                          prop="ioLabelIdStr">
+              <el-input v-model="formData.ioLabelIdStr"
                         disabled></el-input>
               <!-- style="width:fit-content" -->
             </el-form-item>
@@ -370,7 +370,7 @@ export default {
         tagOtherParams: {}, // 其他参数 - 固定
         labelOtherParams: [], // 其他参数 - 动态
         labelOuterParams: [], // 外层参数 - 动态
-        ioLabelId: null // io标签id
+        ioLabelIdStr: null // io标签id
       },
       formDataOrg: {}, // 表单数据 - 行内原始
       formRule: { // 表单验证
@@ -383,7 +383,7 @@ export default {
         cycle: [
           { required: true, message: "请输入采集周期", trigger: "change" }
         ],
-        ioLabelId: [
+        ioLabelIdStr: [
           { required: true, message: "请选择IO标签", trigger: "change" }
         ]
       },
@@ -558,7 +558,7 @@ export default {
           },
           labelOtherParams: this.labelParamsHanding(this.labelOtherParams), // 其他参数 - 动态
           labelOuterParams: JSON.parse(JSON.stringify(this.labelOuterParams)), // 外层参数 - 动态
-          ioLabelId: null // io标签id
+          ioLabelIdStr: null // io标签id
         };
         console.log(this.formData);
       });
@@ -579,7 +579,7 @@ export default {
         const rowCopy = JSON.parse(JSON.stringify(row)); // 深拷贝，取消时还原数据用
         this.formData = {
           idStr: rowCopy.idStr, // id
-          ioLabelId: rowCopy.ioLabelId, // IO标签id
+          ioLabelIdStr: rowCopy.ioLabelIdStr, // IO标签id
           name: rowCopy.name, // 名称
           description: rowCopy.description, // 描述
           type: rowCopy.type, // 数据类型
@@ -624,14 +624,14 @@ export default {
       console.log(param);
       if (param) {
         if (this.isMock) { // mock数据
-          this.formData.ioLabelId =
+          this.formData.ioLabelIdStr =
             `${param.name === "IO属性" ? "at." : "io."}${param.passName ? param.passName + "." : ""}${param.equpimentName ? param.equpimentName + "." : ""}${param.name}`;
           this.formData.IOTagParentId = param.parentId;
           this.formData.IOTagSelectId = param.id;
           this.tagDescribe =
             `${param.passDescribe ? param.passDescribe + " " : ""}${param.equipmentDescribe ? param.equipmentDescribe + " " : ""}${param.description}`;
         } else { // 接口数据
-          this.formData.ioLabelId = param.idStr;
+          this.formData.ioLabelIdStr = param.idStr;
         }
       }
     },
@@ -700,7 +700,7 @@ export default {
                   unit: this.serviceType === 1 ? null : this.formData.tagOtherParams.unit,
                   deviceId: this.serviceType === 1 ? null : localStorage.getItem("select-id"),
                   pipelineId: this.serviceType === 0 ? null : this.id,
-                  ioLabelId: this.serviceType === 0 ? null : this.formData.ioLabelId
+                  ioLabelIdStr: this.serviceType === 0 ? null : this.formData.ioLabelIdStr
                 };
                 // console.log(formInsert);
                 const result = (await addTag(formInsert));
@@ -768,7 +768,7 @@ export default {
                   samMin: this.serviceType === 1 ? null : this.formData.tagOtherParams.samMin,
                   type: this.formData.type,
                   unit: this.serviceType === 1 ? null : this.formData.tagOtherParams.unit,
-                  ioLabelId: this.serviceType === 0 ? null : this.formData.ioLabelId
+                  ioLabelIdStr: this.serviceType === 0 ? null : this.formData.ioLabelIdStr
                 };
                 // console.log(formUpdate);
                 const result = (await updateTag(formUpdate));
