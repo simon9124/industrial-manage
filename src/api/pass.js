@@ -44,3 +44,12 @@ export const deletePass = data => {
     method: "post"
   });
 };
+
+// 复制通道
+export const copyPass = data => {
+  return axios.request({
+    url: "/network/pipeline/copy",
+    data,
+    method: "post"
+  });
+};
