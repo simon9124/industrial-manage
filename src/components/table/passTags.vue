@@ -212,7 +212,7 @@
               {{item.showName}}
               <el-select style="width:auto;margin-left:12px"
                          v-model="item.value"
-                         @change="forceUpdate">
+                         @change="selectforceUpdate(item.paramName)">
                 <el-option v-for="_item in item.selectTable"
                            :key="_item.value"
                            :label="_item.name"
@@ -357,6 +357,7 @@ export default {
       ],
       dataTypeSelect: null, // 筛选 - 选中的数据类型
       multipleSelection: [], // 多选 - 选中的数据
+      labelOuterParamsUse: [], // 标签的动态外层参数 - 实际显示
       /* dialog */
       dialogVisible: false, // 是否显示
       dialogType: "", // 类型：insert/edit
@@ -402,7 +403,7 @@ export default {
       return function (obj) {
         if (obj) {
           // console.log(obj);
-          const val = getValueByKey(this.formData.labelOuterParams, "paramName", obj.key, "value");
+          let val = getValueByKey(this.formData.labelOuterParams, "paramName", obj.key, "value");
           // console.log(val);
           return !obj.values.some(_val => _val === val);
         }
@@ -443,25 +444,30 @@ export default {
     // 获取表头数据
     getColumnData () {
       // console.log(this.labelOuterParams);
-      const labelOuterParams = this.dataColumnsHandle(this.labelOuterParams); // 外层参数
+      this.labelOuterParamsUse = this.outerParamsHanding(this.labelOuterParams); // 外层参数 - 表单处理
+      const labelOuterParams = this.dataColumnsHandle(this.labelOuterParams); // 外层参数 - 表头处理
       this.dataColumns = JSON.parse(JSON.stringify(passTagColumn)).concat(labelOuterParams); // 表头列项
       // console.log(this.dataColumns);
     },
     // 表头列项数据处理
     dataColumnsHandle (params) {
-      params.forEach(param => {
+      const paramsUse = [];
+      JSON.parse(JSON.stringify(params)).forEach(param => {
         this.$set(param, "prop", param.paramName);
         this.$set(param, "label",
           param.showName.substr(param.showName.length - 1, 1) === ":"
             ? param.showName.slice(0, param.showName.length - 1) : param.showName
         );
         this.$set(param, "minWidth", 100);
+        if (!paramsUse.some(_param => _param.paramName === param.paramName)) { // 去重
+          paramsUse.push(param);
+        }
       });
-      // console.log(params);
-      return params;
+      // console.log(paramsUse);
+      return paramsUse;
     },
-    // params数据处理 - 手风琴
-    labelParamsHanding (otherParams) {
+    // params数据处理 - 其他参数
+    otherParamsHanding (otherParams) {
       let otherParamsUse = [];
       if (otherParams) {
         let outerParamsCopy = JSON.parse(JSON.stringify(otherParams));
@@ -489,6 +495,31 @@ export default {
       }
       // console.log(otherParamsUse);
       return otherParamsUse;
+    },
+    // params数据处理 - 外层参数
+    outerParamsHanding (outerParams) {
+      let outerParamsUse = [];
+      const labelOuterParamsCopy = JSON.parse(JSON.stringify(this.labelOuterParams));
+      labelOuterParamsCopy.forEach((param, i) => {
+        outerParams.forEach(_param => { // 覆盖值
+          param.paramName === _param.paramName && this.$set(param, "value", _param.value);
+        });
+        if (param.disabled) { // 标签有disabled值
+          // console.log(param);
+          let val = getValueByKey(labelOuterParamsCopy, "paramName", param.disabled.key, "value");
+          if (param.disabled.values.some(_val => _val === val)) { // 值在范围内
+            this.$set(param, "display", true);
+          } else {
+            this.$set(param, "display", false); // 值不在范围内
+          }
+        } else {
+          this.$set(param, "display", true); // 标签没有disabled值
+        }
+      });
+      // console.log(labelOuterParamsCopy);
+      outerParamsUse = labelOuterParamsCopy.filter(param => param.display);
+      // console.log(outerParamsUse);
+      return outerParamsUse;
     },
     // params数据处理 - 接口格式
     labelParamsAPI (paramsArr) {
@@ -556,11 +587,11 @@ export default {
             cr1: "", // 参数1
             cr2: "" // 参数2
           },
-          labelOtherParams: this.labelParamsHanding(this.labelOtherParams), // 其他参数 - 动态
-          labelOuterParams: JSON.parse(JSON.stringify(this.labelOuterParams)), // 外层参数 - 动态
+          labelOtherParams: this.otherParamsHanding(this.labelOtherParams), // 其他参数 - 动态
+          labelOuterParams: JSON.parse(JSON.stringify(this.labelOuterParamsUse)), // 外层参数 - 动态
           ioLabelIdStr: null // io标签id
         };
-        console.log(this.formData);
+        // console.log(this.formData);
       });
     },
     // 点击按钮 - 加载标签 - 调用子组件事件
@@ -585,8 +616,8 @@ export default {
           type: rowCopy.type, // 数据类型
           rw: rowCopy.rw, // 读写方向
           cycle: rowCopy.cycle, // 采集周期
-          labelOtherParams: this.labelParamsHanding(rowCopy.otherParams), // 其他参数 - 动态
-          labelOuterParams: rowCopy.outerParams, // 外层参数 - 动态
+          labelOtherParams: this.otherParamsHanding(rowCopy.otherParams), // 其他参数 - 动态
+          labelOuterParams: this.outerParamsHanding(rowCopy.outerParams), // 外层参数 - 动态
           tagOtherParams: { // 其他参数 - 固定
             abs: rowCopy.abs, // 取绝对值
             unit: rowCopy.unit, // 单位
@@ -640,7 +671,7 @@ export default {
       const formData = JSON.parse(JSON.stringify(this.formData));
       this.$refs.dialogForm.validate(async valid => {
         if (valid) {
-          // this.submitLoading = true;
+          this.submitLoading = true;
           switch (this.dialogType) {
             case "insert":
               if (this.isMock) { // mock数据
@@ -700,7 +731,7 @@ export default {
                   unit: this.serviceType === 1 ? null : this.formData.tagOtherParams.unit,
                   deviceId: this.serviceType === 1 ? null : localStorage.getItem("select-id"),
                   pipelineId: this.serviceType === 0 ? null : this.id,
-                  ioLabelIdStr: this.serviceType === 0 ? null : this.formData.ioLabelIdStr
+                  ioLabelId: this.serviceType === 0 ? null : this.formData.ioLabelIdStr
                 };
                 // console.log(formInsert);
                 const result = (await addTag(formInsert));
@@ -768,7 +799,7 @@ export default {
                   samMin: this.serviceType === 1 ? null : this.formData.tagOtherParams.samMin,
                   type: this.formData.type,
                   unit: this.serviceType === 1 ? null : this.formData.tagOtherParams.unit,
-                  ioLabelIdStr: this.serviceType === 0 ? null : this.formData.ioLabelIdStr
+                  ioLabelId: this.serviceType === 0 ? null : this.formData.ioLabelIdStr
                 };
                 // console.log(formUpdate);
                 const result = (await updateTag(formUpdate));
@@ -988,18 +1019,22 @@ export default {
     // 强制刷新
     forceUpdate () {
       this.$nextTick(() => {
+        this.$forceUpdate();
+      });
+    },
+    // 强制刷新 - 仅select框
+    selectforceUpdate (paramName) {
+      this.$nextTick(() => {
+        this.$forceUpdate();
+        this.formData.labelOuterParams = this.outerParamsHanding(this.formData.labelOuterParams);
         // console.log(this.formData.labelOuterParams);
-        // console.log(this.$refs.outerParams);
+        // console.log(paramName);
         this.formData.labelOuterParams.forEach(param => {
-          if ( // 如果当前div已经隐藏
-            !this.$refs.outerParams.some(_param =>
-              _param.innerText.indexOf(param.showName) > -1)
-          ) {
-            param.value = null; // 将其值重置为null
+          if (param.disabled) {
+            param.disabled.key === paramName && this.$set(param, "value", null);
           }
         });
       });
-      this.$forceUpdate();
     }
   },
   watch: {
