@@ -4,22 +4,22 @@
       <el-button size="small"
                  icon="el-icon-plus"
                  type="primary"
-                 :disabled="level===3||(serviceType===1&&level===2)||contentLoading"
+                 :disabled="!level||level===3||(serviceType===1&&level===2)||contentLoading"
                  @click="newBuild">新建</el-button>
       <el-button size="small"
                  icon="el-icon-close"
                  type="danger"
-                 :disabled="level===1||contentLoading"
+                 :disabled="!level||level===1||contentLoading"
                  @click="itemDelete">删除</el-button>
       <el-button size="small"
                  icon="el-icon-check"
                  type="success"
-                 :disabled="level===1||contentLoading"
+                 :disabled="!level||level===1||contentLoading"
                  @click="itemSubmit">更新</el-button>
       <el-button size="small"
                  icon="el-icon-document-copy"
                  type="info"
-                 :disabled="level===1||level===3||contentLoading"
+                 :disabled="!level||level===1||level===3||contentLoading"
                  @click="itemCopy">复制</el-button>
       <!-- <el-button size="small"
                  icon="el-icon-caret-right"
@@ -29,7 +29,7 @@
                  @click="factoryManage">工程管理</el-button>
       <el-button size="small"
                  icon="el-icon-document"
-                 :disabled="contentLoading"
+                 :disabled="!level||contentLoading"
                  @click="saveProjectXml">保存</el-button>
       <!-- <el-button size="small"
                  icon="el-icon-data-board"

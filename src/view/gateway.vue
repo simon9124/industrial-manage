@@ -148,7 +148,7 @@ export default {
       collectChannelList: [], // 串口总数据
       passTypeList: [], // select - 通道总类型
       /* tree */
-      level: 1, // 被选择的树的层级 - 服务导航
+      level: null, // 被选择的树的层级 - 服务导航
       id: "1", // 被选择内容的id - 服务导航
       serviceType: 0, // 0/1 采集服务/数据服务
       handleType: "", // 树节点的操作方式
@@ -193,7 +193,9 @@ export default {
     this.idPlugin = localStorage.getItem("plugin-id"); // 插件id
     this.pluginTeamName = localStorage.getItem("plugin-teamName"); // 插件类型name
     this.idSelect = localStorage.getItem("select-id"); // 通道id or 设备id
-    this.treeData = JSON.parse(JSON.stringify(treeTempleteData));
+    if (this.idFactory && this.idTeam) {
+      this.treeData = JSON.parse(JSON.stringify(treeTempleteData));
+    }
     this.getSerialData();
     this.getAllData();
   },
@@ -297,6 +299,7 @@ export default {
     },
     // 获取通道数据 - 仅接口
     async getPassServiceData (projectId) {
+      this.treeData = JSON.parse(JSON.stringify(treeTempleteData));
       /* 1.通道数据 */
       const passCollectList = // 采集服务通道
         ((await queryPassList({ projectId: projectId, type: 0 })).data.data).map(pass => {
@@ -952,10 +955,10 @@ export default {
       const { level, id } = param;
       if (level === 3) {
         // console.log(param);
-        this.serviceData = param;
-        this.serviceId = this.serviceData.id;
         this.idFactory = id;
         if (this.isMock) { // mock数据
+          this.serviceData = param;
+          this.serviceId = this.serviceData.id;
           this.treeData = param.treeData;
           if (this.treeData.length !== 0) { // 若树数据不为空
             this.treeData.forEach(group => { // 取消所有选中
@@ -971,11 +974,14 @@ export default {
           }
           this.refreshData();
         } else { // 接口数据
+
         }
       }
     },
     // 工程组发生改变（增删改）
     factoryHandle () {
+      this.idFactory = localStorage.getItem("project-id");
+      this.idTeam = localStorage.getItem("team-id");
       this.getFactoryData(this.idFactory, this.idTeam);
     },
     // 保存
@@ -999,8 +1005,8 @@ export default {
     async idFactory () { // 工程id发生改变
       if (!this.isMock) {
         this.treeLoading = true;
-        await this.getPassServiceData(this.idFactory); // 获取服务导航数据
-        await this.refreshSelect(); // 选中顶部“采集服务”
+        await this.getPassServiceData(this.idFactory); // 获取通道数据
+        this.refreshSelect(); // 选中顶部“采集服务”
         this.treeLoading = false;
       }
     },
@@ -1021,31 +1027,37 @@ export default {
         this.treeLoading = true;
         await this.getMessage(this.id);
         /* id发生改变但serviceType未变：获取插件列表并渲染到插件类型 */
-        let plushList = getValueByKey(this.pluginList, "name", localStorage.getItem("plugin-teamName"), "children"); // 获取当前的插件列表
-        // console.log(plushList);
-        if (plushList && plushList[0].text === "Loading...") { // 将懒加载数据转换为真实数据
-          const teamName = localStorage.getItem("plugin-teamName");
-          const pluginId = localStorage.getItem("plugin-id");
-          plushList = (await queryPlushList({ // 展开的插件数据
-            plushTypeName: teamName,
-            serviceType: this.serviceType
-          })).data.data.map(plush => {
-            this.$set(plush, "text", plush.description);
-            this.$set(plush, "icon", "fa fa-cog");
-            this.$set(plush, "selected", pluginId === plush.id.toString());
-            this.$set(plush, "level", 2);
-            return plush;
-          });
-          this.pluginList.forEach(async plugin => {
-            plugin.opened = false; // 关闭全部类型
-            plugin.children = this.lazyTreeData; // 全部插件数据重置为懒加载
-            if (plugin.name === teamName) {
-              await this.$set(plugin, "children", plushList);
-              plugin.opened = true;
-              this.contentLoading = false;
-              this.treeLoading = false;
-            }
-          });
+        const pluginTeamName = localStorage.getItem("plugin-teamName");
+        if (pluginTeamName) {
+          let plushList = getValueByKey(this.pluginList, "name", localStorage.getItem("plugin-teamName"), "children"); // 获取当前的插件列表
+          // console.log(plushList);
+          if (plushList && plushList[0].text === "Loading...") { // 将懒加载数据转换为真实数据
+            const teamName = localStorage.getItem("plugin-teamName");
+            const pluginId = localStorage.getItem("plugin-id");
+            plushList = (await queryPlushList({ // 展开的插件数据
+              plushTypeName: teamName,
+              serviceType: this.serviceType
+            })).data.data.map(plush => {
+              this.$set(plush, "text", plush.description);
+              this.$set(plush, "icon", "fa fa-cog");
+              this.$set(plush, "selected", pluginId === plush.id.toString());
+              this.$set(plush, "level", 2);
+              return plush;
+            });
+            this.pluginList.forEach(async plugin => {
+              plugin.opened = false; // 关闭全部类型
+              plugin.children = this.lazyTreeData; // 全部插件数据重置为懒加载
+              if (plugin.name === teamName) {
+                await this.$set(plugin, "children", plushList);
+                plugin.opened = true;
+                this.contentLoading = false;
+                this.treeLoading = false;
+              }
+            });
+          } else {
+            this.contentLoading = false;
+            this.treeLoading = false;
+          }
         } else {
           this.contentLoading = false;
           this.treeLoading = false;
