@@ -56,6 +56,10 @@ export default {
             commit("setHasGetInfo", true); // 追加：用户已登录
             commit("setAccess", [data.roleId.toString()]); // 追加：用户角色
             localSave("gateway-access", data.roleId); // 追加：存储用户角色
+            if (data.project) {
+              localSave("team-id", data.project.teamId); // 追加：存储工程组id
+              localSave("project-id", data.project.idStr); // 追加：存储工程id
+            }
             resolve(res);
           })
           .catch(err => {
@@ -82,6 +86,12 @@ export default {
       localSave("redirectRouter-gateway", []); // 清空本地存储localStorage中的redirectRouter
       localSave("tagNaveList-template", []); // 清空localStorage中的tagNaveList记录
       localSave("gateway-access", []); // 清空localStorage中的用户角色
+      /* 清空工程相关 */
+      localSave("team-id", ""); // 工程组id
+      localSave("project-id", ""); // 工程id
+      localSave("select-id", ""); // 通道/设备id
+      localSave("plugin-teamName", ""); // 插件类型
+      localSave("plugin-id", ""); // 插件id
       // resolve();
       // });
     },
