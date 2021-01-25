@@ -179,6 +179,7 @@ export default {
             this.level = 3;
             this.id = idOperate;
             this.formFactoryOrg = factory;
+            this.$emit("factory-select", { id: this.id, level: 3 });
           }
         });
       });
@@ -460,9 +461,9 @@ export default {
             });
           } else { // 删除工程
             const result = await deleteProject({ ids: [this.id] });
-            resultCallback(result.data.success, "删除成功！", async () => {
-              await localStorage.setItem("project-id", result.data.data.idStr);
-              await localStorage.setItem("team-id", result.data.data.teamId);
+            resultCallback(result.data.success, "删除成功！", () => {
+              localStorage.setItem("project-id", result.data.data.idStr);
+              localStorage.setItem("team-id", result.data.data.teamId);
               this.$emit("factory-handle", "");
             });
           }
