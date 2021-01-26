@@ -530,7 +530,7 @@ export default {
     },
     // 导出
     async downLoad () {
-      await downProject({ id: this.idFactory });
+      await downProject({ id: localStorage.getItem("project-id") });
     }
   }
 };
