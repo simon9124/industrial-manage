@@ -61,8 +61,9 @@ export function uploadProject(data) {
 // 导出工程
 export function downProject(data) {
   return axios.request({
-    url: "/network/project/downProject",
+    url: "/network/project/downProject2",
     data,
-    method: "post"
+    method: "post",
+    responseType: "blob"
   });
 }

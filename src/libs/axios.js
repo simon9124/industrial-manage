@@ -75,7 +75,6 @@ class HttpRequest {
               duration: 5
             });
         }
-
         this.destroy(url);
         const { data } = res;
         return { data };

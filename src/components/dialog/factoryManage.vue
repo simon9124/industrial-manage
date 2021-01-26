@@ -106,7 +106,7 @@ import { treeTempleteData } from "@/mock/tree";
 import LeftTree from "@/components/Tree"; // 组件：左侧树
 /* api */
 import { addProjectTeam, updateProjectTeam, deleteProjectTeam } from "@/api/projectTeam.js";
-import { queryProjectList, addProject, updateProject, deleteProject, uploadProject, downProject } from "@/api/project.js";
+import { queryProjectList, addProject, updateProject, deleteProject, uploadProject } from "@/api/project.js";
 
 export default {
   components: { LeftTree },
@@ -224,7 +224,7 @@ export default {
             this.$set(project, "icon", "fa fa-edit");
             this.$set(project, "id", project.idStr);
             this.$set(project, "level", 3);
-            this.$set(project, "selected", projectId === project.idStr);
+            this.$set(project, "selected", projectId === project.idStr && group.selected === false);
             this.$set(project, "teamId", teamId);
             return project;
           });
@@ -414,7 +414,7 @@ export default {
     },
     // 删除
     itemDelete () {
-      this.$confirm(`将删除该${this.level === 2 ? "工程组" : "工程"}, 是否继续?`, "提示", {
+      this.$confirm(`将删除该${this.level === 2 ? "工程组" : "工程"}以及该${this.level === 2 ? "工程组" : "工程"}下的所有配置, 是否继续?`, "提示", {
         type: "warning"
       }).then(async () => {
         if (this.isMock) { // mock数据
@@ -514,8 +514,8 @@ export default {
               this.$set(group, "opened", group.idStr === this.id); // 只展开导入工程的工作组
               this.$set(group, "selected", false); // 取消选择工作组
               if (group.idStr === this.id) {
-                this.getProjectList(this.id, result.data.data.idStr, true); // 获取工程列表，并添加到工程组
-                localStorage.setItem("project-id", result.data.data.idStr);
+                this.getProjectList(this.id, result.data.data, true); // 获取工程列表，并添加到工程组
+                localStorage.setItem("project-id", result.data.data);
                 localStorage.setItem("team-id", this.id);
               }
             });
@@ -530,7 +530,10 @@ export default {
     },
     // 导出
     async downLoad () {
-      await downProject({ id: localStorage.getItem("project-id") });
+      window.open(
+        `/network/project/downProject?id=${localStorage.getItem("project-id")}`,
+        "_self"
+      );
     }
   }
 };

@@ -36,6 +36,7 @@
                  @click="remoteMonitor">远程监视</el-button> -->
       <el-button size="small"
                  icon="el-icon-download"
+                 :disabled="!level||idFactory==='null'"
                  @click="downLoad">导出当前工程</el-button>
       <Button style="float:right"
               icon="ios-log-out"
@@ -641,7 +642,8 @@ export default {
       /* collapse */
       activeNames: ["0"], // 手风琴展开的标签
       /* loading */
-      buttonLoading: false
+      buttonLoading: false,
+      downLoadUrl: ""
     };
   },
   watch: {
@@ -1022,7 +1024,7 @@ export default {
       this.$emit("save-project-xml", "");
     },
     // 点击按钮 - 导出当前工程 - 调用子组件事件
-    downLoad () {
+    async downLoad () {
       this.$refs.factoryManage.downLoad();
     },
     // 强制刷新

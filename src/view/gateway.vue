@@ -299,7 +299,7 @@ export default {
     },
     // 获取通道数据 - 仅接口
     async getPassServiceData (projectId) {
-      this.treeData = JSON.parse(JSON.stringify(treeTempleteData));
+      this.treeData = this.idFactory !== "null" ? JSON.parse(JSON.stringify(treeTempleteData)) : [];
       /* 1.通道数据 */
       const passCollectList = // 采集服务通道
         ((await queryPassList({ projectId: projectId, type: 0 })).data.data).map(pass => {
@@ -531,7 +531,7 @@ export default {
         });
       }
       if (this.handleType === "del") { // 删除
-        this.$confirm(`将删除采集${this.level === 2 ? "通道" : "设备"}, 是否继续?`, "提示", {
+        this.$confirm(`将删除采集${this.level === 2 ? "通道" : "设备"}及其下面的所有${this.level === 2 ? "设备和标签" : "标签"}, 是否继续?`, "提示", {
           type: "warning"
         }).then(async () => {
           if (this.isMock) { // mock数据
@@ -1003,7 +1003,7 @@ export default {
   },
   watch: {
     async idFactory () { // 工程id发生改变
-      if (!this.isMock) {
+      if (!this.isMock && this.idFactory !== "null") {
         this.treeLoading = true;
         await this.getPassServiceData(this.idFactory); // 获取通道数据
         this.refreshSelect(); // 选中顶部“采集服务”

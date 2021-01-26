@@ -56,9 +56,9 @@ export default {
             commit("setHasGetInfo", true); // 追加：用户已登录
             commit("setAccess", [data.roleId.toString()]); // 追加：用户角色
             localSave("gateway-access", data.roleId); // 追加：存储用户角色
+            localSave("project-id", data.projectId); // 追加：存储工程id
             if (data.project) {
               localSave("team-id", data.project.teamId); // 追加：存储工程组id
-              localSave("project-id", data.project.idStr); // 追加：存储工程id
             }
             resolve(res);
           })
