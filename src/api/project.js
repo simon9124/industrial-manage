@@ -45,3 +45,24 @@ export const saveProjectXml = data => {
     method: "post"
   });
 };
+
+// 导入工程
+export function uploadProject(data) {
+  return axios.request({
+    url: "/network/project/uploadProject",
+    data,
+    method: "post",
+    headers: {
+      ContentType: "application/x-www-form-urlencoded"
+    }
+  });
+}
+
+// 导出工程
+export function downProject(data) {
+  return axios.request({
+    url: "/network/project/downProject",
+    data,
+    method: "post"
+  });
+}
