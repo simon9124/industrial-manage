@@ -11,15 +11,16 @@
 
       <el-row>
         <el-col style="width:420px">
-          <el-form-item label-width="105px"
-                        label="名称(数字)："
+          <el-form-item label-width="90px"
+                        label="ID(数字)："
                         prop="pipelineName">
-            <el-input-number v-model="formPass.pipelineName"></el-input-number>
+            <el-input-number v-model="formPass.pipelineName"
+                             :min="1"></el-input-number>
           </el-form-item>
         </el-col>
         <el-col style="width:380px">
           <el-form-item label-width="65px"
-                        label="描述："
+                        label="名称："
                         prop="description">
             <el-input v-model="formPass.description"></el-input>
           </el-form-item>
@@ -262,10 +263,11 @@
 
           <el-row>
             <el-col style="width:420px">
-              <el-form-item label-width="105px"
-                            label="名称(数字)："
+              <el-form-item label-width="90px"
+                            label="ID(数字)："
                             prop="pipelineName">
-                <el-input-number v-model="formPass.pipelineName"></el-input-number>
+                <el-input-number v-model="formPass.pipelineName"
+                                 :min="1"></el-input-number>
               </el-form-item>
             </el-col>
             <el-col style="width:380px">
@@ -630,10 +632,10 @@ export default {
       },
       formPassRule: { // 表单验证
         pipelineName: [
-          { required: true, message: "请输入名称", trigger: "change" }
+          { required: true, message: "请输入ID", trigger: "change" }
         ],
         description: [
-          { required: true, message: "请输入描述", trigger: "change" }
+          { required: true, message: "请输入名称", trigger: "change" }
         ],
         pluginFactory: [
           { required: true, message: "请选择插件", trigger: "change" }

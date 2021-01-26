@@ -116,7 +116,8 @@
             <el-form-item label-width="65px"
                           label="名称："
                           prop="name">
-              <el-input-number v-model="formData.name"></el-input-number>
+              <el-input-number v-model="formData.name"
+                               :min="1"></el-input-number>
             </el-form-item>
           </el-col>
           <el-col :span="9">
