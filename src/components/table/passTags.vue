@@ -114,7 +114,7 @@
         <el-row :gutter="0">
           <el-col :span="9">
             <el-form-item label-width="65px"
-                          label="名称："
+                          label="ID："
                           prop="name">
               <el-input-number v-model="formData.name"
                                :min="1"></el-input-number>
@@ -122,7 +122,7 @@
           </el-col>
           <el-col :span="9">
             <el-form-item label-width="65px"
-                          label="描述："
+                          label="名称："
                           prop="description">
               <el-input v-model="formData.description"></el-input>
             </el-form-item>
