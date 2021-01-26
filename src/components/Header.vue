@@ -30,13 +30,13 @@
       <el-button size="small"
                  icon="el-icon-document"
                  :disabled="!level||contentLoading"
-                 @click="saveProjectXml">保存</el-button>
+                 @click="saveProjectXml">保存配置文件</el-button>
       <!-- <el-button size="small"
                  icon="el-icon-data-board"
                  @click="remoteMonitor">远程监视</el-button> -->
-      <!-- <el-button size="small"
+      <el-button size="small"
                  icon="el-icon-download"
-                 type="info">上传下载</el-button> -->
+                 @click="downLoad">导出当前工程</el-button>
       <Button style="float:right"
               icon="ios-log-out"
               @click="logOut">退出登录</Button>
@@ -59,15 +59,16 @@
 
         <el-row :gutter="20">
           <el-col :span="8">
-            <el-form-item label-width="105px"
-                          label="名称(数字)："
+            <el-form-item label-width="90px"
+                          label="ID(数字)："
                           prop="pipelineName">
-              <el-input-number v-model="formPass.pipelineName"></el-input-number>
+              <el-input-number v-model="formPass.pipelineName"
+                               :min="1"></el-input-number>
             </el-form-item>
           </el-col>
           <el-col :span="8">
             <el-form-item label-width="65px"
-                          label="描述："
+                          label="名称："
                           prop="description">
               <el-input v-model="formPass.description"></el-input>
             </el-form-item>
@@ -310,15 +311,16 @@
 
         <el-row :gutter="20">
           <el-col :span="8">
-            <el-form-item label-width="105px"
-                          label="名称(数字)："
+            <el-form-item label-width="90px"
+                          label="ID(数字)："
                           prop="name">
-              <el-input-number v-model="formEquipment.name"></el-input-number>
+              <el-input-number v-model="formEquipment.name"
+                               :min="1"></el-input-number>
             </el-form-item>
           </el-col>
           <el-col :span="8">
             <el-form-item label-width="65px"
-                          label="描述："
+                          label="名称："
                           prop="description">
               <el-input v-model="formEquipment.description"></el-input>
             </el-form-item>
@@ -603,10 +605,10 @@ export default {
       },
       formPassRule: { // 表单验证
         pipelineName: [
-          { required: true, message: "请输入名称", trigger: "change" }
+          { required: true, message: "请输入ID", trigger: "change" }
         ],
         description: [
-          { required: true, message: "请输入描述", trigger: "change" }
+          { required: true, message: "请输入名称", trigger: "change" }
         ],
         pluginFactory: [
           { required: true, message: "请选择插件", trigger: "change" }
@@ -630,10 +632,10 @@ export default {
       },
       formEquipmentRule: { // 表单验证
         name: [
-          { required: true, message: "请输入名称", trigger: "change" }
+          { required: true, message: "请输入ID", trigger: "change" }
         ],
         description: [
-          { required: true, message: "请输入描述", trigger: "change" }
+          { required: true, message: "请输入名称", trigger: "change" }
         ]
       },
       /* collapse */
@@ -1019,6 +1021,10 @@ export default {
     saveProjectXml () {
       this.$emit("save-project-xml", "");
     },
+    // 点击按钮 - 导出当前工程 - 调用子组件事件
+    downLoad () {
+      this.$refs.factoryManage.downLoad();
+    },
     // 强制刷新
     forceUpdate () {
       this.$forceUpdate();
@@ -1064,6 +1070,10 @@ export default {
       padding: 0 15px;
       text-align: left;
     }
+  }
+  .excel-upload-input {
+    display: none;
+    z-index: -9999;
   }
   // 配置dialog
   .dispose-dialog {

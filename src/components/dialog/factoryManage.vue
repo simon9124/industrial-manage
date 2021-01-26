@@ -19,7 +19,14 @@
                    :disabled="level===1"
                    @click="itemDelete">删除</el-button>
         <el-button size="small"
-                   type="info">加载</el-button>
+                   type="info"
+                   :disabled="level===1||level===3||uploadLoading"
+                   @click="uploadTable">导入</el-button>
+        <input ref="excel-upload-input"
+               class="excel-upload-input"
+               type="file"
+               @change="handleClick">
+        <!-- accept=".xlsx, .xls" -->
       </div>
 
       <left-tree class="left-panel-tree"
@@ -99,7 +106,7 @@ import { treeTempleteData } from "@/mock/tree";
 import LeftTree from "@/components/Tree"; // 组件：左侧树
 /* api */
 import { addProjectTeam, updateProjectTeam, deleteProjectTeam } from "@/api/projectTeam.js";
-import { queryProjectList, addProject, updateProject, deleteProject } from "@/api/project.js";
+import { queryProjectList, addProject, updateProject, deleteProject, uploadProject, downProject } from "@/api/project.js";
 
 export default {
   components: { LeftTree },
@@ -151,9 +158,9 @@ export default {
         creatTime: parseTime(new Date())
       },
       formFactoryOrg: {}, // 表单数据 - 原始
-
       /* loading */
-      submitLoading: false
+      submitLoading: false,
+      uploadLoading: false
     };
   },
   methods: {
@@ -469,6 +476,61 @@ export default {
           }
         }
       }).catch(() => { });
+    },
+    // 导入
+    uploadTable () {
+      this.$refs["excel-upload-input"].click();
+    },
+    // 导入 - 选择文件
+    handleClick (e) {
+      const files = e.target.files;
+      const rawFile = files[0];
+      if (!rawFile) return;
+      this.upload(rawFile); // 导入事件
+    },
+    // 导入 - 事件
+    upload (rawFile) {
+      this.$refs["excel-upload-input"].value = null; // 关闭选择文件框
+      this.$prompt("工程名称", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        inputPattern: /\S/,
+        inputErrorMessage: "名称不能为空"
+      }).then(async ({ value }) => {
+        /* File文件处理 */
+        const form = new FormData();
+        form.append("file", rawFile);
+        form.append("name", value);
+        form.append("teamId", localStorage.getItem("team-id"));
+        /* 接口发送 */
+        this.uploadLoading = true;
+        const result = await uploadProject(form);
+        /* 接口回调 */
+        resultCallback(
+          result.data.success,
+          "导入成功！",
+          () => {
+            this.factoryData[0].children.forEach(group => {
+              this.$set(group, "opened", group.idStr === this.id); // 只展开导入工程的工作组
+              this.$set(group, "selected", false); // 取消选择工作组
+              if (group.idStr === this.id) {
+                this.getProjectList(this.id, result.data.data.idStr, true); // 获取工程列表，并添加到工程组
+                localStorage.setItem("project-id", result.data.data.idStr);
+                localStorage.setItem("team-id", this.id);
+              }
+            });
+            this.uploadLoading = false;
+          },
+          () => {
+            this.uploadLoading = false;
+            this.upload(rawFile); // 重新填写工程名称
+          }
+        );
+      }).catch(() => { });
+    },
+    // 导出
+    async downLoad () {
+      await downProject({ id: this.idFactory });
     }
   }
 };

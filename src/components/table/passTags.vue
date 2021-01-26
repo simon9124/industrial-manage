@@ -340,6 +340,7 @@ export default {
   },
   data () {
     return {
+      projectId: null,
       /* table */
       dataTags: [], // 表格数据 - 要展示的数据
       dataColumns: [], // 表格列项
@@ -414,6 +415,7 @@ export default {
   created () {
     const screenHeight = document.documentElement.clientHeight;
     this.tableMaxHeight = screenHeight - 73 - 20 * 2 - (40 + 15) - (40 + 20) - 40;
+    this.projectId = localStorage.getItem("project-id");
     this.getData(); // 表格数据
     this.getColumnData();// 表头列项
   },
@@ -426,8 +428,12 @@ export default {
       } else { // 接口数据
         let dataTags = // 标签列表
           this.serviceType === 0
-            ? (await queryTagList({ deviceId: this.id, type: this.dataTypeSelect })).data.data
-            : (await queryTagList({ pipelineId: this.id, type: this.dataTypeSelect })).data.data;
+            ? (await queryTagList({
+              deviceId: this.id, type: this.dataTypeSelect, projectId: this.projectId
+            })).data.data
+            : (await queryTagList({
+              pipelineId: this.id, type: this.dataTypeSelect, projectId: this.projectId
+            })).data.data;
         this.dataTags = dataTags.map((tag, i) => {
           this.$set(tag, "index", i + 1); // 序号
           this.$set(tag, "typeTable", // 数据类型
@@ -732,7 +738,8 @@ export default {
                   unit: this.serviceType === 1 ? null : this.formData.tagOtherParams.unit,
                   deviceId: this.serviceType === 1 ? null : localStorage.getItem("select-id"),
                   pipelineId: this.serviceType === 0 ? null : this.id,
-                  ioLabelId: this.serviceType === 0 ? null : this.formData.ioLabelIdStr
+                  ioLabelId: this.serviceType === 0 ? null : this.formData.ioLabelIdStr,
+                  projectId: this.projectId
                 };
                 // console.log(formInsert);
                 const result = (await addTag(formInsert));
@@ -800,7 +807,8 @@ export default {
                   samMin: this.serviceType === 1 ? null : this.formData.tagOtherParams.samMin,
                   type: this.formData.type,
                   unit: this.serviceType === 1 ? null : this.formData.tagOtherParams.unit,
-                  ioLabelId: this.serviceType === 0 ? null : this.formData.ioLabelIdStr
+                  ioLabelId: this.serviceType === 0 ? null : this.formData.ioLabelIdStr,
+                  projectId: this.projectId
                 };
                 // console.log(formUpdate);
                 const result = (await updateTag(formUpdate));
