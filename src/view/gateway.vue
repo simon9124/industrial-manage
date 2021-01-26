@@ -193,7 +193,7 @@ export default {
     this.idPlugin = localStorage.getItem("plugin-id"); // 插件id
     this.pluginTeamName = localStorage.getItem("plugin-teamName"); // 插件类型name
     this.idSelect = localStorage.getItem("select-id"); // 通道id or 设备id
-    if (this.idFactory && this.idTeam) {
+    if (this.idFactory && this.idTeam && this.idFactory !== "null") {
       this.treeData = JSON.parse(JSON.stringify(treeTempleteData));
     }
     this.getSerialData();
@@ -983,6 +983,10 @@ export default {
       this.idFactory = localStorage.getItem("project-id");
       this.idTeam = localStorage.getItem("team-id");
       this.getFactoryData(this.idFactory, this.idTeam);
+      if (this.idFactory === "null") {
+        this.treeData = [];
+        this.level = null;
+      }
     },
     // 保存
     itemSubmit (level) {

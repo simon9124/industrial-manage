@@ -469,9 +469,15 @@ export default {
           } else { // 删除工程
             const result = await deleteProject({ ids: [this.id] });
             resultCallback(result.data.success, "删除成功！", () => {
-              localStorage.setItem("project-id", result.data.data.idStr);
-              localStorage.setItem("team-id", result.data.data.teamId);
-              this.$emit("factory-handle", "");
+              if (result.data.data) {
+                localStorage.setItem("project-id", result.data.data.idStr);
+                localStorage.setItem("team-id", result.data.data.teamId);
+                this.$emit("factory-handle", "");
+              } else {
+                localStorage.setItem("project-id", null);
+                localStorage.setItem("team-id", null);
+                this.$emit("factory-handle", "");
+              }
             });
           }
         }
