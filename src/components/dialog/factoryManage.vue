@@ -144,6 +144,7 @@ export default {
       dialogType: "", // dialog的种类 group/factory
       handleType: "", // dialog的提交方式 insert/edit
       idFactory: "factory-1", // 被选择内容的id
+      teamSeletId: null,
       /* 工程组 */
       formGroup: {
         text: "",
@@ -198,7 +199,10 @@ export default {
       this.id = this.isMock ? id : idStr;
       this.teamId = teamId;
       this.level = level;
-      this.level === 2 && (this.formGroupOrg = param);
+      if (this.level === 2) {
+        this.formGroupOrg = param;
+        this.teamSeletId = this.id;
+      }
       if (this.level === 3) {
         this.formFactoryOrg = param;
         localStorage.setItem("project-id", this.id);
@@ -507,7 +511,7 @@ export default {
         const form = new FormData();
         form.append("file", rawFile);
         form.append("name", value);
-        form.append("teamId", localStorage.getItem("team-id"));
+        form.append("teamId", this.teamSeletId);
         /* 接口发送 */
         this.uploadLoading = true;
         const result = await uploadProject(form);
