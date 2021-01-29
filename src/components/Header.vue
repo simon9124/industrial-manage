@@ -41,9 +41,9 @@
       <Button style="float:right"
               icon="ios-log-out"
               @click="logOut">退出登录</Button>
-      <!-- <el-button size="small"
-                 icon="el-icon-refresh"
-                 type="warning">更新</el-button> -->
+      <img class="img-avator"
+           style="float:right;margin-right:10px"
+           src="@/assets/images/company.png" />
     </div>
 
     <!-- dialog - 配置 -->
