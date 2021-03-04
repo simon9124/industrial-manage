@@ -115,7 +115,13 @@
                :visible.sync="dialogVisibleMonitor"
                top="10vh">
 
-      <el-container>
+      <el-button size="small"
+                 type="primary"
+                 @click="cmd">常用工具</el-button>
+      <el-button size="small"
+                 type="warning">系统日志</el-button>
+
+      <el-container style="margin-top:20px">
 
         <!--左 · 树-->
         <el-aside class="left-panel">
@@ -181,17 +187,22 @@
       </el-container>
 
     </el-dialog>
+
+    <!-- cmd -->
+    <cmd ref="cmd"></cmd>
+
   </div>
 </template>
 
 <script>
 import LeftTree from "@/components/Tree"; // 组件：左侧树
+import Cmd from "@/components/dialog/cmd.vue";
 import { treeTempleteData } from "@/mock/tree"; // mockData - // 服务导航模板
 import { IPList, systemDic, passDic, equipmentDic } from "@/mock/dictionary"; // mockData - IP列表&监视表格数据
 import { parseTime } from "@/libs/util"; // function - 格式化时间
 
 export default {
-  components: { LeftTree },
+  components: { LeftTree, Cmd },
   props: {
     // 工程数据
     factoryData: {
@@ -406,8 +417,11 @@ export default {
         this.$set(_item, "handle", this.handle);
         this.handle++;
       });
+    },
+    // 常用工具 - 调用子组件事件
+    cmd () {
+      this.$refs.cmd.openCmd();
     }
-
   }
 };
 </script>
