@@ -21,9 +21,9 @@
                  type="info"
                  :disabled="!level||level===1||level===3||contentLoading"
                  @click="itemCopy">复制</el-button>
-      <!-- <el-button size="small"
+      <el-button size="small"
                  icon="el-icon-caret-right"
-                 @click="localOperate">本地运行</el-button> -->
+                 @click="localOperate">本地运行</el-button>
       <el-button size="small"
                  icon="el-icon-suitcase"
                  @click="factoryManage">工程管理</el-button>
@@ -31,9 +31,9 @@
                  icon="el-icon-document"
                  :disabled="!level||contentLoading"
                  @click="saveProjectXml">保存配置文件</el-button>
-      <!-- <el-button size="small"
+      <el-button size="small"
                  icon="el-icon-data-board"
-                 @click="remoteMonitor">远程监视</el-button> -->
+                 @click="remoteMonitor">远程监视</el-button>
       <el-button size="small"
                  icon="el-icon-download"
                  :disabled="!level||idFactory==='null'"
@@ -1186,6 +1186,12 @@ export default {
   .bind-dialog {
     .el-dialog {
       width: 450px;
+    }
+  }
+  // dialog - 常用工具
+  .cmd-dialog {
+    .el-dialog {
+      width: 600px;
     }
   }
 }
