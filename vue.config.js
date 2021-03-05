@@ -47,6 +47,13 @@ module.exports = {
         pathRewrite: {
           "^/network": ""
         }
+      },
+      "/koa": {
+        target: "http://localhost:3000/koa", // nodejs koa
+        changeOrigin: true,
+        pathRewrite: {
+          "^/koa": ""
+        }
       }
     }
   }
