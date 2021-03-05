@@ -1,9 +1,10 @@
 import axios from "@/libs/api.request";
 
-// 获取设备列表
-export const doShellCmd = () => {
+// 执行命令语句
+export const doShellCmd = data => {
   return axios.request({
     url: "/koa/action/doShellCmd",
-    method: "get"
+    data,
+    method: "post"
   });
 };
