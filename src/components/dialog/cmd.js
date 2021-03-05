@@ -1,13 +1,15 @@
 const Koa = require("koa"); // 引入koa
 const Router = require("koa-router"); // 引入koa-router
 const exec = require("child_process").exec;
-let reStartPro = "ipconfig"; // 这是一条重启服务的linux命令,也可以是执行其他功能的命令~
 
 const app = new Koa(); // 创建koa应用
 const router = new Router(); // 创建路由，支持传递参数
 
 const iconv = require("iconv-lite"); // iconv进行转码
 iconv.skipDecodeWarning = true;
+
+const bodyParser = require("koa-bodyparser"); // 处理post请求
+app.use(bodyParser()); // 配置post bodyparser的中间件
 
 const cors = require("koa-cors"); // 设置跨域
 app.use(cors()); // 全部允许跨域
@@ -18,11 +20,19 @@ function doShellCmd(cmd) {
   let result = {};
   return new Promise(function(resolve, reject) {
     exec(str, { encoding: "binary" }, function(err, stdout, stderr) {
+      console.log(iconv.decode(stdout, "cp936"));
       if (err) {
         // console.log("err");
-        result.errCode = 500;
-        result.data = "操作失败！请重试";
-        reject(result);
+        // result.errCode = 500;
+        // result.data = "操作失败！请重试";
+        // reject(result);
+        result.errCode = 200;
+        result.data = {
+          data: iconv.decode(stdout, "cp936"),
+          success: "200",
+          message: "失败"
+        };
+        resolve(result);
       } else {
         result.errCode = 200;
         result.data = {
@@ -35,9 +45,11 @@ function doShellCmd(cmd) {
     });
   });
 }
-// 加URL
-router.get("/koa/action/doShellCmd", async (ctx, next) => {
-  let result = await doShellCmd(reStartPro); // 调用exec
+
+// api
+router.post("/koa/action/doShellCmd", async ctx => {
+  // console.log(ctx.request.body.cmd);
+  let result = await doShellCmd(ctx.request.body.cmd); // 调用exec
   ctx.response.status = result.errCode;
   ctx.response.body = result.data;
 });

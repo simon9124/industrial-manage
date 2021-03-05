@@ -53,11 +53,12 @@ export default {
     async optionCmd () {
       this.resContent = "";
       this.contentLoading = true;
-      this.resContent = (await doShellCmd()).data.data;
+      this.resContent = (await doShellCmd({ cmd: this.command })).data.data;
       this.contentLoading = false;
     },
     // 关闭dialog
     closeCmd () {
+      this.command = "";
       this.resContent = "";
       this.contentLoading = false;
     }
