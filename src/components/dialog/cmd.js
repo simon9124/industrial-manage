@@ -36,9 +36,8 @@ function doShellCmd(cmd) {
   });
 }
 // 加URL
-router.get("/koa/action/OwnRestartServer", async (ctx, next) => {
+router.get("/koa/action/doShellCmd", async (ctx, next) => {
   let result = await doShellCmd(reStartPro); // 调用exec
-  // console.log("[restartServer] ", result);
   ctx.response.status = result.errCode;
   ctx.response.body = result.data;
 });

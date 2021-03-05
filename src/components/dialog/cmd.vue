@@ -33,7 +33,7 @@
 </template>
 
 <script>
-import axios from "axios";
+import { doShellCmd } from "@/api/cmd";
 
 export default {
   data () {
@@ -53,13 +53,8 @@ export default {
     async optionCmd () {
       this.resContent = "";
       this.contentLoading = true;
-      setTimeout(() => {
-        axios.get("http://localhost:3000/koa/action/OwnRestartServer").then(res => {
-          // console.log(res);
-          this.resContent = res.data.data;
-          this.contentLoading = false;
-        });
-      }, 1000);
+      this.resContent = (await doShellCmd()).data.data;
+      this.contentLoading = false;
     },
     // 关闭dialog
     closeCmd () {
