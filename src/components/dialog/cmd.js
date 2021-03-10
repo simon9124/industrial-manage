@@ -1,6 +1,6 @@
 const Koa = require("koa"); // 引入koa
 const Router = require("koa-router"); // 引入koa-router
-const exec = require("child_process").exec;
+const child_process = require("child_process");
 
 const app = new Koa(); // 创建koa应用
 const router = new Router(); // 创建路由，支持传递参数
@@ -19,19 +19,24 @@ function doShellCmd(cmd) {
   let str = cmd;
   let result = {};
   return new Promise(function(resolve, reject) {
-    exec(str, { encoding: "binary" }, function(err, stdout, stderr) {
-      console.log(iconv.decode(stdout, "cp936"));
+    child_process.exec(str, { encoding: "binary" }, function(
+      err,
+      stdout,
+      stderr
+    ) {
+      // console.log(iconv.decode(stdout, "cp936"));
       if (err) {
-        // console.log("err");
-        // result.errCode = 500;
-        // result.data = "操作失败！请重试";
-        // reject(result);
         result.errCode = 200;
         result.data = {
           data: iconv.decode(stdout, "cp936"),
           success: "200",
           message: "失败"
         };
+        if (result.data.data === "") {
+          result.data.data = `’${
+            str.split(" ")["0"]
+          }’不是内部或外部命令，也不是可运行的程序或批处理文件`;
+        }
         resolve(result);
       } else {
         result.errCode = 200;
