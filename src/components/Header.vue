@@ -1192,6 +1192,10 @@ export default {
   .cmd-dialog {
     .el-dialog {
       width: 600px;
+      i {
+        cursor: pointer;
+        margin-left: 2px;
+      }
     }
   }
 }
