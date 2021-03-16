@@ -1191,7 +1191,8 @@ export default {
   // dialog - 常用工具
   .cmd-dialog {
     .el-dialog {
-      width: 600px;
+      // width: 600px;
+      min-width: 600px;
       i {
         cursor: pointer;
         margin-left: 2px;

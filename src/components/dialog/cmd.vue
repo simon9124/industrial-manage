@@ -2,6 +2,7 @@
   <el-dialog class="cmd-dialog"
              title="常用工具"
              :visible.sync="dialogVisibleCmd"
+             :fullscreen="fullScreen"
              top="10vh"
              @close="closeCmd">
 
@@ -16,7 +17,7 @@
     <el-input v-model="command"
               @keyup.enter.native="optionCmd"
               :disabled="contentLoading"
-              style="width:300px">
+              style="width:270px">
     </el-input>
     <el-button type="warning"
                size="medium"
@@ -28,13 +29,22 @@
                @click="optionCmd"
                :disabled="contentLoading"
                style="float:right;margin-right:10px">执行</el-button>
+    <el-tooltip class="item"
+                effect="dark"
+                content="全屏"
+                placement="top">
+      <Icon type="md-expand"
+            style="float:right;font-size:20px;line-height:36px"
+            @click="switchFullscreen" />
+    </el-tooltip>
 
     <p v-html="resContent"
+       id="sshContent"
        v-loading="contentLoading"
        element-loading-text="连接中"
        element-loading-spinner="el-icon-loading"
        element-loading-background="rgba(0, 0, 0, 0.8)"
-       style="margin:20px 0 10px 0;white-space:pre-wrap;background:#000;color:#fff;padding:10px;height:400px;overflow:auto"></p>
+       :style="{margin:'20px 0 10px 0',whiteSpace:'pre-wrap',background:'#000',color:'#fff',padding:'10px',height:pHeight,overflow:'auto'}"></p>
 
   </el-dialog>
 </template>
@@ -45,12 +55,17 @@ import { } from "@/api/cmd";
 export default {
   data () {
     return {
-      dialogVisibleCmd: false, // dialog是否可见
+      /* dialog */
+      dialogVisibleCmd: false, // 是否可见
+      fullScreen: false, // 是否全屏
+      pHeight: "400px", // 内容高度
+      /* shell */
       command: "", // cmd命令
       resContent: "", // cmd结果
       contentLoading: false,
-      socketServe: "ws://192.168.68.101:9004/socketserver/123",
-      supportCmd: ["ls", "cd"]
+      socketServe: "ws://192.168.68.100:9004/socketserver/123",
+      supportCmd: ["ls", "cd"],
+      websock: null
     };
   },
   methods: {
@@ -58,6 +73,24 @@ export default {
     openCmd () {
       this.dialogVisibleCmd = true;
       this.initWebSocket();
+    },
+    // 切换全屏/非全屏
+    switchFullscreen () {
+      this.fullScreen = !this.fullScreen;
+      if (this.fullScreen) {
+        this.pHeight = "calc(100vh - 160px)";
+        this.contentScroll();
+      } else {
+        this.pHeight = "400px";
+        this.contentScroll();
+      }
+    },
+    // 内容自动滚动到最末
+    contentScroll () {
+      this.$nextTick(() => {
+        let ele = document.getElementById("sshContent");
+        ele.scrollTop = ele.scrollHeight;
+      });
     },
     // websocket - 初始化
     initWebSocket () {
@@ -84,7 +117,9 @@ export default {
     // websocket - 数据接收
     websocketonmessage (data) {
       console.log("收到websocket数据:", data);
-      this.resContent = data.data;
+      // this.resContent += `out: ${data.data}<br><br>`;
+      this.resContent += `${data.data}<br>`;
+      this.contentScroll();
     },
     // webSocket - 断开
     websocketclose () {
@@ -92,27 +127,50 @@ export default {
     },
     // 执行ssh
     async optionCmd () {
-      const cmdBegin = this.command.split(" ")[0];
-      if (this.supportCmd.indexOf(cmdBegin) === -1) {
-        this.$message.error("不支持的命令！");
-        return false;
+      // const cmdBegin = this.command.split(" ")[0];
+      // if (this.supportCmd.indexOf(cmdBegin) === -1) {
+      //   this.$message.error("不支持的命令！");
+      //   return false;
+      // } else {
+      // this.resContent = "";
+      // this.contentLoading = true;
+      if (this.command.split(" ")[0] === "") {
+        this.resContent += "<br>";
+        this.contentScroll();
+        this.command = "";
       } else {
-        // this.resContent = "";
-        // this.contentLoading = true;
+        this.resContent += `<br>in$ ${this.command}<br><br>`;
         this.websocketsend(this.command);
-        // this.contentLoading = false;
+        this.command = "";
       }
+      // this.contentLoading = false;
+      // }
     },
     // 关闭dialog
     closeCmd () {
       this.command = "";
       this.resContent = "";
       // this.contentLoading = false;
-      this.websocketclose();
+      this.websock.close();
     }
   }
 };
 </script>
 
 <style rel="stylesheet/scss" lang="scss" scoped>
+// 滚动条
+#sshContent::-webkit-scrollbar-track {
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+  border-radius: 5px;
+}
+
+#sshContent::-webkit-scrollbar-thumb {
+  background-color: rgba(102, 102, 102, 0.7); // rgba(64, 158, 255, 0.5);
+  // outline: 1px solid slategrey;
+  border-radius: 5px;
+}
+
+#sshContent::-webkit-scrollbar {
+  width: 8px;
+}
 </style>
