@@ -10,6 +10,12 @@ import { setToken, getToken, canTurnTo, localRead } from "@/libs/util";
 // import config from "@/config";
 // const { homeName } = config;
 
+/* 追加：解决vueRouter4报错 */
+const originalPush = Router.prototype.push;
+Router.prototype.push = function push(location) {
+  return originalPush.call(this, location).catch(err => err);
+};
+
 Vue.use(Router);
 const router = new Router({
   routes
@@ -47,7 +53,7 @@ router.beforeEach((to, from, next) => {
     next(); // 未登陆且要跳转的页面是登录页 -> 可跳转
   } else if (token && to.name === LOGIN_PAGE_NAME) {
     // next({ name: homeName }); // 已登录且要跳转的页面是登录页 -> 跳转到homeName页
-    next({ name: "home" }); // 已登录且要跳转的页面是登录页 -> 跳转到该角色的首页
+    // next({ name: "/" }); // 已登录且要跳转的页面是登录页 -> 跳转到该角色的首页
     iView.LoadingBar.finish(); // 追加：已登录后点击浏览器返回按钮，滚动条结束
   } else {
     // 剩余情况：已登录且要跳转的页面不是登录页

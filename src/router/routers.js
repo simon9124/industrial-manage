@@ -1,6 +1,5 @@
 // import Main from "@/components/main";
-import { dynamicRouterAdd } from "@/libs/router-util"; // 引入动态路由
-import { redirectRouterAdd } from "@/libs/router-util"; // 引入重定向路由
+import { redirectRouterAdd, dynamicRouterAdd } from "@/libs/router-util"; // 引入重定向路由
 
 /**
  * iview-admin中meta除了原生参数外可配置的参数:
