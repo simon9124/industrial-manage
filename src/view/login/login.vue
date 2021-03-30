@@ -11,9 +11,9 @@
         <div class="form-con">
           <login-form @on-success-valid="handleSubmit"></login-form>
           <!-- <p class="login-tip">输入任意用户名和密码即可</p> -->
-          <p class="tips">
+          <!-- <p class="tips">
             <span>账号 : admin</span><span>密码 : 123456</span>
-          </p>
+          </p> -->
         </div>
       </Card>
     </div>
