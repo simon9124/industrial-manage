@@ -21,9 +21,9 @@
                  type="info"
                  :disabled="!level||level===1||level===3||contentLoading"
                  @click="itemCopy">复制</el-button>
-      <el-button size="small"
+      <!-- <el-button size="small"
                  icon="el-icon-caret-right"
-                 @click="localOperate">本地运行</el-button>
+                 @click="localOperate">本地运行</el-button> -->
       <el-button size="small"
                  icon="el-icon-suitcase"
                  @click="factoryManage">工程管理</el-button>
@@ -449,10 +449,16 @@
                     @factory-handle="factoryHandle"></factory-manage>
 
     <!-- dialog - 远程监视 -->
-    <remote-monitor ref="remoteMonitor"
+    <!-- <remote-monitor ref="remoteMonitor"
                     :id-factory="idFactory"
                     :factory-data="factoryData"
-                    :tree-data="treeData"></remote-monitor>
+                    :tree-data="treeData"></remote-monitor> -->
+
+    <!-- dialog - 远程监视（无IP选择） -->
+    <remote-monitor-no-ip ref="remoteMonitor"
+                          :id-factory="idFactory"
+                          :factory-data="factoryData"
+                          :tree-data="treeData"></remote-monitor-no-ip>
 
     <!-- dialog - 需绑定本地IP -->
     <el-dialog class="bind-dialog"
@@ -492,11 +498,20 @@ import PluginSelect from "@/components/dialog/pluginSelect"; // 组件：选择�
 import PassParams from "@/components/dialog/passParams"; // 组件：其他参数 - 通道
 import EquipmentParams from "@/components/dialog/equipmentParams"; // 组件：其他参数 - 通道
 import FactoryManage from "@/components/dialog/factoryManage"; // 组件：工程管理
-import RemoteMonitor from "@/components/dialog/remoteMonitor"; // 组件：远程监视
+// import RemoteMonitor from "@/components/dialog/remoteMonitor"; // 组件：远程监视
+import RemoteMonitorNoIp from "@/components/dialog/remoteMonitorNoIp"; // 组件：远程监视 - 无IP选择
 import IpListBinding from "@/components/dialog/ipListBinding"; // 组件：允许客户端接入列表
 
 export default {
-  components: { PluginSelect, PassParams, EquipmentParams, FactoryManage, RemoteMonitor, IpListBinding },
+  components: {
+    PluginSelect,
+    PassParams,
+    EquipmentParams,
+    FactoryManage,
+    // RemoteMonitor,
+    RemoteMonitorNoIp,
+    IpListBinding
+  },
   props: {
     // 树数据
     treeData: {
@@ -984,7 +999,8 @@ export default {
     },
     // 点击按钮 - 远程监视 - 调用子组件事件
     remoteMonitor () {
-      this.$refs.remoteMonitor.ipSelect();
+      // this.$refs.remoteMonitor.ipSelect();
+      this.$refs.remoteMonitor.remoteMonitor();
     },
     // 点击按钮 - 需绑定本地IP
     bindingIP () {
