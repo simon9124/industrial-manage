@@ -141,7 +141,11 @@ export default {
     // 动态添加路由数据 -> 首次登录挂载路由
     addRouterData({ commit, rootState }, routes) {
       /* 1.动态添加路由（不会立刻刷新，需要手动往router.options.routes里添加数据） */
-      router.addRoutes(routes.concat(rootState.app.redirectRouter)); // 动态添加路由
+      // router.addRoutes(routes.concat(rootState.app.redirectRouter)); // 动态添加路由：vueRouter3.0
+      const addRoutes = routes.concat(rootState.app.redirectRouter);
+      addRoutes.forEach(r => {
+        router.addRoute(r); // 动态添加路由：vueRouter4
+      });
       routerUpdateHandle(routes, router); // 手动添加路由数据
       console.log("动态添加路由：", routes);
       /* 3.处理菜单数据 */
@@ -168,6 +172,7 @@ export default {
             JSON.parse(JSON.stringify(routerData))
           ); // 过滤路由，转为路由基础数据
           /* 3.处理路由重定向 - 不同角色用户的动态首页 */
+          /* eslint-disable */
           const redirectRouter = [
             {
               path: "/",
@@ -175,13 +180,14 @@ export default {
                 localRead("gateway-access") === "0"
                   ? "/user/manage"
                   : localRead("gateway-access") === "1"
-                    ? "/log/manage"
-                    : "/gateway",
+                  ? "/log/manage"
+                  : "/gateway",
               meta: {
                 id: Math.random()
                   .toString(36)
                   .substr(-10)
               },
+              children: [],
               name: "home"
             }
           ];
