@@ -94,7 +94,7 @@
     </el-row>
 
     <!-- 高级运算 -->
-    <el-row v-if="serviceType===0"
+    <!-- <el-row v-if="serviceType===0"
             class="params-dialog-row">
       高级运算
       <el-select v-model="formData.tagOtherParams.calc"
@@ -114,7 +114,7 @@
       <el-input v-model="formData.tagOtherParams.cr2"
                 style="width:100px"
                 :disabled="!(formData.tagOtherParams.calc==='取子字符串'||formData.tagOtherParams.calc==='按位取')"></el-input>
-    </el-row>
+    </el-row> -->
 
     <el-collapse v-if="formData.labelOtherParams&&formData.labelOtherParams.length!==0"
                  accordion

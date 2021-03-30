@@ -151,6 +151,8 @@ export default {
       this.command = "";
       this.resContent = "";
       // this.contentLoading = false;
+      this.fullScreen = false;
+      this.pHeight = "400px";
       this.websock.close();
     }
   }
