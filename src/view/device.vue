@@ -35,7 +35,7 @@
 // } from "@/libs/dataHanding";
 import { parseTime } from "@/libs/util"; // function - 格式化时间
 /* api */
-import { queryLogList } from "@/api/log"; // 获取日志列表
+import { queryDeviceLogList } from "@/api/log"; // 获取日志列表
 
 export default {
   data () {
@@ -45,41 +45,6 @@ export default {
       tableData: [], // 处理后的当页数据
       tableColumns: [
         {
-          type: "expand",
-          width: 50,
-          render: (h, params) => {
-            return h("div",
-              Object.keys(JSON.parse(params.row.content)[0]).map(key => {
-                return h("div",
-                  {
-                    style: {
-                      marginBottom: "3px"
-                    }
-                  },
-                  `${key}:${JSON.parse(params.row.content)[0][key]}`);
-              })
-            );
-          }
-        },
-        {
-          title: "操作账号",
-          key: "userName",
-          align: "center",
-          minWidth: 120
-        },
-        {
-          title: "操作人",
-          key: "nickName",
-          align: "center",
-          minWidth: 120
-        },
-        {
-          title: "操作路径",
-          key: "url",
-          align: "center",
-          minWidth: 360
-        },
-        {
           title: "创建时间",
           align: "center",
           render: (h, params) => {
@@ -88,13 +53,26 @@ export default {
           minWidth: 150
         },
         {
-          title: "日志类型",
+          title: "监测时间",
           align: "center",
           render: (h, params) => {
-            return h("span", params.row.logType === 0 ? "新增"
-              : params.row.logType === 1 ? "删除"
-                : params.row.logType === 2 ? "修改"
-                  : params.row.logType === 3 ? "修改" : ""
+            return h("span", parseTime(params.row.monitorTime));
+          },
+          minWidth: 150
+        },
+        {
+          title: "日志内容",
+          key: "content",
+          align: "center",
+          minWidth: 360
+        },
+        {
+          title: "日志等级",
+          align: "center",
+          render: (h, params) => {
+            return h("span", params.row.logType === 0 ? "DEBUG"
+              : params.row.logType === 1 ? "INFO"
+                : params.row.logType === 2 ? "WARN" : "ERROR"
             );
           },
           minWidth: 120
@@ -116,9 +94,10 @@ export default {
       if (!this.isMock) {
         /* 接口数据 */
         this.tableLoading = true;
-        this.tableData = (await queryLogList({
+        this.tableData = (await queryDeviceLogList({
           size: this.pageSize,
-          page: this.pageNum
+          page: this.pageNum,
+          sort: "creatTime"
         })).data.data || [];
         this.tableLoading = false;
       } else {

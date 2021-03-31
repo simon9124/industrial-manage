@@ -21,7 +21,7 @@
           <Page show-sizer
                 transfer
                 placement="top"
-                :total="tableDataOrg.length"
+                :total="isMock?tableDataOrg.length:total"
                 :current.sync="pageNum"
                 :page-size-opts="[10, 50, 100, 200]"
                 :page-size="pageSize"
@@ -355,7 +355,7 @@ export default {
       this.modalData = JSON.parse(JSON.stringify(row));
       this.modalShow = true;
     },
-    // // 点击表单按钮 - 确定
+    // 点击表单按钮 - 确定
     handleSubmit () {
       // console.log(this.modalData);
       this.$refs.formModalData.validate(async valid => {
