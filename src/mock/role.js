@@ -137,7 +137,21 @@ const allMenuList = [
     ico: "ios-navigate",
     isOutSide: false,
     showLevel: "2",
-    description: "用户管理",
+    description: "日志管理",
+    access: ["1"]
+  },
+  {
+    id: "deviceLog",
+    name: "device/deviceLog",
+    title: "采集日志",
+    url: "device/log",
+    path: "device",
+    sort: 20,
+    parentId: "root",
+    ico: "md-analytics",
+    isOutSide: false,
+    showLevel: "2",
+    description: "采集日志",
     access: ["1"]
   }
 ];
