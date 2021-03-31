@@ -13,7 +13,8 @@
       <el-button size="small"
                  type="warning">系统日志</el-button>
 
-      <el-container style="margin-top:20px">
+      <el-container style="margin-top:20px"
+                    v-loading="contentLoading">
 
         <!--左 · 树-->
         <el-aside class="left-panel">
@@ -33,8 +34,7 @@
             <el-table :data="monitorTable"
                       tooltip-effect="dark"
                       empty-text=" "
-                      :max-height="tableMaxHeight"
-                      v-loading="tableLoading">
+                      :max-height="tableMaxHeight">
               <el-table-column type="index"
                                label="序号"
                                width="40">
@@ -136,7 +136,7 @@ export default {
         children: []
       }], // 懒加数据 - 左侧树展开
       treeLoading: false, // 左侧树loading
-      tableLoading: false // 右侧表loading
+      contentLoading: false // 右侧表loading
     };
   },
   created () {
@@ -199,21 +199,28 @@ export default {
     // 监视数据框 - 点击左侧树节点
     async itemClick (param) {
       console.log(param);
-      this.isMock && this.getTableData(param.tableData); // 渲染右侧表格
-      if (!this.isMock && param.level !== 1) {
-        this.tableLoading = true;
-        this.monitorTable = (await queryRemoteMonitorList({
-          size: "1000",
-          parentId: param.idStr,
-          type: param.dataType
-        })).data.data.map(item => {
-          this.$set(item, "quality", item.quality ? "good" : "bad");
-          this.$set(item, "curTime", parseTime(new Date(item.updateTime)));
-          this.$set(item, "handle", item.idStr);
-          return item;
-        });
-        // console.log(this.monitorTable);
-        this.tableLoading = false;
+      if (!this.isMock) {
+        /* 接口数据 */
+        if (param.level !== 1) { // 非“采集服务”或“数据服务”
+          this.contentLoading = true;
+          this.monitorTable = (await queryRemoteMonitorList({
+            size: "1000",
+            parentId: param.idStr,
+            type: param.dataType
+          })).data.data.map(item => {
+            this.$set(item, "quality", item.quality ? "good" : "bad");
+            this.$set(item, "curTime", parseTime(new Date(item.updateTime)));
+            this.$set(item, "handle", item.idStr);
+            return item;
+          });
+          // console.log(this.monitorTable);
+          this.contentLoading = false;
+        } else { // “采集服务”或“数据服务”
+          this.monitorTable = [];
+        }
+      } else {
+        /* mock数据 */
+        this.getTableData(param.tableData);
       }
     },
     // 监视数据框 - 树节点展开/收起 - 仅接口
