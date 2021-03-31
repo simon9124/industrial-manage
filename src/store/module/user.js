@@ -53,7 +53,7 @@ export default {
           .then(res => {
             const data = res.data.data;
             commit("setToken", data.token);
-            commit("setHasGetInfo", true); // 追加：用户已登录
+            // commit("setHasGetInfo", true); // 追加：用户已登录
             commit("setAccess", [data.roleId.toString()]); // 追加：用户角色
             localSave("gateway-access", data.roleId); // 追加：存储用户角色
             if (data.project) {
