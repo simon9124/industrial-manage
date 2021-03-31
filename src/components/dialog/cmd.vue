@@ -63,7 +63,8 @@ export default {
       command: "", // cmd命令
       resContent: "", // cmd结果
       contentLoading: false,
-      socketServe: "ws://192.168.68.100:9004/socketserver/123",
+      // socketServe: "ws://192.168.68.100:9004/socketserver/123",
+      socketServe: `ws://${window.location.host}/socketserver`, // 部署：动态ip
       supportCmd: ["ls", "cd"],
       websock: null
     };
