@@ -97,7 +97,7 @@ export default {
         this.tableData = (await queryDeviceLogList({
           size: this.pageSize,
           page: this.pageNum,
-          sort: "creatTime"
+          sort: "creatTime desc"
         })).data.data || [];
         this.tableLoading = false;
       } else {

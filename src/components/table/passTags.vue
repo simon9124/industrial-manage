@@ -137,7 +137,8 @@
                           prop="type">
               <el-select v-model="formData.type"
                          placeholder="请选择"
-                         style="width:130px">
+                         style="width:130px"
+                         @change="selectforceUpdate('type')">
                 <el-option v-for="item in dataTypeList"
                            :key="item.value"
                            :label="item.label"
@@ -217,7 +218,7 @@
                 <el-option v-for="_item in item.selectTable"
                            :key="_item.value"
                            :label="_item.name"
-                           :value="_item.value">
+                           :value="_item.index.toString()">
                 </el-option>
               </el-select>
             </div>
@@ -405,9 +406,12 @@ export default {
       return function (obj) {
         if (obj) {
           // console.log(obj);
-          let val = getValueByKey(this.formData.labelOuterParams, "paramName", obj.key, "value");
-          // console.log(val);
-          return !obj.values.some(_val => _val === val);
+          if (obj.key === "type") { // 根据“数据类型”判断
+            return false;
+          } else { // 根据其他判断 - 上级是否有选中
+            let val = getValueByKey(this.formData.labelOuterParams, "paramName", obj.key, "value");
+            return !obj.values.some(_val => _val === val);
+          }
         }
       };
     }
@@ -506,18 +510,27 @@ export default {
     // params数据处理 - 外层参数
     outerParamsHanding (outerParams) {
       let outerParamsUse = [];
-      const labelOuterParamsCopy = JSON.parse(JSON.stringify(this.labelOuterParams));
+      const labelOuterParamsCopy = JSON.parse(JSON.stringify(this.labelOuterParams)); // 原始数据
       labelOuterParamsCopy.forEach((param, i) => {
         outerParams.forEach(_param => { // 覆盖值
           param.paramName === _param.paramName && this.$set(param, "value", _param.value);
         });
         if (param.disabled) { // 标签有disabled值
           // console.log(param);
-          let val = getValueByKey(labelOuterParamsCopy, "paramName", param.disabled.key, "value");
-          if (param.disabled.values.some(_val => _val === val)) { // 值在范围内
-            this.$set(param, "display", true);
-          } else {
-            this.$set(param, "display", false); // 值不在范围内
+          if (param.disabled.key === "type") { // 根据“数据类型”判断
+            let val = this.formData.type.toString();
+            if (param.disabled.values.some(_val => _val === val)) { // 值在范围内
+              this.$set(param, "display", true);
+            } else {
+              this.$set(param, "display", false); // 值不在范围内
+            }
+          } else { //  // 根据其他判断
+            let val = getValueByKey(labelOuterParamsCopy, "paramName", param.disabled.key, "value");
+            if (param.disabled.values.some(_val => _val === val)) { // 值在范围内
+              this.$set(param, "display", true);
+            } else {
+              this.$set(param, "display", false); // 值不在范围内
+            }
           }
         } else {
           this.$set(param, "display", true); // 标签没有disabled值
@@ -624,7 +637,14 @@ export default {
           rw: rowCopy.rw, // 读写方向
           cycle: rowCopy.cycle, // 采集周期
           labelOtherParams: this.otherParamsHanding(rowCopy.otherParams), // 其他参数 - 动态
-          labelOuterParams: this.outerParamsHanding(rowCopy.outerParams), // 外层参数 - 动态
+          // labelOuterParams: this.outerParamsHanding(rowCopy.outerParams), // 外层参数 - 动态
+          labelOuterParams: rowCopy.outerParams.map(item => {
+            if (item.selectTable) {
+              let value = getValueByKey(item.selectTable, "value", item.value, "index");
+              value && this.$set(item, "value", value.toString());
+            }
+            return item;
+          }), // 外层参数 - 动态
           tagOtherParams: { // 其他参数 - 固定
             abs: rowCopy.abs, // 取绝对值
             unit: rowCopy.unit, // 单位
@@ -678,7 +698,7 @@ export default {
       const formData = JSON.parse(JSON.stringify(this.formData));
       this.$refs.dialogForm.validate(async valid => {
         if (valid) {
-          this.submitLoading = true;
+          // this.submitLoading = true;
           switch (this.dialogType) {
             case "insert":
               if (this.isMock) { // mock数据
@@ -702,13 +722,21 @@ export default {
                 // console.log(this.formData);
                 let labelOtherParams = this.labelParamsAPI(this.formData.labelOtherParams);
                 // console.log(this.$refs.outerParams);
-                let labelOuterParams = this.formData.labelOuterParams.map(param => {
-                  param.value = param.value === true ? 1 : param.value === false ? 0 : param.value;
+                console.log(this.formData.labelOuterParams);
+                let labelOuterParams = JSON.parse(JSON.stringify(this.formData.labelOuterParams)).map(param => {
+                  param.value =
+                    param.value === true ? 1
+                      : param.value === false ? 0
+                        : param.value === null ? param.value
+                          : param.selectTable ? getValueByKey(param.selectTable, "index", param.value, "value")
+                            : param.value;
+                  // : param.value;
                   return param;
                 }).filter(param =>
                   this.$refs.outerParams.some(_param =>
                     _param.innerText.indexOf(param.showName) > -1)
                 );
+                // console.log(labelOuterParams);
                 const formInsert = {
                   a: this.formData.tagOtherParams.a, // both
                   abs: this.serviceType === 1 ? null : this.formData.tagOtherParams.abs,
@@ -741,7 +769,6 @@ export default {
                   ioLabelId: this.serviceType === 0 ? null : this.formData.ioLabelIdStr,
                   projectId: this.projectId
                 };
-                // console.log(formInsert);
                 const result = (await addTag(formInsert));
                 resultCallback(result.data.success, "新增成功！", () => {
                   this.getData();
@@ -775,10 +802,17 @@ export default {
               } else { // 接口数据
                 // console.log(formData);
                 let labelOtherParams = this.labelParamsAPI(this.formData.labelOtherParams);
-                let labelOuterParams = this.formData.labelOuterParams.map(param => {
-                  param.value = param.value === true ? 1 : param.value === false ? 0 : param.value;
+                let labelOuterParams = JSON.parse(JSON.stringify(this.formData.labelOuterParams)).map(param => {
+                  param.value =
+                    param.value === true ? 1
+                      : param.value === false ? 0
+                        : param.value === null ? param.value
+                          : param.selectTable ? getValueByKey(param.selectTable, "index", param.value, "value")
+                            : param.value;
+                  // : param.value;
                   return param;
                 });
+                // console.log(labelOuterParams);
                 const formUpdate = {
                   id: this.formData.idStr,
                   a: this.formData.tagOtherParams.a, // a
@@ -1040,9 +1074,19 @@ export default {
         // console.log(paramName);
         this.formData.labelOuterParams.forEach(param => {
           if (param.disabled) {
-            param.disabled.key === paramName && this.$set(param, "value", null);
+            if (param.disabled.key === paramName) {
+              this.$set(param, "value", null);
+              this.formData.labelOuterParams.forEach(_param => {
+                if (_param.disabled) {
+                  if (_param.disabled.key === param.paramName) {
+                    this.$set(_param, "value", null);
+                  }
+                }
+              });
+            }
           }
         });
+        // console.log(this.formData.labelOuterParams);
       });
     }
   },
